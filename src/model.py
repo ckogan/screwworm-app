@@ -1,11 +1,13 @@
 """
 Regional Disease Freedom: Discrete-K Dynamic Model (v0.5) -- CLOSED-FORM lane.
 
-Closed-form implementation of the model specification. No Monte Carlo: everything below is a deterministic
-integration of the model.
+Originally generated from the model spec alone (model_design.md, priors_design.md,
+validation_design.md, memory.md), blind to the simulator lane; since then edited in place
+per accepted change. No Monte Carlo: everything below is a deterministic integration of
+the model.
 
 METHOD
-------
+----------------------------
 1. Within-farm latent->infectious->recovered ODE integrated in age tau to get
    p_shed(tau)=pi_I, f_clinical(tau), p_clinical(tau); from these the exact active-round
    herd sensitivity HSe(tau) and the continuous passive hazard h_pass(tau).
@@ -36,7 +38,8 @@ v0.6-nws PRE-SEEDED START (2026-09-09; edited in place under stage 2, model_desi
    precision (self-test: 19 anchor cells to 1e-12) -- the initial state adds no operation
    to the k0_mean = 0 path (same array lengths, same arithmetic).
 
-EVALUATION-TIME OUTPUT (2026-09-15)
+EVALUATION-TIME OUTPUT (2026-09-15; option A of changes/2026-09-09-eval-times/proposal.md,
+accepted 2026-09-15; edited in place)
 ------------------------------------------------------------------------------------
 6. evaluate() accepts an OPTIONAL `eval_times` grid (default None). At each listed time the
    running P(K <= K* | no alarm so far) is read off the SINGLE full-horizon march into
@@ -49,7 +52,23 @@ EVALUATION-TIME OUTPUT (2026-09-15)
    between-round bias under aged leftovers (the initial-age law is truncated at the evaluation
    horizon, so a re-evaluation at t < about 2 age0_scale sat low). Self-test: check_eval_times().
 
-HAZARD CHECKLIST honoured inline; see
+COURSE-END EXIT AND RELEASE CLOCK (2026-10-24; changes/2026-10-24-lane-clearance/design_note.md; accepted
+2026-10-28; edited in place)
+------------------------------------------------------------------------------------
+7. Two OPTIONAL switches, both off at the lane defaults (every output byte-identical to the lane before
+   them when neither is set; the nws pack turns both on through apps/review_app/presets.py):
+   - `course_end_exit` (default False): a premises leaves K at the age tau_end at which its own
+     within-premises infestation has run its course, tau_end = the first age on the dt grid at which
+     the expected number of infested animals N_herd (pi_L + pi_I) falls below
+     c = min(1/2, N_herd (p_latent_seed + p_infectious_seed) / 2); Inf if it never does (recovery off).
+     In the march this is the age field's cohort reaching tau_end leaving the field, and, under the
+     same iid-age closure as the passive hazard, a per-premises death rate mu(t) =
+     -ln(1 - x(t)) / dt in both branches, x(t) = (field mass at ages tau_end - dt) / (field mass).
+   - `mean_release_time` (default None = same as mean_recovery_time): the clearance mean in the D = 1
+     (post-detection) branch only, the release clock for found and treated premises. The D = 0 branch
+     and the age field keep gamma_region = 1 / mean_recovery_time.
+
+HAZARD CHECKLIST (design_to_impl_recommendations.md / memory.md) honoured inline; see
 assert_invariants() and comments flagged `# HAZARD:`.
 """
 
@@ -141,6 +160,10 @@ DEFAULTS = dict(
     # non-negative multiple of dt at or below the horizon) at which the running P_free and
     # P(no alarm so far) are read off the single march; None = round times only (v0.6 output).
     eval_times=None,
+    # course-end exit and release clock (2026-10-24, changes/2026-10-24-lane-clearance/): both OFF here,
+    # so every pack that does not set them keeps the lane's previous outputs bit for bit.
+    course_end_exit=False,           # True: a premises leaves K when its within-premises course ends
+    mean_release_time=None,          # clearance mean in the D = 1 branch; None = mean_recovery_time
     # cost weights (NOT lit-derived; placeholders per priors_design.md note)
     c_lost_freedom=1.0,
     c_per_case=1.0,
@@ -194,6 +217,7 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
     if piL0 + piI0 <= 0.0:
         # No seeding -> no within-farm epidemic ever.
         pi_I = np.zeros_like(grid)
+        pi_L = np.zeros_like(grid)
     else:
         sol = solve_ivp(
             rhs, (0.0, tmax), [piL0, piI0, 0.0],
@@ -202,6 +226,7 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
         if not sol.success:
             raise RuntimeError(f"within-farm ODE failed: {sol.message}")
         pi_I = sol.y[1]
+        pi_L = sol.y[0]                    # 2026-10-24: read only, for the course-end age
         if extend:
             # v0.6: continue the SAME course past the horizon from its end state (pi_L, pi_I,
             # pi_R at tau = horizon), so an initial premises' course at tau_0 + t is the
@@ -214,6 +239,7 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
             if not sol2.success:
                 raise RuntimeError(f"within-farm ODE (age extension) failed: {sol2.message}")
             pi_I = np.concatenate([pi_I, sol2.y[1]])
+            pi_L = np.concatenate([pi_L, sol2.y[0]])
         pi_I = np.clip(pi_I, 0.0, 1.0)
 
     p_shed = pi_I  # shedding prevalence drives transmission AND active detection
@@ -245,7 +271,31 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
     rho_r = float(p["rho_r"])
     h_pass = rho_r * (1.0 - (1.0 - rho_a * np.clip(p_clin, 0.0, 1.0)) ** N_herd)
 
-    return dict(p_shed=p_shed, f_clinical=f_clin, p_clinical=p_clin, HSe=HSe, h_pass=h_pass)
+    # 2026-10-24: the infested share (latent + larvae-bearing), read by the course-end exit only.
+    p_infested = np.clip(pi_L + pi_I, 0.0, 1.0)
+
+    return dict(p_shed=p_shed, f_clinical=f_clin, p_clinical=p_clin, HSe=HSe, h_pass=h_pass,
+                p_infested=p_infested)
+
+
+def course_end_threshold(p: dict) -> float:
+    """The infested-animal count below which a premises' course has ended (2026-10-24, design note):
+    half an animal, or half the seeded count when the seed is below one animal, so the seed itself is
+    never already below it."""
+    seed = float(p["p_latent_seed"]) + float(p["p_infectious_seed"])
+    return 0.5 * min(1.0, int(round(p["N_herd"])) * seed)
+
+
+def course_end_index(p: dict, p_infested: np.ndarray) -> int | None:
+    """First grid index (age = index * dt) at which N_herd * p_infested falls below the threshold;
+    None if it never does on the tabulated ages (recovery off, or a course longer than every age the
+    program can reach). Index 0 is never returned: the seed is at least twice the threshold."""
+    c = course_end_threshold(p)
+    if c <= 0.0:
+        return None
+    below = np.nonzero(int(round(p["N_herd"])) * p_infested < c)[0]
+    below = below[below >= 1]
+    return int(below[0]) if len(below) else None
 
 
 # --------------------------------------------------------------------------------------
@@ -268,21 +318,26 @@ def _bd_block(birth_in: np.ndarray, birth_out: np.ndarray, d: np.ndarray,
 
 
 def _build_generator(N: int, bint: np.ndarray, b0: np.ndarray, b1: np.ndarray,
-                     d: np.ndarray, hpassK: np.ndarray, no_secondary: bool) -> np.ndarray:
+                     d: np.ndarray, hpassK: np.ndarray, no_secondary: bool,
+                     d1: np.ndarray | None = None) -> np.ndarray:
     """Full 2N x 2N generator for [branch D=0 ; branch D=1].
 
     P-chain (no_secondary=False): birth inflow uses the *total* birth (intro + secondary).
     Q-chain (no_secondary=True):  birth inflow uses INTRO ONLY; secondary births are an
       absorbing leak (mass exits the tracked no-secondary set), captured by keeping the
       diagonal loss = total birth b (so b - bint = secondary rate leaves the system).
-    In both, passive detection couples D=0 -> D=1 (hpassK)."""
+    In both, passive detection couples D=0 -> D=1 (hpassK).
+    d1 (2026-10-24): death rate in the D=1 branch when it differs from d (release clock, course-end
+      exit); None = d, the lane's single clearance rate before the change (same array, same arithmetic)."""
+    if d1 is None:
+        d1 = d
     G = np.zeros((2 * N, 2 * N))
     if no_secondary:
         blk0 = _bd_block(bint, b0, d, hpassK)   # D=0: intro inflow, total-birth outflow, +passive loss
-        blk1 = _bd_block(bint, b1, d, np.zeros(N))
+        blk1 = _bd_block(bint, b1, d1, np.zeros(N))
     else:
         blk0 = _bd_block(b0, b0, d, hpassK)
-        blk1 = _bd_block(b1, b1, d, np.zeros(N))
+        blk1 = _bd_block(b1, b1, d1, np.zeros(N))
     G[0:N, 0:N] = blk0
     G[N:2 * N, N:2 * N] = blk1
     G[N:2 * N, 0:N] += np.diag(hpassK)          # passive detection: D=0 -> D=1
@@ -342,6 +397,9 @@ def evaluate(params: dict) -> dict:
     lam = rate_from_mean(p["mean_intro_interval"])          # REGIONAL intro rate (not x M)
     beta_max = rate_from_doubling(p["doubling_time"])       # between-farm
     gamma_reg = rate_from_mean(p["mean_recovery_time"])     # regional clearance (default 0)
+    # 2026-10-24: release clock in the D = 1 branch (None = gamma_reg, the single rate before the change)
+    gamma_rel = None if p["mean_release_time"] is None else rate_from_mean(p["mean_release_time"])
+    course_end = bool(p["course_end_exit"])
     lock = float(p["beta_lockdown_multiplier"])
 
     # initial state (v0.6-nws)
@@ -369,6 +427,8 @@ def evaluate(params: dict) -> dict:
     p_shed_age = curves["p_shed"]
     h_pass_age = curves["h_pass"]
     HSe_age = curves["HSe"]
+    # 2026-10-24 course-end exit: the age index at which a premises' own course has ended (None = never)
+    i_end = course_end_index(p, curves["p_infested"]) if course_end else None
 
     # round-time -> time index
     round_idx = {}
@@ -403,6 +463,7 @@ def evaluate(params: dict) -> dict:
     Karr = np.arange(N, dtype=float)
     frac = (M - Karr) / M                                    # (M-K)/M
     dK = gamma_reg * Karr
+    dK1 = None if gamma_rel is None else gamma_rel * Karr  # 2026-10-24: D = 1 branch (None = dK)
 
     # distributions (v0.6: K(0) ~ Poisson(k0_mean) truncated to {0..M}, D(0) = 0; with
     # k0_mean = 0 this is the point mass at K = 0 exactly, see _truncated_poisson)
@@ -464,15 +525,25 @@ def evaluate(params: dict) -> dict:
         b1 = frac * (lam + beta1 * Karr)
         hpassK = Karr * mean_hpass
 
+        # 2026-10-24 course-end exit: the share of the counted (D = 0) premises whose age reaches tau_end
+        # in this step leaves K in both branches at the per-premises rate mu (iid-age closure, as for the
+        # passive hazard). Off (i_end None): d0, d1 are the arrays of the lane before the change.
+        d0, d1 = dK, dK1
+        if i_end is not None:
+            x_exit = float(field[i_end - 1:].sum() / W) if W > 0 else 0.0
+            mu = -math.log1p(-min(x_exit, 1.0 - 1e-12)) / h
+            d0 = dK + mu * Karr
+            d1 = (dK if dK1 is None else dK1) + mu * Karr
+
         # cumulative incidence (design-time; over the JOINT (K,D), so lockdown lowers it)
         inc_rate = float((b0 * P0).sum() + (b1 * P1).sum())
         cum_inc += inc_rate * h
 
         # advance (K,D) by matrix exponential over the step (frozen coefficients).
-        GP = _build_generator(N, bint, b0, b1, dK, hpassK, no_secondary=False)
+        GP = _build_generator(N, bint, b0, b1, d0, hpassK, no_secondary=False, d1=d1)
         z = expm_multiply(h * GP, np.concatenate([P0, P1]))
         P0, P1 = z[:N], z[N:]
-        GQ = _build_generator(N, bint, b0, b1, dK, hpassK, no_secondary=True)
+        GQ = _build_generator(N, bint, b0, b1, d0, hpassK, no_secondary=True, d1=d1)
         zq = expm_multiply(h * GQ, np.concatenate([Q0, Q1]))
         Q0, Q1 = zq[:N], zq[N:]
 
@@ -483,6 +554,8 @@ def evaluate(params: dict) -> dict:
         new_field = np.zeros(n_age)
         new_field[1:] = field[:-1] * surv_step_age[1:]
         new_field[0] = B_field * h
+        if i_end is not None:
+            new_field[i_end:] = 0.0                          # 2026-10-24: courses that have ended leave
         field = new_field
 
         if (i + 1) in round_idx:
@@ -500,7 +573,7 @@ def evaluate(params: dict) -> dict:
 
         if eval_idx and (i + 1) in eval_idx:
             # Evaluation-time record (2026-09-15): READ-ONLY on P0, no arithmetic feeds forward.
-            # HAZARD (ordering at coincident times; "Conditioning and state", the running
+            # HAZARD (ordering at coincident times; memory.md "Conditioning and state", the running
             # estimate is filtered and causal): this block sits AFTER the round block on purpose.
             # At an instant that is both a round and an eval time the round has already moved the
             # caught mass D=0 -> D=1 and written the post-round value under the same key; this line
@@ -556,6 +629,9 @@ def evaluate(params: dict) -> dict:
         _beta_max=beta_max,
         _horizon=horizon,
     )
+    if course_end:
+        # 2026-10-24 diagnostic, present only when the switch is on (the default output keeps its keys)
+        out["_tau_end"] = None if i_end is None else i_end * h
     assert_invariants(out, p, lam, horizon, p_k0_zero)
     return out
 
@@ -765,7 +841,7 @@ def check_poisson_thinning_oracle(verbose: bool = True) -> float:
 # --------------------------------------------------------------------------------------
 PRESETS_PY_ENV = "NWS_PRESETS_PY"       # override the preset table location (e.g. a sandbox run)
 PRESETS_PY_DEFAULT = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "presets.py")
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "apps", "review_app", "presets.py")
 EVAL_ROUND_TOL = 1e-12                  # eval-times run vs plain run: round values and scalars
 EVAL_INTERIOR_TOL = 1e-9                # eval-times run vs truncated re-evaluation, clean start
 EVAL_AGED_TOL = 1e-4                    # the two routes from 45 d on at the zone preset
@@ -914,6 +990,45 @@ def check_eval_times(verbose: bool = True) -> dict:
     return worst
 
 
+# --------------------------------------------------------------------------------------
+# Course-end exit oracle (2026-10-24, changes/2026-10-24-lane-clearance/; NORMATIVE for the switch).
+# --------------------------------------------------------------------------------------
+COURSE_END_TOL = 1e-9
+
+
+def check_course_end_oracle(verbose: bool = True) -> float:
+    """k0_mean = 3 leftovers, no introductions, spread, clearance or detection, course-end exit ON (the
+    nws within-premises course: latent 2 d, doubling 3.6 d, recovery 7 d, N_herd 100, seed 1 animal).
+    A leftover at grid age j*dt leaves when j + n reaches i_end (n steps elapsed), so with the initial
+    weights w_j of the lane's own grid law P_free(n dt) = exp(-3 sum_{j < i_end - n} w_j): fresh
+    leftovers give e^{-3} before tau_end and 1 after; aged ones (age0_scale 14) the thinned curve."""
+    base = dict(k0_mean=3.0, mean_intro_interval=float("inf"), doubling_time=float("inf"),
+                Se_animal=0.0, rho_r=0.0, rho_a=0.0, horizon=180.0,
+                round_times=(30.0, 60.0, 90.0, 120.0, 150.0, 160.0, 170.0, 180.0), course_end_exit=True,
+                mean_latent_time=2.0, doubling_time_within=3.6, mean_recovery_time_within=7.0,
+                N_herd=100, p_latent_seed=0.01, p_infectious_seed=0.0)
+    h = float(DEFAULTS["dt"])
+    nT = int(round(180.0 / h))
+    worst = 0.0
+    for a0 in (0.0, 14.0):
+        out = evaluate(dict(base, age0_scale=a0))
+        i_end = int(round(out["_tau_end"] / h))
+        w = np.exp(-rate_from_mean(a0) * np.arange(nT + 1) * h)
+        w = w / w.sum()
+        for t in sorted(out["p_free_by_time"]):
+            n = int(round(t / h))
+            # t = 0 is the initial state (every leftover counted, e^{-3}); from the first step on, the
+            # leftovers already at or past tau_end have left
+            expect = math.exp(-3.0) if n == 0 else math.exp(-3.0 * float(w[:max(i_end - n, 0)].sum()))
+            got = out["p_free_by_time"][t]
+            worst = max(worst, abs(got - expect))
+            if verbose:
+                print(f"   age0_scale={a0:4.0f} tau_end={out['_tau_end']:.2f}  t={t:5.0f}  P_free={got:.12f}"
+                      f"  grid law={expect:.12f}  |diff|={abs(got - expect):.1e}")
+            assert abs(got - expect) < COURSE_END_TOL, f"course-end oracle broken at age0 {a0}, t {t}"
+    return worst
+
+
 if __name__ == "__main__":
     print("=== self-test / smoke run (closed-form lane) ===\n")
 
@@ -954,13 +1069,14 @@ if __name__ == "__main__":
 
     # (5) EVIDENCE-STRENGTH MONOTONICITY.
     #
+    # Two different quantities move in opposite directions with more testing:
+    #
     #   P_free  = P(K <= K* | NO ALARM)  -- conditional. RISES with more testing, because
     #             surviving a more searching test is stronger evidence of freedom.
     #   _P_D0   = P(no alarm)            -- unconditional. FALLS with more testing, because
     #             a harder test is harder to pass.
     #
-    # Both are correct simultaneously; they answer different questions. The old comment's
-    # intuition belongs to _P_D0.
+    # Both are correct simultaneously; they answer different questions. Both are asserted.
     assert_monotonicity()
     print("[monotone] P_free rises and P(no alarm) falls with more testing (both asserted)")
 
@@ -979,7 +1095,7 @@ if __name__ == "__main__":
     worst_oracle = check_poisson_thinning_oracle()
     print(f"   max |P_free - exp(-3 e^(-t/21))| = {worst_oracle:.2e}  (asserted < {ORACLE_TOL:.0e})")
 
-    # (8) CONTINUITY GATES at the new degenerate boundaries (f(0) ~ f(eps)).
+    # (8) CONTINUITY GATES at the new degenerate boundaries (memory.md: f(0) ~ f(eps)).
     #     k0_mean 0 vs 1e-9: the initial cohort's whole effect is O(1e-9), so the reduction is
     #     the limit, not a special case. age0_scale 0 vs 1e-6 (at k0_mean = 2): both floor to
     #     the same time-scale, so the two runs must coincide.
@@ -1038,5 +1154,10 @@ if __name__ == "__main__":
     w = check_eval_times()
     print(f"   worst: round {w['round']:.1e}, scalar {w['scalar']:.1e}, interior {w['interior']:.1e}, "
           f"from 45 d {w['aged_late']:.1e}  (all asserted)")
+
+    # (12) COURSE-END EXIT ORACLE (2026-10-24): leftovers leave at tau_end, nothing else happens.
+    print(f"\n[oracle] course-end exit (k0_mean=3, nothing else), tol {COURSE_END_TOL:.0e}:")
+    w = check_course_end_oracle()
+    print(f"   max |P_free - grid law| = {w:.1e}  (asserted)")
 
     print("\nall invariants passed.")
