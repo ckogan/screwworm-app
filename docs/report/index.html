@@ -121,8 +121,6 @@ button.dl{font:inherit;padding:6px 14px;border-radius:6px;border:1px solid var(-
 background:var(--accent);color:var(--card);cursor:pointer}
 button.linkish{border:0;background:none;color:var(--accent);text-decoration:underline;padding:0;
 font:inherit;cursor:pointer}
-.cov td,.cov th{font-size:.84rem}
-.cov .no{color:var(--gue)}
 .eq{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem;
 background:var(--bar);border-radius:6px;padding:8px 12px;line-height:1.8;overflow-wrap:anywhere}
 .eqt td{font-size:.86rem}
@@ -180,11 +178,11 @@ body{background:#fff;color:#000}.card{border-color:#999;break-inside:auto}
 <button type="button" id="theme" aria-label="Switch light or dark"><span class="l">Light / dark</span><span class="s">Theme</span></button>
 </div>
 </nav>
-<div style="background:#fff3c4;border-bottom:1px solid #e0c96b;padding:10px 16px;font:15px/1.4 system-ui,sans-serif;color:#1f2328"><strong>Draft for discussion.</strong> Model estimates and parameter values are preliminary, and the parameters have not had expert review. Not for decisions. The "Your review" boxes save a file on your own computer; nothing is sent anywhere. <a href="../">Open the interactive app</a>.</div>
+<div style="background:#fff3c4;border-bottom:1px solid #e0c96b;padding:10px 16px;font:15px/1.4 system-ui,sans-serif;color:#1f2328"><strong>Draft for discussion.</strong> Model estimates and parameter values are preliminary, and the parameters have not had expert review. Not for decisions. Comments by email are enough; the optional "Your review" boxes save a file on your own computer, and nothing is sent anywhere. <a href="../">Open the interactive app</a>.</div>
 <main id="river" aria-live="polite">
-<article class="card start about" id="about" data-title="About this page: draft for expert review" tabindex="-1" aria-labelledby="about-h">
-<header class="bar"><h2 id="about-h">About this page: draft for expert review</h2>
-<button class="x" type="button" data-close="about" aria-label="Close About this page: draft for expert review">&times;</button></header>
+<article class="card start about" id="about" data-title="About this review page: draft for expert review" tabindex="-1" aria-labelledby="about-h">
+<header class="bar"><h2 id="about-h">About this review page: draft for expert review</h2>
+<button class="x" type="button" data-close="about" aria-label="Close About this review page: draft for expert review">&times;</button></header>
 <div class="body">
 <p><strong>What this is:</strong> a review page for a proof-of-concept model of
 New World screwworm zone freedom. After the last detection in a control zone, the model gives
@@ -192,7 +190,7 @@ the chance that no farm in the zone is still infested, given the surveillance re
 its twelve parameters has a card with its definition, how its value was reached and every
 source behind it; each source has a card with its quotes.</p>
 <div class="box">
-<p><strong>How to read the numbers:</strong> every probability on this page is the <strong>model
+<p><strong>How to read the numbers:</strong> every probability on this review page is the <strong>model
 estimate of the chance the zone is free (draft)</strong>: the chance, under the model's assumed
 rates, that no farm in the zone is still infested. Where a card says "freedom" or "six-month
 freedom" for short, it means this draft model estimate, not freedom as APHIS declares it. Where
@@ -200,10 +198,11 @@ freedom" for short, it means this draft model estimate, not freedom as APHIS dec
 mark.</p>
 </div>
 <div class="box">
-<p><strong>What this page records:</strong> which cards and folds you open, how often, and the
-answers you type in the "Your review" folds. It is kept only in this browser on this computer.
-Nothing is sent anywhere. When you are done, the "Your review" button at the top saves it as a
-file; you choose whether to return that file.</p>
+<p><strong>How to give feedback:</strong> the simplest way is to email your comments to the
+person who sent you this page. The answer boxes on the cards are optional. They are kept only
+in this browser and sent nowhere; you can save them as a file if you prefer that.</p>
+<p><strong>This review page and the app:</strong> <a href="https://ckogan.github.io/screwworm-app/" target="_blank" rel="noopener">the interactive app</a> is separate. In the app you can change
+the inputs and its numbers move with them; the numbers on this review page are fixed.</p>
 </div>
 <div class="box warn">
 <p><strong>Do not cite these numbers as evidence of absence or freedom</strong>, for release,
@@ -211,7 +210,8 @@ trade or reporting. They are outputs of a draft model under assumed rates.</p>
 <p><strong>This model cannot tell you:</strong></p>
 <ul>
 <li>anything from fly trapping (not in the model);</li>
-<li>anything about wildlife (deer) or pets, which are never surveyed;</li>
+<li>anything from wildlife (deer) or pets: the model has no surveillance stream for them, so
+reports about them, which do happen in practice, add no evidence in the model;</li>
 <li>how season changes the answer: rates are summer 2026 values held constant, so a clean winter
 says less than the model implies;</li>
 <li>anything about herds under 10 animals;</li>
@@ -235,12 +235,10 @@ with your confidence. Wider or shifted ranges are as welcome as narrower ones.</
 and why.</li>
 <li>What is missing, including data your agency holds (for example dated case records).</li>
 </ol>
-<p>Answer in the small "Your review" folds: one under each parameter card and one beside
-each source on it (the same fold is also on each source card). Then open
-<a href="#myreview" data-open="myreview">Your review</a>, give your initials and role, answer the closing questions
-(including whether the page says clearly <a href="#limits" data-open="limits">what the model cannot tell you</a>),
-and press <strong>Download my review</strong>. That file is the one to return to the person who
-sent you this page.</p>
+<p>Email your comments to the person who sent you this page. If you prefer, the optional
+"Your review" folds on the cards and <a href="#myreview" data-open="myreview">Your review (optional)</a> hold the same
+questions, including whether the page says clearly
+<a href="#limits" data-open="limits">what the model cannot tell you</a>.</p>
 <p><strong>How it was made, and what has not been done:</strong> AI models (Anthropic Claude)
 searched the literature, extracted the numbers, chose each value and range, and wrote the
 parameter and source cards. The model's developers set the scenario and directed the work.
@@ -291,7 +289,9 @@ simulation error. <a href="#whatif" data-open="whatif">Details</a>.</li>
 <button class="x" type="button" data-close="glance" aria-label="Close Screwworm model at a glance">&times;</button></header>
 <div class="body">
 <p class="box warn"><strong>Not for:</strong> evidence of freedom or absence for
-release, trade or reporting. Every number below is a draft model output under assumed rates.</p>
+release, trade or reporting. Every number on this review page is a draft model output under
+assumed rates. <a href="https://ckogan.github.io/screwworm-app/" target="_blank" rel="noopener">The interactive app</a> is separate: in it you can change the inputs and its
+numbers move with them.</p>
 <p><strong>What it is for:</strong> after screwworm has been cleared from a zone,
 the model estimates the probability that none of the zone's farms is still infested. It combines
 assumed rates of new arrivals and of how long an infestation nobody finds lasts with what clean
@@ -314,7 +314,7 @@ infested farm leaves the infested count; see <a href="#equations" data-open="equ
 Before that update the central figure was 0.946.</p>
 <p class="small">Both are for <a href="#scenario" data-open="scenario">the six-month scenario</a>, whose starting state and
 surveillance design are fixed, not varied. The ranges are mostly judgement, so read the spread
-of the draws as a sensitivity range, not a credible interval. No probability on this page is a
+of the draws as a sensitivity range, not a credible interval. No probability on this review page is a
 release criterion: APHIS release and freedom go by time since the last detection, with fly
 trapping and animal inspection.</p>
 <h3>Where to go next</h3>
@@ -328,8 +328,8 @@ trapping and animal inspection.</p>
 <li><a href="#matter" data-open="matter">Which parameters matter</a>: ranked by effect on six-month freedom.</li>
 <li><a href="#table" data-open="table">The parameter table</a>: value, range, effect and what each rests on.</li>
 <li><a href="#flow" data-open="flow">How the model is being reviewed</a>: the review process this page is part of.</li>
-<li><a href="#myreview" data-open="myreview">Your review</a>: what you have opened so far, the closing questions and
-the file to return.</li>
+<li><a href="#myreview" data-open="myreview">Your review (optional)</a>: the closing questions and the file to save,
+if you prefer that to email.</li>
 </ul>
 <p class="small">Parameters: <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a>, <a href="#p-rho_r" data-open="p-rho_r">owner reporting delay</a>, <a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">zone clearance time</a>, <a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">within-premises recovery time</a>, <a href="#p-rho_a" data-open="p-rho_a">chance the owner notices a wound</a>, <a href="#p-doubling_time_within" data-open="p-doubling_time_within">within-premises doubling time</a>, <a href="#p-f_clinical_max" data-open="p-f_clinical_max">share of wounds visible</a>, <a href="#p-mean_latent_time" data-open="p-mean_latent_time">mean latent time</a>, <a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">mean clinical onset time</a>, <a href="#p-beta_lockdown_multiplier" data-open="p-beta_lockdown_multiplier">lockdown spread multiplier</a>, <a href="#p-doubling_time" data-open="p-doubling_time">zone doubling time</a>, <a href="#p-Se_animal" data-open="p-Se_animal">inspection sensitivity</a>.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
@@ -375,7 +375,7 @@ the file to return.</li>
 <header class="bar"><h2 id="scenario-h">The six-month scenario</h2>
 <button class="x" type="button" data-close="scenario" aria-label="Close The six-month scenario">&times;</button></header>
 <div class="body">
-<p>Every number on this page is for this scenario unless the card says
+<p>Every number on this review page is for this scenario unless the card says
 otherwise.</p>
 <div class="scroll"><table>
 <tbody>
@@ -383,7 +383,7 @@ otherwise.</p>
 <tr><th scope='row'>Freedom</th><td>Absolute: zero infested farms, not a prevalence below a threshold.</td></tr>
 <tr><th scope='row'>Surveillance</th><td>6 inspection rounds, one every 30 days; 20 farms visited per round; 30 animals examined on each visited farm. Owner reporting runs all the time. Streams the model does not use are listed below the table.</td></tr>
 <tr><th scope='row'>Start (day 0, the last detection)</th><td>The number of infested farms nobody has found is drawn with mean 1 (Poisson), so the zone starts free with chance 0.37; their infestations are about 14 days old (exponential, mean 14 days). Both are guesses: no source estimates the undetected remainder.</td></tr>
-<tr><th scope='row'>Controls in force at day 0</th><td>None is modelled. Quarantine, movement controls and sterile-fly releases are not states of the model. Spread between farms runs at its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season). The lockdown cut, which stands for tighter movement controls and more sterile flies, switches on only at a new confirmed detection; every freedom number on this page is computed given no detection, so the cut never acts on them. In practice a zone stays under controls after its last detection; the model does not represent that, and its between-farm spread has almost no effect on freedom anyway (see what the model does).</td></tr>
+<tr><th scope='row'>Controls in force at day 0</th><td>None is modelled. Quarantine, movement controls and sterile-fly releases are not states of the model. Spread between farms runs at its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season). The lockdown cut, which stands for tighter movement controls and more sterile flies, switches on only at a new confirmed detection; every freedom number on this review page is computed given no detection, so the cut never acts on them. In practice a zone stays under controls after its last detection; the model does not represent that, and its between-farm spread has almost no effect on freedom anyway (see what the model does).</td></tr>
 <tr><th scope='row'>Introductions</th><td>One new infested farm about every 130 days for the zone as a whole. The rate was counted for a free county next to an active quarantine zone during the 2026 response, and the scenario assumes that pressure, with an active zone next door, lasts all six months. It was counted per county and is applied unchanged to the 100-farm zone; no conversion from a county to 100 farms is made. For a free county far from active zones the model&#x27;s settings use about 1,000 days instead.</td></tr>
 <tr><th scope='row'>Parameters</th><td>All twelve at their central values (the parameter table), except in the ranking, which draws them across their ranges.</td></tr>
 <tr><th scope='row'>Horizon</th><td>180 days.</td></tr>
@@ -399,7 +399,7 @@ otherwise.</p>
 <p><strong>Not in the model:</strong></p>
 <ul>
 <li><strong>Fly trapping:</strong> not modelled, so trap results add no evidence; it is a named later addition to the model, not built.</li>
-<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as part of the introduction rate and is never surveyed.</li>
+<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as part of the introduction rate; the model has no wildlife surveillance stream, so wildlife reports add no evidence in the model, although they happen in practice.</li>
 <li><strong>Movement checks (pre-movement inspection and treatment at checkpoints and markets):</strong> not modelled; moved animals enter only as part of the introduction rate.</li>
 <li><strong>Slaughter inspection:</strong> not in the model&#x27;s design.</li>
 <li><strong>Pets, holdings under 10 animals and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
@@ -471,8 +471,9 @@ owner reports they add 0.107.</p>
 <li><strong>Fly trapping:</strong> not in the model; trap results add no evidence here.</li>
 <li><strong>Season:</strong> the rates come from summer 2026 and are held constant; a six-month
 horizon runs into winter, when fly activity falls.</li>
-<li><strong>Wildlife and pets:</strong> they enter only as part of the introduction rate; they
-are never surveyed, and the model says nothing about freedom in wildlife.</li>
+<li><strong>Wildlife and pets:</strong> the model has no surveillance stream for them; they enter
+only through the introduction rate, so reports about them add no evidence in the model, although
+such reports do happen in practice. The model says nothing about freedom in wildlife.</li>
 <li><strong>Herds under 10 animals:</strong> outside the model's farms.</li>
 <li><strong>Pupae and the next fly generation:</strong> a farm stops seeding others when its
 animals stop carrying larvae; in the field, flies emerge about a week after the larvae drop and
@@ -1008,7 +1009,7 @@ Before any detection, an infested farm leaves the count only when its own infest
 <button class="x" type="button" data-close="whatif" aria-label="Close What the model does">&times;</button></header>
 <div class="body">
 <p><strong>The what-if app</strong> used to explore scenarios runs on the
-developers' computer and is not part of this file. The numbers on this page come from the same
+developers' computer and is not part of this file. The numbers on this review page come from the same
 calculation.</p>
 <h3>Do two independent builds agree?</h3>
 <p>Two implementations written independently from the same written design, an analytic
@@ -1050,7 +1051,7 @@ does not act on any freedom number at all (see below). The developers decided (1
 scaling that spread by the number of infested farms is a listed option, not scheduled. The
 parameter ranking holds for this model structure only.</p>
 <h3>Effects in the wrong direction, all of them</h3>
-<p>Every freedom number on this page is the chance of no infested farm <em>given that nothing
+<p>Every freedom number on this review page is the chance of no infested farm <em>given that nothing
 was detected</em>. That conditioning explains most of the surprises: anything that makes an
 infestation easier to find also makes a clean record stronger evidence. Checked 29 October 2026
 on the analytic calculation, six-month scenario, other parameters at their central values;
@@ -1098,7 +1099,7 @@ doubling time.</p>
 <p class="box"><strong>Model version:</strong> updated 23 and 24 October 2026. Zone clearance is
 off before any detection; an infested farm nobody has found leaves the infested count when its
 own infestation has run its course; after a confirmed detection, counted farms also leave on a
-release clock. The equations and the numbers on this page are for this version, except where a
+release clock. The equations and the numbers on this review page are for this version, except where a
 number is dated before it.</p>
 <h3>The zone: farms becoming infested and clearing</h3>
 <p class="eq">new infestations per day: b(K, t) = ((M &minus; K) / M) &times; (&lambda; +
@@ -1325,7 +1326,7 @@ reporting delay are ranked on days, so a longer interval or delay is the top thi
 Variance share near 0.005 is what an inert parameter shows by chance. Marked "(noise)": an average effect under 0.009 in size or a variance share under 0.008, what a parameter with no effect shows in 95 percent of random reshufflings; greyed rows are inside both lines. Read their signs as noise. Effects are on the six-month model estimate of the chance the zone is free (draft).</p>
 <h3>How to read the ranking</h3>
 <ul>
-<li><strong>Range:</strong> everywhere on this page a parameter's range is its 90 percent
+<li><strong>Range:</strong> everywhere on this review page a parameter's range is its 90 percent
 interval: values were drawn so that 5 percent fall below the low end and 5 percent above the
 high end (a lognormal, Gamma or Beta curve fitted to the two ends). Values outside are judged
 unlikely, not impossible. Most range ends are judgement; each card says which.</li>
@@ -1465,17 +1466,16 @@ reading that source against what that card uses it for (<a href="#matter" data-o
 <div class="body">
 <p>One row per parameter, filled in on your own before any group discussion.
 The top four are the ask; the other rows are welcome but optional.</p>
-<p class="box"><strong>The file to return:</strong> <a href="#myreview" data-open="myreview">Download my review</a>.
-It has these same columns, filled in from your answers in the "Your review" folds on the
-cards, plus your verdict on each source and which cards you opened. You do not need this
+<p class="box"><strong>Optional:</strong> email is enough. If you prefer a file,
+<a href="#myreview" data-open="myreview">Download my review</a> has these same columns, filled in from your answers in
+the "Your review" folds on the cards, plus your verdict on each source. You do not need this
 sheet as well.</p>
 <p class="small"><strong>Blank template, only if you prefer to work offline in a
 spreadsheet:</strong> <a href="data:text/csv;charset=utf-8,Parameter%2CTop%20four%2CChosen%20value%2CRange%20%2890%20percent%20interval%29%2CWhat%20the%20value%20rests%20on%2CSources%20on%20the%20card%2CDefinition%2CYour%20value%2CAgainst%20the%20chosen%20value%2CConfidence%2CSources%20you%20doubt%2CSources%20you%20would%20reject%2CSources%20or%20data%20to%20add%2CDirection%0D%0AIntroduction%20interval%2Cyes%2C130%20d%2C50%20to%20400%20d%2Ccounted%20from%20reports%2CC-2.1%20C-2.2%20C-2.7a%20C-2.7b%20C-2.4%20C-2.6%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AOwner%20reporting%20delay%2Cyes%2C0.33%20/d%20%28mean%203%20d%29%2C0.08%20to%201.0%20/d%20%28mean%20delay%201%20to%2012.5%20d%29%2Cjudgement%20within%20data%2CB-3.7%20B-3.19%20B-3.10%20B-3.9%20B-3.8%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AChance%20the%20owner%20notices%20a%20wound%2Cyes%2C0.70%2C0.45%20to%200.90%2Cguessed%2CB-2.7%20B-2.1%20B-2.2%20B-2.18%20B-2.19%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AMean%20latent%20time%2Cno%2C2%20d%2C1%20to%203%20d%2Cjudgement%20within%20data%2CA-1.1%20A-1.2%20A-1.3%20A-1.4%20A-1.7%20A-1.8%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AWithin-premises%20recovery%20time%2Cyes%2C7%20d%2C3%20to%2015%20d%2Cjudgement%20within%20data%2CA-3.1%20A-3.2%20A-3.4%20A-3.7%20A-3.8%20A-3.13%20A-3.12%20A-3.17%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AWithin-premises%20doubling%20time%2Cno%2C3.6%20d%2C3.2%20to%203.9%20d%20%28at%20the%20central%20recovery%20time%29%2Cconverted%20from%20a%20related%20setting%2CA-5.8%20A-5.2%20A-5.4%20A-5.1%20A-5.13a%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AShare%20of%20wounds%20visible%2Cno%2C0.9%2C0.75%20to%200.98%2Cjudgement%20within%20data%2CA-4.1%20A-4.2%20A-4.3%20A-4.4%20A-4.7%2C%2C%2C%2C%2C%2C%2C%2C%0D%0ALockdown%20spread%20multiplier%2Cno%2C0.25%2C0.07%20to%200.6%2Coperating%20setting%2CC-4.1%20C-4.4%20C-4.7a%20C-2.2%20B-2.22%20B-2.17%20A-3.18%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AZone%20doubling%20time%2Cno%2C24%20d%2C6%20to%2025%20d%20%28not%20re-centred%29%2Cconverted%20from%20a%20related%20setting%2CC-1.4%20C-1.1%20C-1.2%20C-1.5%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AInspection%20sensitivity%2Cno%2C0.85%2C0.65%20to%200.95%2Cguessed%2CB-1.1%20B-1.2%20B-1.7%20B-1.4%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AZone%20clearance%20time%2Cno%2C%2221%20d%2C%20after%20a%20new%20detection%20only%20%28off%20before%29%22%2C7%20to%2040%20d%2Cjudgement%20within%20data%2CC-3.1%20C-3.2%20C-2.2%20B-2.22%20B-2.17%20A-3.18%20B-3.7%2C%2C%2C%2C%2C%2C%2C%2C%0D%0AMean%20clinical%20onset%20time%2Cno%2C3%20d%2C1.5%20to%206%20d%2Cjudgement%20within%20data%2CA-2.4%20A-2.5%20A-2.7%20A-2.2%20A-2.3%2C%2C%2C%2C%2C%2C%2C%2C%0D%0A" download="screwworm_answer_sheet_blank.csv">download
 the empty sheet</a> (the first columns are filled in from this page, the rest are blank). It
 has one row per parameter only: no verdict per source, no misreading answers, no confidence
-basis, no closing questions, no note on each card and no record of what you opened. The
-download from Your review has all of those, so use it if you can; if you use the template,
-return it instead and add your initials and role in its file name or first row.</p>
+basis, no closing questions and no note on each card. If you use it, add your initials and
+role in its file name or first row.</p>
 <div class="scroll"><table class="sheet">
 <thead><tr><th>Parameter</th><th>Chosen value</th><th>Range (90 percent interval)</th>
 <th>What the value rests on</th><th>Sources on the card</th></tr>
@@ -1516,18 +1516,18 @@ once more.</p>
 </details>
 </div>
 </article>
-<article class="card review" id="myreview" data-title="Your review: coverage, closing questions and the file to return" tabindex="-1" aria-labelledby="myreview-h">
-<header class="bar"><h2 id="myreview-h">Your review: coverage, closing questions and the file to return</h2>
-<button class="x" type="button" data-close="myreview" aria-label="Close Your review: coverage, closing questions and the file to return">&times;</button></header>
+<article class="card review" id="myreview" data-title="Your review (optional): closing questions and the file to save" tabindex="-1" aria-labelledby="myreview-h">
+<header class="bar"><h2 id="myreview-h">Your review (optional): closing questions and the file to save</h2>
+<button class="x" type="button" data-close="myreview" aria-label="Close Your review (optional): closing questions and the file to save">&times;</button></header>
 <div class="body">
 <div class="box warn" id="rv-nostore" hidden><p><strong>This browser is not keeping
 your answers.</strong> They will be lost when you close or reload the page: press Download my
 review before you leave.</p>
 </div>
-<p><strong>Kept only in this browser on this computer, and sent nowhere.</strong>
-The download below saves a spreadsheet file (CSV) with one row per parameter, one per source
-line on the parameter cards, one per other card and a few overall rows: what you opened, how
-often, and your answers. It is the file to return; you choose whether to send it.</p>
+<p><strong>Optional.</strong> Emailing your comments is enough. Answers typed here and in the
+folds on the cards are kept only in this browser and sent nowhere. If you prefer a file, the
+download below saves them as a spreadsheet file (CSV).</p>
+<div id="rv-ver"></div>
 <h3>About you</h3>
 <div class="rvb open" data-rk="overall">
 <label class="rvf vnum"><span>Your name or initials</span>
@@ -1541,9 +1541,6 @@ tell them apart. Optional.</p>
 </div>
 <p><button type="button" class="dl" id="rv-dl">Download my review</button>
 <span class="small" id="rv-saved"></span></p>
-<h3>What you have opened so far</h3>
-<div id="rv-cov"><p class="small">Coverage appears here as you open cards.</p>
-</div>
 <h3>Closing questions</h3>
 <div class="rvb open" data-rk="overall">
 <label class="rvf wide"><span><strong>How would you run an expert validation check of a
@@ -1615,7 +1612,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:mean_intro_interval" data-key="mean_intro_interval" data-name="Introduction interval" data-central="130 d" data-range="50 to 400 d" data-basis="counted from reports" data-top="yes" data-effect="+0.117" data-unit="days between new infested farms in the zone"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days between new infested farms in the zone:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -1713,7 +1710,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:rho_r" data-key="rho_r" data-name="Owner reporting delay" data-central="0.33 /d (mean 3 d)" data-range="0.08 to 1.0 /d (mean delay 1 to 12.5 d)" data-basis="judgement within data" data-top="yes" data-effect="-0.089" data-unit="mean delay in days from an owner noticing to a confirmed case (the model uses the rate, 1 / delay)"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in mean delay in days from an owner noticing to a confirmed case (the model uses the rate, 1 / delay):</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -1776,7 +1773,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:mean_recovery_time" data-key="mean_recovery_time" data-name="Zone clearance time" data-central="21 d, after a new detection only (off before)" data-range="7 to 40 d" data-basis="judgement within data" data-top="no" data-effect="0" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -1843,7 +1840,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:mean_recovery_time_within" data-key="mean_recovery_time_within" data-name="Within-premises recovery time" data-central="7 d" data-range="3 to 15 d" data-basis="judgement within data" data-top="yes" data-effect="+0.015" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -1898,7 +1895,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:rho_a" data-key="rho_a" data-name="Chance the owner notices a wound" data-central="0.70" data-range="0.45 to 0.90" data-basis="guessed" data-top="yes" data-effect="+0.028" data-unit="probability, 0 to 1"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in probability, 0 to 1:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), probability, 0 to 1</span><input type="text" data-f="v_low" placeholder="probability, 0 to 1"></label><label class="rvf vnum"><span>Most likely (50th), probability, 0 to 1</span><input type="text" data-f="v_mid" placeholder="probability, 0 to 1"></label><label class="rvf vnum"><span>High (95th), probability, 0 to 1</span><input type="text" data-f="v_high" placeholder="probability, 0 to 1"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -1953,7 +1950,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:doubling_time_within" data-key="doubling_time_within" data-name="Within-premises doubling time" data-central="3.6 d" data-range="3.2 to 3.9 d (at the central recovery time)" data-basis="converted from a related setting" data-top="no" data-effect="+0.014" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2007,7 +2004,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:f_clinical_max" data-key="f_clinical_max" data-name="Share of wounds visible" data-central="0.9" data-range="0.75 to 0.98" data-basis="judgement within data" data-top="no" data-effect="+0.014" data-unit="share of wounds, 0 to 1"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in share of wounds, 0 to 1:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), share, 0 to 1</span><input type="text" data-f="v_low" placeholder="share, 0 to 1"></label><label class="rvf vnum"><span>Most likely (50th), share, 0 to 1</span><input type="text" data-f="v_mid" placeholder="share, 0 to 1"></label><label class="rvf vnum"><span>High (95th), share, 0 to 1</span><input type="text" data-f="v_high" placeholder="share, 0 to 1"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2065,7 +2062,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:mean_latent_time" data-key="mean_latent_time" data-name="Mean latent time" data-central="2 d" data-range="1 to 3 d" data-basis="judgement within data" data-top="no" data-effect="-0.019" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2119,7 +2116,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:mean_clinical_onset_time" data-key="mean_clinical_onset_time" data-name="Mean clinical onset time" data-central="3 d" data-range="1.5 to 6 d" data-basis="judgement within data" data-top="no" data-effect="+0.000" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2132,7 +2129,7 @@ counts as primary for what the rule says)</li>
 <header class="bar"><h2 id="p-beta_lockdown_multiplier-h">Lockdown spread multiplier</h2>
 <button class="x" type="button" data-close="p-beta_lockdown_multiplier" aria-label="Close Lockdown spread multiplier">&times;</button></header>
 <div class="body">
-<p><strong>What this is:</strong> The factor by which spread between farms is cut once the first detection is confirmed, standing for sterile-fly releases plus movement controls; 1 means no cut. In the model picture it is the &quot;after first detection&quot; line under the spread event on the top layer, switched on at the red star. In the model&#x27;s formula it cuts spread between farms only; introductions from outside and spread inside a farm are not changed. Every freedom number on this page is computed given no confirmed detection, so this cut never acts on them: freedom is the same whatever its value (checked 29 October 2026 on the analytic calculation).</p>
+<p><strong>What this is:</strong> The factor by which spread between farms is cut once the first detection is confirmed, standing for sterile-fly releases plus movement controls; 1 means no cut. In the model picture it is the &quot;after first detection&quot; line under the spread event on the top layer, switched on at the red star. In the model&#x27;s formula it cuts spread between farms only; introductions from outside and spread inside a farm are not changed. Every freedom number on this review page is computed given no confirmed detection, so this cut never acts on them: freedom is the same whatever its value (checked 29 October 2026 on the analytic calculation).</p>
 <p><strong>Value:</strong> 0.25, range 0.07 to 0.6 (90 percent
 interval); average effect on six-month freedom +0.006.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-set">operating setting</span> <span class="small">A control setting informed by sterile-fly literature; almost no effect in this model.</span></p>
@@ -2181,7 +2178,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:beta_lockdown_multiplier" data-key="beta_lockdown_multiplier" data-name="Lockdown spread multiplier" data-central="0.25" data-range="0.07 to 0.6" data-basis="operating setting" data-top="no" data-effect="+0.006" data-unit="multiplier on spread, 0 to 1"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in multiplier on spread, 0 to 1:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), multiplier, 0 to 1</span><input type="text" data-f="v_low" placeholder="multiplier, 0 to 1"></label><label class="rvf vnum"><span>Most likely (50th), multiplier, 0 to 1</span><input type="text" data-f="v_mid" placeholder="multiplier, 0 to 1"></label><label class="rvf vnum"><span>High (95th), multiplier, 0 to 1</span><input type="text" data-f="v_high" placeholder="multiplier, 0 to 1"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2231,7 +2228,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:doubling_time" data-key="doubling_time" data-name="Zone doubling time" data-central="24 d" data-range="6 to 25 d (not re-centred)" data-basis="converted from a related setting" data-top="no" data-effect="-0.005" data-unit="days"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in days:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), days</span><input type="text" data-f="v_low" placeholder="days"></label><label class="rvf vnum"><span>Most likely (50th), days</span><input type="text" data-f="v_mid" placeholder="days"></label><label class="rvf vnum"><span>High (95th), days</span><input type="text" data-f="v_high" placeholder="days"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -2281,7 +2278,7 @@ counts as primary for what the rule says)</li>
 </li>
 </ul>
 <details class="rv rvp" data-rk="p:Se_animal" data-key="Se_animal" data-name="Inspection sensitivity" data-central="0.85" data-range="0.65 to 0.95" data-basis="guessed" data-top="no" data-effect="+0.002" data-unit="probability, 0 to 1"><summary>Your review of this parameter and this card</summary>
-<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Saved in this browser only; returned by <a href="#myreview" data-open="myreview">Download my review</a>.</p>
+<div class="rvb"><p class="small">Your verdict on each source is in the fold beside it above. Optional. Kept in this browser only; <a href="#myreview" data-open="myreview">Download my review</a> saves it as a file.</p>
 <h4>The parameter</h4>
 <label class="rvf"><span>Definition</span><select data-f="definition"><option value="">(not answered)</option><option value="fits">fits a US zone after its last detection</option><option value="fits with a change">fits with a change (say what in the note)</option><option value="does not fit">does not fit</option></select></label><p class="small"><strong>Your value, in probability, 0 to 1:</strong></p>
 <label class="rvf vnum"><span>Low (5th percentile), probability, 0 to 1</span><input type="text" data-f="v_low" placeholder="probability, 0 to 1"></label><label class="rvf vnum"><span>Most likely (50th), probability, 0 to 1</span><input type="text" data-f="v_mid" placeholder="probability, 0 to 1"></label><label class="rvf vnum"><span>High (95th), probability, 0 to 1</span><input type="text" data-f="v_high" placeholder="probability, 0 to 1"></label><label class="rvf"><span>Against the chosen value</span><select data-f="against"><option value="">(not answered)</option><option value="agree">agree</option><option value="widen">widen</option><option value="narrow">narrow</option><option value="replace">replace</option></select></label><label class="rvf"><span>Your confidence</span><select data-f="confidence"><option value="">(not answered)</option><option value="1">1 (low)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 (high)</option></select></label><label class="rvf"><span>Basis of your confidence</span><select data-f="conf_basis"><option value="">(not answered)</option><option value="own data">own data</option><option value="field experience">field experience</option><option value="literature">literature</option><option value="inference">inference</option></select></label><label class="rvf"><span>Does the chosen value make the model estimate of freedom look</span><select data-f="direction"><option value="">(not answered)</option><option value="higher">higher</option><option value="lower">lower</option><option value="neither">neither</option><option value="unsure">unsure</option></select></label><label class="rvf wide"><span>Sources or data to add</span><input type="text" data-f="add" placeholder="named documents or datasets, for example records your agency holds"></label><label class="rvf wide"><span>Note on the parameter</span><textarea data-f="p_note" rows="2"></textarea></label><h4>This card</h4>
@@ -3661,11 +3658,11 @@ toolh();window.addEventListener('resize',toolh);
 })();
 (function(){
 var KEY='nws-sme-review-v1',river=document.getElementById('river'),stored=true;
-var S={opens:{},folds:{},links:{},ans:{},river:[],ver:''};
+var S={ans:{},river:[],ver:''};
 var VER='';document.querySelectorAll('#about p').forEach(function(p){
  if(!VER&&p.textContent.trim().indexOf('Version:')===0)VER=p.textContent.trim().replace(/\s+/g,' ');});
 try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);
- ['opens','folds','links','ans'].forEach(function(k){if(o&&o[k]&&typeof o[k]==='object')S[k]=o[k];});
+ if(o&&o.ans&&typeof o.ans==='object')S.ans=o.ans;
  if(o&&Array.isArray(o.river))S.river=o.river;if(o&&typeof o.ver==='string')S.ver=o.ver;}
 }catch(err){stored=false;}
 var lastRiver=S.river.slice();
@@ -3675,19 +3672,14 @@ function save(){if(!S.ver)S.ver=VER;
  if(el)el.textContent=stored?'Your answers are kept in this browser.':
   'This browser is not keeping your answers between visits: download before you close the page.';
  var w=document.getElementById('rv-nostore');if(w)w.hidden=stored;}
-function bump(map,id,title){var r=map[id];if(!r)r=map[id]={n:0,first:new Date().toISOString()};
- r.n++;if(title)r.title=title;}
 function cardOf(el){return el&&el.closest?el.closest('.card'):null;}
 function title(c){return c?c.dataset.title:'';}
 function allCards(){return Array.prototype.slice.call(document.querySelectorAll('.card'));}
 function byId(id){return document.getElementById(id);}
-/* card opens: a card moved into the river counts as one open */
+/* which cards are open now, kept only to offer reopening them next visit */
 function riverIds(){return Array.prototype.map.call(river.querySelectorAll(':scope>.card'),function(c){return c.id;});}
 new MutationObserver(function(ms){var hit=false;ms.forEach(function(m){
- Array.prototype.forEach.call(m.addedNodes,function(n){
-  if(n.nodeType===1&&n.classList.contains('card')){bump(S.opens,n.id,title(n));hit=true;
-   if(n.id==='myreview')cov();}});
- if(m.removedNodes.length)hit=true;});
+ if(m.addedNodes.length||m.removedNodes.length)hit=true;});
  if(hit){S.river=riverIds();save();setTimeout(cues,60);}}).observe(river,{childList:true});
 /* scroll cue on tables wider than the screen */
 function cues(){document.querySelectorAll('#river .scroll').forEach(function(w){
@@ -3710,16 +3702,6 @@ document.addEventListener('click',function(ev){var f=ev.target.closest('figure.z
   if(c&&c.parentNode!==river)river.appendChild(c);});S.river=riverIds();save();cues();});
  n.addEventListener('click',function(){b.remove();});
  b.appendChild(t);b.appendChild(y);b.appendChild(n);river.insertBefore(b,river.firstChild);})();
-river.querySelectorAll('.card').forEach(function(c){if(!S.opens[c.id])bump(S.opens,c.id,title(c));});
-/* folds (abstracts, dates, details) and links out to the source documents */
-document.addEventListener('toggle',function(ev){var d=ev.target;
- if(!d||d.tagName!=='DETAILS'||!d.open||d.classList.contains('rv'))return;
- var c=cardOf(d);if(!c)return;
- var i=Array.prototype.indexOf.call(c.querySelectorAll('details:not(.rv)'),d);
- var s=d.querySelector('summary');bump(S.folds,c.id+'#'+i,title(c)+': '+(s?s.textContent.trim():''));
- save();},true);
-document.addEventListener('click',function(ev){var a=ev.target.closest('a[target=_blank]');
- if(!a)return;var c=cardOf(a);if(c){bump(S.links,c.id,title(c));save();}},true);
 /* answers */
 function fields(box){return box.querySelectorAll('[data-f]');}
 function summ(box){if(!box.classList.contains('rv'))return;var a=S.ans[box.dataset.rk]||{};
@@ -3741,43 +3723,16 @@ function restore(){document.querySelectorAll('[data-rk]').forEach(function(box){
  var a=S.ans[box.dataset.rk]||{};fields(box).forEach(function(f){f.value=a[f.dataset.f]||'';});
  summ(box);});}
 restore();
-/* coverage */
-function srcCard(det){var a=det.parentNode.querySelector('a[data-open]');return a?a.dataset.open:'';}
 function params(){var ps=Array.prototype.slice.call(document.querySelectorAll('details.rvp'));
  ps.sort(function(x,y){return Math.abs(parseFloat(y.dataset.effect)||0)-Math.abs(parseFloat(x.dataset.effect)||0);});
  return ps;}
-function opened(id){return S.opens[id]||null;}
-function answered(rk){var a=S.ans[rk]||{},n=0;for(var k in a)if(a[k])n++;return n;}
-function td(tr,t,cls){var c=document.createElement('td');c.textContent=t;if(cls)c.className=cls;tr.appendChild(c);}
-function cov(){var box=byId('rv-cov');if(!box)return;box.innerHTML='';
- var w=document.createElement('div');w.className='scroll';var tb=document.createElement('table');
- tb.className='cov';var h=document.createElement('tr');
- ['Parameter','Card opened','Source cards opened (from any card)','Sources you reviewed','Answers on the parameter'].forEach(function(t){
-  var th=document.createElement('th');th.textContent=t;h.appendChild(th);});
- var th0=document.createElement('thead');th0.appendChild(h);tb.appendChild(th0);
- var tbd=document.createElement('tbody');var nP=0,nPo=0,nS=0,nSo=0;
- params().forEach(function(p){var c=cardOf(p),tr=document.createElement('tr');
-  var ss=c.querySelectorAll('details.rvs'),so=0,sr=0;
-  ss.forEach(function(d){if(opened(srcCard(d)))so++;if(answered(d.dataset.rk))sr++;});
-  nP++;nS+=ss.length;nSo+=so;if(opened(c.id))nPo++;
-  td(tr,p.dataset.name+(p.dataset.top==='yes'?' (top four)':''));
-  td(tr,opened(c.id)?'yes':'no',opened(c.id)?'':'no');
-  td(tr,so+' of '+ss.length,so?'':'no');td(tr,sr+' of '+ss.length);
-  td(tr,String(answered(p.dataset.rk)));tbd.appendChild(tr);});
- tb.appendChild(tbd);w.appendChild(tb);
- var other=allCards().filter(function(c){return !c.classList.contains('param')&&!c.classList.contains('source');});
- var no=other.filter(function(c){return !opened(c.id);}).map(function(c){return c.dataset.title;});
- var p1=document.createElement('p');
- p1.textContent='Parameter cards opened: '+nPo+' of '+nP+'. Source lines on the parameter cards whose source card you opened: '+nSo+' of '+nS+' (a source card used by two parameters counts for both, wherever you opened it)'+
-  '. Other cards opened: '+(other.length-no.length)+' of '+other.length+(no.length?' (not yet: '+no.join('; ')+')':'')+'.';
+function verNote(){var box=byId('rv-ver');if(!box)return;box.innerHTML='';
  if(S.ver&&VER&&S.ver!==VER){var pv=document.createElement('p');pv.className='box warn';
   pv.textContent='Your answers were started on an earlier version of this page ('+S.ver+'); the file records both versions.';
-  box.appendChild(pv);}
- box.appendChild(p1);box.appendChild(w);cues();}
+  box.appendChild(pv);}}
 /* CSV */
 var SRCQ='source good enough to inform this value (keep / doubt / reject)';
-var COLS=['kind','parameter','parameter key','source id','card opened','open count','first opened',
- 'source document opened (times)','folds opened on the card','top four','chosen value',
+var COLS=['kind','parameter','parameter key','source id','top four','chosen value',
  'range (90 percent interval)','what the value rests on','sources on the card','definition',
  'unit of your values','your value low (5th)','your value most likely (50th)','your value high (95th)',
  'against the chosen value','confidence (1 to 5)','confidence basis',
@@ -3787,10 +3742,6 @@ var COLS=['kind','parameter','parameter key','source id','card opened','open cou
  'note on the card',SRCQ,'AI misread the source',
  'source note','question','answer'];
 function q(v){v=v==null?'':String(v);return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
-function folds(id){var n=0;for(var k in S.folds)if(k.indexOf(id+'#')===0)n+=S.folds[k].n;return n;}
-function base(r,id){var o=opened(id);r['card opened']=o?'yes':'no';r['open count']=o?o.n:0;
- r['first opened']=o?o.first:'';r['folds opened on the card']=folds(id);
- r['source document opened (times)']=S.links[id]?S.links[id].n:0;return r;}
 function rows(){var out=[];
  var ov=S.ans.overall||{};
  [['reviewer name or initials',ov.reviewer||''],['reviewer role',ov.role||''],
@@ -3805,7 +3756,7 @@ function rows(){var out=[];
   var ss=Array.prototype.slice.call(c.querySelectorAll('details.rvs'));
   var rej=[];ss.forEach(function(d){ids.push(d.dataset.src);var sa=S.ans[d.dataset.rk]||{};
    if(sa.reliable==='doubt')aside.push(d.dataset.src);if(sa.reliable==='reject')rej.push(d.dataset.src);});
-  out.push(base({'kind':'parameter','parameter':p.dataset.name,'parameter key':p.dataset.key,
+  out.push({'kind':'parameter','parameter':p.dataset.name,'parameter key':p.dataset.key,
    'top four':p.dataset.top,'chosen value':p.dataset.central,'range (90 percent interval)':p.dataset.range,
    'what the value rests on':p.dataset.basis,'sources on the card':ids.join(' '),
    'definition':a.definition,'unit of your values':p.dataset.unit,'your value low (5th)':a.v_low,'your value most likely (50th)':a.v_mid,
@@ -3815,30 +3766,29 @@ function rows(){var out=[];
    'sources you would reject (from your source verdicts)':rej.join('; '),
    'sources or data to add':a.add,'direction':a.direction,'note on the parameter':a.p_note,
    'what is missing from this card':a.missing,'how clear was the card (1 to 5)':a.clarity,
-   'note on the card':a.c_note},c.id));
+   'note on the card':a.c_note});
   ss.forEach(function(d){var sa=S.ans[d.dataset.rk]||{},r={'kind':'source','parameter':p.dataset.name,
     'parameter key':p.dataset.key,'source id':d.dataset.src};r[SRCQ]=sa.reliable||'not checked';
-   r['AI misread the source']=sa.misread;r['source note']=sa.note;out.push(base(r,srcCard(d)));});});
+   r['AI misread the source']=sa.misread;r['source note']=sa.note;out.push(r);});});
  allCards().forEach(function(c){if(c.classList.contains('param')||c.classList.contains('source'))return;
   var ca=S.ans['c:'+c.id]||{};
-  out.push(base({'kind':'page card','question':c.dataset.title,'what is missing from this card':ca.missing,
-   'how clear was the card (1 to 5)':ca.clarity},c.id));});
+  out.push({'kind':'page card','question':c.dataset.title,'what is missing from this card':ca.missing,
+   'how clear was the card (1 to 5)':ca.clarity});});
  return out;}
 function csv(){var lines=[COLS.map(q).join(',')];
  rows().forEach(function(r){lines.push(COLS.map(function(k){return q(r[k]);}).join(','));});
  return lines.join('\r\n')+'\r\n';}
 window.smeReviewCsv=csv;
-byId('rv-dl').addEventListener('click',function(){cov();
+byId('rv-dl').addEventListener('click',function(){
  var d=new Date(),stamp=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
  var blob=new Blob(['﻿'+csv()],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
  var who=((S.ans.overall||{}).reviewer||'').normalize('NFKD').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
  var a=document.createElement('a');a.href=url;a.download='screwworm_my_review_'+(who?who+'_':'')+stamp+'.csv';
  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},4000);});
 byId('rv-clear').addEventListener('click',function(){
- if(!window.confirm('Clear everything this page has recorded in this browser, including your answers?'))return;
- S={opens:{},folds:{},links:{},ans:{},river:[],ver:''};try{localStorage.removeItem(KEY);}catch(err){}
- river.querySelectorAll('.card').forEach(function(c){bump(S.opens,c.id,title(c));});
- save();restore();cov();});
-S.river=riverIds();save();cov();cues();
+ if(!window.confirm('Clear your answers kept in this browser?'))return;
+ S={ans:{},river:[],ver:''};try{localStorage.removeItem(KEY);}catch(err){}
+ S.river=riverIds();save();restore();verNote();});
+S.river=riverIds();save();verNote();cues();
 })();
 </script>
