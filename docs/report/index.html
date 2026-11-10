@@ -150,8 +150,7 @@ body{background:#fff;color:#000}.card{border-color:#999;break-inside:auto}
 <button type="button" id="theme" aria-label="Switch light or dark"><span class="l">Light / dark</span><span class="s">Theme</span></button>
 </div>
 </nav>
-<div style="background:#fff3c4;border-bottom:1px solid #e0c96b;padding:10px 16px;font:15px/1.4 system-ui,sans-serif;color:#1f2328"><strong>Draft for discussion.</strong> Model estimates and parameter values are preliminary, and the parameters have not had expert review. Not for decisions. <a href="../">Open the interactive app</a>.</div>
-<main id="river" aria-live="polite">
+<div style="background:#fff3c4;border-bottom:1px solid #e0c96b;padding:10px 16px;font:15px/1.4 system-ui,sans-serif;color:#1f2328"><strong>Draft for discussion.</strong> Model estimates and parameter values are preliminary, and the parameters have not had expert review. Not for decisions. <a href="../">Open the interactive app</a>.</div><main id="river" aria-live="polite">
 <article class="card start about" id="about" data-title="Screwworm zone freedom model (draft)" tabindex="-1" aria-labelledby="about-h">
 <header class="bar"><h2 id="about-h">Screwworm zone freedom model (draft)</h2>
 <button class="x" type="button" data-close="about" aria-label="Close Screwworm zone freedom model (draft)">&times;</button></header>
@@ -487,9 +486,11 @@ otherwise.</p>
 <li><strong>Slaughter inspection:</strong> not in the model&#x27;s design.</li>
 <li><strong>Pets, holdings under 10 animals and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
 </ul>
-<p><strong>Not in the sensitivity ranking:</strong> the starting state and the surveillance
-design above are fixed in every draw, so <a href="#matter" data-open="matter">which parameters matter</a> says nothing
-about them.</p>
+<p><strong>Not in the sensitivity ranking:</strong> the starting state, the farm design and the
+surveillance design above are fixed in every draw, so <a href="#matter" data-open="matter">which parameters matter</a>
+says nothing about them. Their effect can be large: in a separate model run with only herd size
+changed (six-month scenario, other values at their centrals), herds of 30 animals instead of 100
+lowered the six-month estimate from about 0.93 to about 0.88.</p>
 <p class="small">Fly trapping and season are not in the model: see
 <a href="#limits" data-open="limits">what the model leaves out</a>.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
@@ -892,15 +893,19 @@ simulator of random histories (<a href="#whatif" data-open="whatif">the agreemen
 app</a> runs the same analytic calculation as the numbers on this page.</p>
 <p>Two implementations written independently from the same written design, an analytic
 (closed-form) calculation and a simulator (10,000 random histories per setting), were run on 471
-test settings. 53 could not be compared: 5 simulator runs timed out, and 48 had nothing to
+comparisons: 94 parameter settings, nearly all read at five times from 30 to 180 days. The test
+grid is centred on a fixed set of test values, not on this page's six-month scenario. 53 could not be compared: 5 comparisons were lost to a simulator time-out, and 48 had nothing to
 compare against because no simulated history came through with clean surveillance data or the
 simulator's spread was zero.</p>
-<p>On the 418 compared settings, 1 gap was larger than three simulator standard deviations,
-against about 1.1 expected by chance (2 allowed). The analytic calculation sat above the
-simulator in 196 settings and below it in 222 (sign test p = 0.22: no clear lean either way).</p>
-<p>A separate check of 38 settings around the central values found one gap: with no
-surveillance at all, an old leftover farm and spread between farms on, the analytic calculation
-reads about 0.008 low. No setting with surveillance shows it.</p>
+<p>Of the 418 that were compared, 1 gap was larger than three simulator standard deviations,
+against about 1.1 expected by chance (2 allowed). Reruns show this one is not chance: a small
+bias in the analytic calculation of about 0.004 at the extreme within-farm doubling time of 0.1 days, far
+below the parameter's range. The analytic calculation sat above the
+simulator in 196 comparisons and below it in 222 (sign test p = 0.22: no clear lean either way).</p>
+<p>A separate check of 38 settings around the page's own six-month scenario found one gap: with
+no surveillance at all, an old leftover farm and spread between farms on, the analytic calculation
+reads about 0.008 low. No setting in that check with surveillance shows that gap; the checks bound
+the bias at the settings tested, not everywhere.</p>
 <p>Agreement says the arithmetic matches the design. It does not say the design or the numbers
 are right.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
@@ -1092,8 +1097,9 @@ judgement; each card says which.</li>
 the draws that the parameter explains on its own, estimated from averages in 10 equal bins.</li>
 <li><strong>A wide range ranks high by construction:</strong> the ranking measures each range as
 set, and most ranges are judgement.</li>
-<li><strong>Conditional on the scenario:</strong> the starting state and the surveillance design
-are fixed (see the six-month scenario), so the ranking says nothing about them.</li>
+<li><strong>Conditional on the scenario:</strong> the starting state, the farm design and the
+surveillance design are fixed (see the six-month scenario), so the ranking says nothing about them;
+herds of 30 animals instead of 100 lower the six-month estimate from about 0.93 to about 0.88.</li>
 </ul>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
@@ -1106,7 +1112,7 @@ are fixed (see the six-month scenario), so the ranking says nothing about them.<
 model estimate of the chance the zone is free (draft): "up" means that, as the model stands, the bias makes freedom look higher than it would
 be without it; "down", lower. Only what the cards and the model's design
 already say is used; where no file states the direction, the row says "open question". Sizes
-appear only where the page already computed them.</p>
+appear only where the page or a separate model run computed them.</p>
 <div class="scroll"><table class="stack">
 <thead><tr><th>Parameter</th><th>Known bias</th><th>Pushes the model estimate</th><th>Why</th>
 <th>Basis</th></tr>
@@ -1119,6 +1125,7 @@ appear only where the page already computed them.</p>
 <tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Two of the three timed cases leave out the owner&#x27;s own wait</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>They understate the delay, so their 1.5 to 2 days is a floor; the 3 days was set above it by judgement, and how far above is not known. A shorter delay raises freedom.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
 <tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>A delay from areas on alert, applied after release</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>Alertness may fall after release; the naive-area alternative (a mean of about 14 days) is not used.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
 <tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Veterinarian visit and laboratory not built up</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The delay lumps the owner&#x27;s wait, the sampling visit and the laboratory (&quot;several days&quot;, no written source); the parts are not built up into the 3 days.</td><td data-l='Basis' class='small'>open question</td></tr>
+<tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Every farm has the same reporting behaviour; every owner reports in the end</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>The reporting-delay sources suggest about 15 percent of owners may never report. In a separate model run with a 15 percent never-report share (six-month scenario, other values at their centrals; inspection still finds those farms), the six-month estimate fell from about 0.93 to about 0.81, larger than the effect of any single parameter in the sensitivity ranking.</td><td data-l='Basis' class='small'>reporting-delay sources; size from a separate model run</td></tr>
 <tr><td data-l='Parameter'><a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">Zone clearance time</a></td><td data-l='Known bias'>A release clock timed from paperwork, not biology</td><td data-l='Pushes the model estimate'><strong>none on freedom</strong></td><td data-l='Why'>The 21 days comes from the release rule and news snapshots of active case lists. The clock acts only after a new confirmed detection, and every freedom number here is computed given no detection, so it does not move them.</td><td data-l='Basis' class='small'>stated in the model&#x27;s design (equations card)</td></tr>
 <tr><td data-l='Parameter'><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a> (top four)</td><td data-l='Known bias'>An unfound farm leaves the count when fewer than half an animal is expected still infested</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The half-animal end is a modelling choice; where nothing finds a farm it matters, and a later end lowers freedom.</td><td data-l='Basis' class='small'>stated in the model&#x27;s design (equations card)</td></tr>
 <tr><td data-l='Parameter'><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a> (top four)</td><td data-l='Known bias'>Every farm&#x27;s infestation runs the same course and ends on the same day</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>A farm is fully counted until its course ends, then gone; real herds would vary. Its direction is not stated.</td><td data-l='Basis' class='small'>open question</td></tr>
