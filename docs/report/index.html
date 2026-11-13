@@ -83,6 +83,8 @@ details summary{cursor:pointer;color:var(--accent)}
 .mlegend{list-style:none;padding:0;margin:4px 0 8px;font-size:.85rem;color:var(--muted)}
 .mlegend li{margin:2px 0}
 
+.ptable tr.grp th{text-align:left;padding-top:.9em;font-weight:600}
+.ptable tr.grp .grph{position:sticky;left:.5em;display:inline-block;max-width:calc(100vw - 5em);white-space:normal}
 .card.about{border-color:var(--accent)}
 .card.about .bar{background:var(--hl)}
 .chip.basis.b-meas{background:var(--ver-bg);color:var(--ver)}
@@ -270,17 +272,24 @@ u64yPTsX05AhbUt7/Y4zak30mXjh4MWIY6pBU01pSFZ16eSpctWJc6eYPaEi4yVnju5MFFjPXbiwuzO3
 AAAAAAAAAAAMaRBgAQAAAAAAAAAAAIAhDQIsAAAAAAAAAAAAADCkQYAFAAAAAAAAAAAAAIY0CLAAAAAAAAAAAAAAwJAGARYAAAAAAAAAAAAAGNIgwAIAAAAAAAAAAAAAQxoEWAAAAAAAAAAAAABgSIMACwAAAAAAAAAAAAAMaRBgAQAAAAAAAAAAAIAhDQIsAAAAAAAAAAAAADCkQYAFAAAAAAAAAAAAAIa0/wcAAP//m2TFyQAAAAZJREFUAwCv5Ak49EEZlgAAAABJRU5ErkJggg==" width="1600" height="748"
 alt="Model picture of the zone. On the left, the inputs that add infested farms (already infested at start, new arrivals from outside, spread between farms) and the inputs that find them (inspection rounds, owner reports). In the middle, a grid of farms in the zone: infested farms, inspected farms, one missed and one found; the found farm initiates lockdown, which reduces spread between farms. On the right, the outputs: the chance no farm is infested if searching finds nothing more, and the expected new infested farms and expected cost. A footer lists what is not modeled."
 loading="lazy"><figcaption>The zone. Left: the inputs that add infested farms and the inputs that find them. Middle: the farms in the zone. Right: the two outputs. An infested farm leaves the count when its infestation runs its course, whether or not it is found. After a confirmed detection, every farm still counted is also released at a steady rate, on average 21 days after the detection. The picture does not draw these two exits.
-<a href="#diagram" data-open="diagram">The farm picture, how to read both pictures, and where each parameter enters</a>.
-Changed 2026-11-13: the model picture is now two pictures, one of a farm and one of the zone. Click or tap the picture to enlarge it.</figcaption></figure>
+The model in three parts, each with its parameters: <a href="#detection" data-open="detection">how infested farms are found</a>,
+<a href="#farm" data-open="farm">one farm</a> and <a href="#zone" data-open="zone">the zone</a>.
+Changed 2026-11-13: the model picture is now two pictures, one of a farm and one of the zone, and the card that held both is now three cards: how infested farms are found, one farm, and the zone. Click or tap the picture to enlarge it.</figcaption></figure>
 <p><a href="https://ckogan.github.io/screwworm-app/" target="_blank" rel="noopener">The interactive app</a> shows the estimate
 for any setting of the inputs.</p>
 <h3>Where to go next</h3>
 <ul class="nav">
+<li><a href="#detection" data-open="detection">How infested farms are found</a>: owner reports, inspection rounds,
+confirmation and what follows a detection.</li>
+<li><a href="#farm" data-open="farm">One farm</a>: the farm picture and spread inside a farm.</li>
+<li><a href="#zone" data-open="zone">The zone</a>: the zone picture, introductions, spread between farms
+and release.</li>
+<li><a href="#table" data-open="table">The parameter table</a>: value, range and what each rests on, in the same
+three groups.</li>
 <li><a href="#scenario" data-open="scenario">The six-month scenario</a>: the fixed inputs and the surveillance streams.</li>
 <li><a href="#limits" data-open="limits">What the model leaves out</a>.</li>
 <li><a href="#equations" data-open="equations">The model's equations</a>: every symbol defined.</li>
 <li><a href="#whatif" data-open="whatif">Do two independent builds agree?</a>: the agreement check.</li>
-<li><a href="#table" data-open="table">The parameter table</a>: value, range and what each rests on.</li>
 <li><a href="#matter" data-open="matter">Which parameters matter</a>: ranked by effect on the six-month estimate.</li>
 <li><a href="#biases" data-open="biases">Known biases</a>: which way each pushes the estimate.</li>
 </ul>
@@ -310,95 +319,75 @@ simulation error (<a href="#whatif" data-open="whatif">the agreement check</a>).
 </article>
 </main>
 <div id="store" aria-hidden="true">
-<article class="card " id="scenario" data-title="The six-month scenario" tabindex="-1" aria-labelledby="scenario-h">
-<header class="bar"><h2 id="scenario-h">The six-month scenario</h2>
-<button class="x" type="button" data-close="scenario" aria-label="Close The six-month scenario">&times;</button></header>
+<article class="card " id="detection" data-title="How infested farms are found" tabindex="-1" aria-labelledby="detection-h">
+<header class="bar"><h2 id="detection-h">How infested farms are found</h2>
+<button class="x" type="button" data-close="detection" aria-label="Close How infested farms are found">&times;</button></header>
 <div class="body">
-<p>Every number on this page is for this scenario unless the card says
-otherwise.</p>
-<div class="scroll"><table>
-<tbody>
-<tr><th scope='row'>Zone</th><td>100 farms, each with 100 animals. Holdings under 10 animals are outside the model.</td></tr>
-<tr><th scope='row'>Freedom</th><td>Absolute: zero infested farms, not a prevalence below a threshold.</td></tr>
-<tr><th scope='row'>Surveillance</th><td>6 inspection rounds, one every 30 days; 20 farms visited per round; 30 animals examined on each visited farm. Owner reporting runs all the time. Streams the model does not use are listed below the table.</td></tr>
-<tr><th scope='row'>Start (day 0, the last detection)</th><td>The number of infested farms nobody has found is drawn with mean 1 (Poisson), so the zone starts free with chance 0.37; their infestations are about 14 days old (exponential, mean 14 days). Both are guesses: no source estimates the undetected remainder.</td></tr>
-<tr><th scope='row'>Controls in force at day 0</th><td>None is modelled. Quarantine, movement controls and sterile-fly releases are not states of the model. Spread between farms runs at its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season). The lockdown cut, which stands for tighter movement controls and more sterile flies, switches on only at a new confirmed detection. In practice a zone stays under controls after its last detection; the model does not represent that.</td></tr>
-<tr><th scope='row'>Introductions</th><td>One new infested farm about every 130 days for the zone as a whole. The rate was counted for a free county next to an active quarantine zone during the 2026 response, and the scenario assumes that pressure, with an active zone next door, lasts all six months. It was counted per county and is applied unchanged to the 100-farm zone; no conversion from a county to 100 farms is made. For a free county far from active zones the model&#x27;s settings use about 1,000 days instead.</td></tr>
-<tr><th scope='row'>Parameters</th><td>All twelve at their central values (the parameter table), except in the ranking, which draws them across their ranges.</td></tr>
-<tr><th scope='row'>Horizon</th><td>180 days.</td></tr>
-</tbody>
-</table>
-</div>
-<h3>Surveillance streams: which the model uses</h3>
-<p><strong>In the model:</strong></p>
+<p class="small"><strong>Changed 2026-11-13: the model picture is now two pictures, one of a farm and one of the zone, and the card that held both is now three cards: how infested farms are found, one farm, and the zone.</strong></p>
+<p>Two surveillance streams look for infested farms: owners who report a wound, and inspection
+rounds. Both find only animals in the "Infested" (larvae hatched) step of the
+<a href="#farm" data-open="farm">farm picture</a>: "Inspection misses eggs", so an animal in the "Latent" (eggs laid)
+step cannot be found by either stream. Labels in quotes are those printed on the farm and zone
+pictures.</p>
+<h3>Stream 1, owner reports</h3>
+<p>Drawn as "Owner reports a wound" on the farm picture and "Owner reports" on the
+<a href="#zone" data-open="zone">zone picture</a>. Owners can report at any time, including between inspection
+rounds.</p>
 <ul>
-<li><strong>Owner reports:</strong> run all the time: an owner notices a visible wound and the case becomes a confirmed detection after the reporting delay, which also covers the veterinarian&#x27;s visit and the laboratory.</li>
-<li><strong>Inspection rounds:</strong> every 30 days, 20 of the 100 farms, 30 animals examined on each; an animal carrying larvae is found with the inspection sensitivity.</li>
+<li><strong>A wound becomes visible:</strong> the share of infested animals with a visible wound
+ramps up over the first days after the farm is infested (mean clinical onset time), to a ceiling
+(share of wounds visible).</li>
+<li><strong>The owner notices it:</strong> each visible wound is noticed with a set chance (chance
+the owner notices a wound).</li>
+<li><strong>The detection is confirmed:</strong> once a wound is noticed, the confirmed detection
+follows after a random delay that averages the owner reporting delay.</li>
 </ul>
-<p><strong>Not in the model:</strong></p>
+<p>So owner reporting strengthens as more animals carry visible wounds, but is capped by how
+quickly a noticed wound becomes a confirmed detection.</p>
+<h3>Stream 2, inspection rounds</h3>
+<p>Drawn as "Inspection: a sample of animals" on the farm picture and "Inspection rounds" on the
+zone picture. On set dates a round visits a set number of farms, drawn at random, and on each
+visited farm examines a set number of animals (the whole herd if it is smaller). Each infested
+animal examined is found with a set chance (inspection sensitivity), and a visited farm is found
+if any of its examined animals is. An infested farm a round visits but does not find is drawn as
+"Missed" on the zone picture. The round dates, the farms per round and the animals per farm are
+fixed in <a href="#scenario" data-open="scenario">the six-month scenario</a>.</p>
+<h3>What counts as a detection</h3>
+<p>A detection in the model is a confirmed detection. A suspect larva or report is taken to be
+followed by laboratory identification, which tells screwworm larvae from those of other flies that
+look alike in the field, so the model has no false alarms. The model has no separate laboratory
+step. A round that finds nothing, and each day with no owner report, count as evidence: the chance
+that no farm is infested is updated after each.</p>
+<h3>After the first confirmed detection</h3>
 <ul>
-<li><strong>Fly trapping:</strong> not modelled, so trap results add no evidence; it is a named later addition to the model, not built.</li>
-<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as part of the introduction rate; the model has no wildlife surveillance stream, so wildlife reports add no evidence in the model, although they happen in practice.</li>
-<li><strong>Movement checks (pre-movement inspection and treatment at checkpoints and markets):</strong> not modelled; moved animals enter only as part of the introduction rate.</li>
-<li><strong>Slaughter inspection:</strong> not in the model&#x27;s design.</li>
-<li><strong>Pets, holdings under 10 animals and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
+<li><strong>The found farm:</strong> drawn as "Found" on the zone picture and as "Farm found" on
+the farm picture; finding it starts lockdown.</li>
+<li><strong>The estimate:</strong> "Chance no farm is infested" on the zone picture is conditional
+on no detection so far; a confirmed detection ends it.</li>
+<li><strong>Lockdown:</strong> "Initiate lockdown" switches spread between farms to the dot-dash
+"Spread reduced after lockdown" arrow: spread between farms is multiplied by the lockdown spread
+multiplier for the rest of the time the model runs. It stands for more sterile flies and tighter
+movement controls. The model does not lift it.</li>
+<li><strong>Release:</strong> from the detection on, every counted farm is released at a steady
+rate, on average 21 days after the detection, or after its own infestation if that comes later
+(zone clearance time). Neither picture draws this.</li>
 </ul>
-<p><strong>Not in the sensitivity ranking:</strong> the starting state, the farm design and the
-surveillance design above are fixed in every draw, so <a href="#matter" data-open="matter">which parameters matter</a>
-says nothing about them. Their effect can be large: in a separate model run with only herd size
-changed (six-month scenario, other values at their centrals), herds of 30 animals instead of 100
-lowered the six-month estimate from about 0.93 to about 0.88.</p>
-<p class="small">Fly trapping and season are not in the model: see
-<a href="#limits" data-open="limits">what the model leaves out</a>.</p>
+<h3>Parameters for detection</h3>
+<ul>
+<li><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a>: &quot;Owner reports a wound&quot; on the farm picture and &quot;Owner reports&quot; on the zone picture, as the delay from noticing to a confirmed detection</li>
+<li><a href="#p-rho_a" data-open="p-rho_a">Chance the owner notices a wound</a>: &quot;Owner reports a wound&quot; on the farm picture and &quot;Owner reports&quot; on the zone picture, as the chance an owner notices a visible wound</li>
+<li><a href="#p-f_clinical_max" data-open="p-f_clinical_max">Share of wounds visible</a>: not drawn; it acts through &quot;Owner reports a wound&quot; on the farm picture (the share of wounds on infested animals that ever become visible)</li>
+<li><a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">Mean clinical onset time</a>: not drawn; it acts through &quot;Owner reports a wound&quot; on the farm picture (how fast wounds on infested animals become visible)</li>
+<li><a href="#p-Se_animal" data-open="p-Se_animal">Inspection sensitivity</a>: &quot;Inspection: a sample of animals&quot; on the farm picture and &quot;Inspection rounds&quot; on the zone picture, as the chance an inspector finds an infested animal; an infested farm a round does not find is drawn as &quot;Missed&quot;</li>
+</ul>
+<p class="small">The detailed formulas, with every symbol defined: <a href="#equations" data-open="equations">the model's equations</a>.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
 </article>
-<article class="card " id="limits" data-title="What the model leaves out" tabindex="-1" aria-labelledby="limits-h">
-<header class="bar"><h2 id="limits-h">What the model leaves out</h2>
-<button class="x" type="button" data-close="limits" aria-label="Close What the model leaves out">&times;</button></header>
+<article class="card " id="farm" data-title="One farm: spread inside a farm" tabindex="-1" aria-labelledby="farm-h">
+<header class="bar"><h2 id="farm-h">One farm: spread inside a farm</h2>
+<button class="x" type="button" data-close="farm" aria-label="Close One farm: spread inside a farm">&times;</button></header>
 <div class="body">
-<ul>
-<li><strong>Fly trapping:</strong> not in the model; trap results add no evidence here.</li>
-<li><strong>Season:</strong> the rates come from summer 2026 and are held constant; a six-month
-horizon runs into winter, when fly activity falls.</li>
-<li><strong>Wildlife and pets:</strong> the model has no surveillance stream for them; they enter
-only through the introduction rate, so reports about them add no evidence in the model, although
-such reports do happen in practice. The model says nothing about freedom in wildlife.</li>
-<li><strong>Herds under 10 animals:</strong> outside the model's farms.</li>
-<li><strong>Pupae and the next fly generation:</strong> a farm stops seeding others when its
-animals stop carrying larvae; in the field, flies emerge about a week after the larvae drop and
-lay eggs about a week after that.</li>
-<li><strong>Controls after the last detection:</strong> quarantine, movement controls and
-sterile-fly releases are not states of the model.</li>
-<li><strong>Spread between farms inside a free zone:</strong> spread between farms acts only once a
-farm in the zone is infested. Spread from nearby infested areas enters through the <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a>.</li>
-<li><strong>Introduction pathways:</strong> the <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a> is one
-zone-level rate covering flies, moved animals and wildlife. Weather (temperature and rain), the
-frequency and amount of sterile-fly release, and preventive treatment change arrivals in practice
-but do not change the rate in the model. Sterile-fly release enters only as part of the cut in
-between-farm spread after a detection.</li>
-<li><strong>Confirmation:</strong> a detection means a laboratory-confirmed case; false alarms
-are not modelled.</li>
-</ul>
-<h3>Freedom in the model and in an APHIS declaration</h3>
-<p>In the model, the zone is free when none of its 100 farms is infested. This is not the APHIS
-release or freedom criterion. The APHIS response strategy (the Green Book, <a href="#s-A-1-1" data-open="s-A-1-1">A-1.1</a>,
-<a href="https://www.aphis.usda.gov/sites/default/files/nws-myiasis-disease-strategy.pdf#page=25"
-target="_blank" rel="noopener">page 25 of the PDF</a>) says:</p>
-<blockquote>A declaration of NWS freedom after an infestation in the United States would be based
-on surveillance for NWS that includes trapping of flies and visual inspection of animals for
-myiasis. Depending on specific weather and seasonal conditions in the area(s) of infestation,
-surveillance should be carried out for 3 months past the last NWS detection</blockquote>
-<p>and gives that as generally 3 to 4 fly life cycles during an outbreak. The model's
-probability is at most a supporting quantity beside that, not a substitute for it.</p>
-<p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
-</div>
-</article>
-<article class="card " id="diagram" data-title="The model pictures: one farm and the zone" tabindex="-1" aria-labelledby="diagram-h">
-<header class="bar"><h2 id="diagram-h">The model pictures: one farm and the zone</h2>
-<button class="x" type="button" data-close="diagram" aria-label="Close The model pictures: one farm and the zone">&times;</button></header>
-<div class="body">
-<p class="small"><strong>Changed 2026-11-13: the model picture is now two pictures, one of a farm and one of the zone.</strong></p>
 <figure class="zoomable"><img src="data:image/png;base64,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
@@ -449,6 +438,38 @@ jQALAAAAAAAANo0ACwAAAAAAADaNAAsAAAAAAAA2jQALAAAAAAAANo0ACwAAAAAAADaNAAsAAAAAAAA2
 alt="Model picture of one farm. The animals on one infested farm move from susceptible to latent (eggs laid), infested (larvae hatched) and recovered. A loop from infested back onto the susceptible to latent step reads &quot;their flies lay eggs on more animals&quot;, and a branch leads to other farms in the zone. Under latent: inspection misses eggs. From infested, two ways find the farm: inspection of a sample of animals and an owner reporting a wound; either leads to &quot;Farm found&quot;, which starts lockdown in the zone."
 loading="lazy"><figcaption>One farm: the animals on one infested farm, how the infestation passes between them, and the two ways the farm is found. Click or tap the picture to enlarge it; the
 enlarged picture scrolls sideways.</figcaption></figure>
+<h3>How to read the farm picture</h3>
+<ul>
+<li><strong>"Animals on one infested farm":</strong> the animals move from Susceptible to Latent
+(eggs laid), Infested (larvae hatched) and Recovered. Every infested farm runs the same
+course.</li>
+<li><strong>The loop "their flies lay eggs on more animals":</strong> spread from infested animals
+to susceptible animals on the same farm. Its branch to "Other farms in the zone" is spread between
+farms, shown on the zone picture.</li>
+<li><strong>"Inspection misses eggs":</strong> an animal in the Latent step cannot be found.</li>
+<li><strong>"Finds the farm":</strong> "Inspection: a sample of animals" and "Owner reports a
+wound" both act on infested animals. Either leads to "Farm found", which starts lockdown in the
+zone.</li>
+</ul>
+<p class="small">The two ways the farm is found, "Finds the farm", are described in
+<a href="#detection" data-open="detection">how infested farms are found</a>. Spread to "Other farms in the zone" is on
+<a href="#zone" data-open="zone">the zone card</a>.</p>
+<h3>Parameters for spread inside a farm</h3>
+<ul>
+<li><a href="#p-doubling_time_within" data-open="p-doubling_time_within">Within-premises doubling time</a>: the Susceptible to Latent step on the farm picture, driven by the &quot;their flies lay eggs on more animals&quot; loop from Infested</li>
+<li><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a>: the Infested to Recovered step on the farm picture; it also sets when the infestation on a farm has run its course</li>
+<li><a href="#p-mean_latent_time" data-open="p-mean_latent_time">Mean latent time</a>: the Latent to Infested step on the farm picture</li>
+</ul>
+<p class="small">The model has no fly population: the loop "their flies lay eggs on more animals"
+is spread from animal to animal on the farm. An infested farm leaves the count when its infestation runs its course, whether or not it is found. After a confirmed detection, every farm still counted is also released at a steady rate, on average 21 days after the detection. Neither picture draws these two exits.</p>
+<p class="small">The detailed formulas, with every symbol defined: <a href="#equations" data-open="equations">the model's equations</a>.</p>
+<p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
+</div>
+</article>
+<article class="card " id="zone" data-title="The zone: introductions, spread between farms and release" tabindex="-1" aria-labelledby="zone-h">
+<header class="bar"><h2 id="zone-h">The zone: introductions, spread between farms and release</h2>
+<button class="x" type="button" data-close="zone" aria-label="Close The zone: introductions, spread between farms and release">&times;</button></header>
+<div class="body">
 <figure class="zoomable"><img src="data:image/png;base64,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
@@ -544,21 +565,7 @@ AAAAAAAAAAAMaRBgAQAAAAAAAAAAAIAhDQIsAAAAAAAAAAAAADCkQYAFAAAAAAAAAAAAAIY0CLAAAAAA
 alt="Model picture of the zone. On the left, the inputs that add infested farms (already infested at start, new arrivals from outside, spread between farms) and the inputs that find them (inspection rounds, owner reports). In the middle, a grid of farms in the zone: infested farms, inspected farms, one missed and one found; the found farm initiates lockdown, which reduces spread between farms. On the right, the outputs: the chance no farm is infested if searching finds nothing more, and the expected new infested farms and expected cost. A footer lists what is not modeled."
 loading="lazy"><figcaption>The zone. Left: the inputs that add infested farms and the inputs that find them. Middle: the farms in the zone. Right: the two outputs. Click or tap the picture to enlarge it; the
 enlarged picture scrolls sideways.</figcaption></figure>
-<h3>How to read the pictures</h3>
-<p><strong>The farm picture</strong></p>
-<ul>
-<li><strong>"Animals on one infested farm":</strong> the animals move from Susceptible to Latent
-(eggs laid), Infested (larvae hatched) and Recovered. Every infested farm runs the same
-course.</li>
-<li><strong>The loop "their flies lay eggs on more animals":</strong> spread from infested animals
-to susceptible animals on the same farm. Its branch to "Other farms in the zone" is spread between
-farms, shown on the zone picture.</li>
-<li><strong>"Inspection misses eggs":</strong> an animal in the Latent step cannot be found.</li>
-<li><strong>"Finds the farm":</strong> "Inspection: a sample of animals" and "Owner reports a
-wound" both act on infested animals. Either leads to "Farm found", which starts lockdown in the
-zone.</li>
-</ul>
-<p><strong>The zone picture</strong></p>
+<h3>How to read the zone picture</h3>
 <ul>
 <li><strong>Left, "Adds infested farms":</strong> the three inputs that add infested farms to the
 zone: "Already infested at start", "New arrivals from outside" and "Spread between farms".</li>
@@ -577,23 +584,102 @@ finds nothing more, so no lockdown, plotted against the time since the last dete
 outcomes, so lockdown lowers them; projected from the start, with placeholder cost weights.</li>
 <li><strong>Bottom line, "Not modeled":</strong> processes the model does not represent.</li>
 </ul>
-<h3>Where each parameter enters</h3>
+<p class="small">"Finds them", "Missed", "Found" and "Initiate lockdown" are described in
+<a href="#detection" data-open="detection">how infested farms are found</a>. What happens inside one infested farm is on
+<a href="#farm" data-open="farm">the farm card</a>.</p>
+<h3>Parameters for introductions, spread between farms and release</h3>
 <ul>
-<li><a href="#p-mean_latent_time" data-open="p-mean_latent_time">Mean latent time</a>: the Latent to Infested step on the farm picture</li>
-<li><a href="#p-doubling_time_within" data-open="p-doubling_time_within">Within-premises doubling time</a>: the Susceptible to Latent step on the farm picture, driven by the &quot;their flies lay eggs on more animals&quot; loop from Infested</li>
-<li><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a>: the Infested to Recovered step on the farm picture; it also sets when the infestation on a farm has run its course</li>
-<li><a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">Mean clinical onset time</a>: not drawn; it acts through &quot;Owner reports a wound&quot; on the farm picture (how fast wounds on infested animals become visible)</li>
-<li><a href="#p-f_clinical_max" data-open="p-f_clinical_max">Share of wounds visible</a>: not drawn; it acts through &quot;Owner reports a wound&quot; on the farm picture (the share of wounds on infested animals that ever become visible)</li>
-<li><a href="#p-Se_animal" data-open="p-Se_animal">Inspection sensitivity</a>: &quot;Inspection: a sample of animals&quot; on the farm picture and &quot;Inspection rounds&quot; on the zone picture, as the chance an inspector finds an infested animal; an infested farm a round does not find is drawn as &quot;Missed&quot;</li>
-<li><a href="#p-rho_a" data-open="p-rho_a">Chance the owner notices a wound</a>: &quot;Owner reports a wound&quot; on the farm picture and &quot;Owner reports&quot; on the zone picture, as the chance an owner notices a visible wound</li>
-<li><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a>: &quot;Owner reports a wound&quot; on the farm picture and &quot;Owner reports&quot; on the zone picture, as the delay from noticing to a confirmed detection</li>
 <li><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a>: &quot;New arrivals from outside&quot; on the zone picture</li>
 <li><a href="#p-doubling_time" data-open="p-doubling_time">Zone doubling time</a>: &quot;Spread between farms&quot; on the zone picture, drawn as the solid orange arrow in the farm grid (legend: &quot;Between-farm spread&quot;)</li>
-<li><a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">Zone clearance time</a>: not drawn; after a confirmed detection (a farm drawn as &quot;Found&quot; on the zone picture), every farm still counted is released on this clock</li>
 <li><a href="#p-beta_lockdown_multiplier" data-open="p-beta_lockdown_multiplier">Lockdown spread multiplier</a>: the dot-dash &quot;Spread reduced after lockdown&quot; arrow on the zone picture, which &quot;Initiate lockdown&quot; switches on once a farm is found</li>
+<li><a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">Zone clearance time</a>: not drawn; after a confirmed detection (a farm drawn as &quot;Found&quot; on the zone picture), every farm still counted is released on this clock</li>
 </ul>
-<p class="small">The model has no fly population: the loop "their flies lay eggs on more animals"
-is spread from animal to animal on the farm. An infested farm leaves the count when its infestation runs its course, whether or not it is found. After a confirmed detection, every farm still counted is also released at a steady rate, on average 21 days after the detection. Neither picture draws these two exits.</p>
+<p class="small">An infested farm leaves the count when its infestation runs its course, whether or not it is found. After a confirmed detection, every farm still counted is also released at a steady rate, on average 21 days after the detection. The picture does not draw these two exits.</p>
+<p class="small">The detailed formulas, with every symbol defined: <a href="#equations" data-open="equations">the model's equations</a>.</p>
+<p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
+</div>
+</article>
+<article class="card " id="scenario" data-title="The six-month scenario" tabindex="-1" aria-labelledby="scenario-h">
+<header class="bar"><h2 id="scenario-h">The six-month scenario</h2>
+<button class="x" type="button" data-close="scenario" aria-label="Close The six-month scenario">&times;</button></header>
+<div class="body">
+<p>Every number on this page is for this scenario unless the card says
+otherwise.</p>
+<div class="scroll"><table>
+<tbody>
+<tr><th scope='row'>Zone</th><td>100 farms, each with 100 animals. Holdings under 10 animals are outside the model.</td></tr>
+<tr><th scope='row'>Freedom</th><td>Absolute: zero infested farms, not a prevalence below a threshold.</td></tr>
+<tr><th scope='row'>Surveillance</th><td>6 inspection rounds, one every 30 days; 20 farms visited per round; 30 animals examined on each visited farm. Owner reporting runs all the time. Streams the model does not use are listed below the table.</td></tr>
+<tr><th scope='row'>Start (day 0, the last detection)</th><td>The number of infested farms nobody has found is drawn with mean 1 (Poisson), so the zone starts free with chance 0.37; their infestations are about 14 days old (exponential, mean 14 days). Both are guesses: no source estimates the undetected remainder.</td></tr>
+<tr><th scope='row'>Controls in force at day 0</th><td>None is modelled. Quarantine, movement controls and sterile-fly releases are not states of the model. Spread between farms runs at its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season). The lockdown cut, which stands for tighter movement controls and more sterile flies, switches on only at a new confirmed detection. In practice a zone stays under controls after its last detection; the model does not represent that.</td></tr>
+<tr><th scope='row'>Introductions</th><td>One new infested farm about every 130 days for the zone as a whole. The rate was counted for a free county next to an active quarantine zone during the 2026 response, and the scenario assumes that pressure, with an active zone next door, lasts all six months. It was counted per county and is applied unchanged to the 100-farm zone; no conversion from a county to 100 farms is made. For a free county far from active zones the model&#x27;s settings use about 1,000 days instead.</td></tr>
+<tr><th scope='row'>Parameters</th><td>All twelve at their central values (the parameter table), except in the ranking, which draws them across their ranges.</td></tr>
+<tr><th scope='row'>Horizon</th><td>180 days.</td></tr>
+</tbody>
+</table>
+</div>
+<h3>Surveillance streams: which the model uses</h3>
+<p><strong>In the model:</strong></p>
+<ul>
+<li><strong>Owner reports:</strong> run all the time: an owner notices a visible wound and the case becomes a confirmed detection after the reporting delay, which also covers the veterinarian&#x27;s visit and the laboratory.</li>
+<li><strong>Inspection rounds:</strong> every 30 days, 20 of the 100 farms, 30 animals examined on each; an animal carrying larvae is found with the inspection sensitivity.</li>
+</ul>
+<p><strong>Not in the model:</strong></p>
+<ul>
+<li><strong>Fly trapping:</strong> not modelled, so trap results add no evidence; it is a named later addition to the model, not built.</li>
+<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as part of the introduction rate; the model has no wildlife surveillance stream, so wildlife reports add no evidence in the model, although they happen in practice.</li>
+<li><strong>Movement checks (pre-movement inspection and treatment at checkpoints and markets):</strong> not modelled; moved animals enter only as part of the introduction rate.</li>
+<li><strong>Slaughter inspection:</strong> not in the model&#x27;s design.</li>
+<li><strong>Pets, holdings under 10 animals and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
+</ul>
+<p><strong>Not in the sensitivity ranking:</strong> the starting state, the farm design and the
+surveillance design above are fixed in every draw, so <a href="#matter" data-open="matter">which parameters matter</a>
+says nothing about them. Their effect can be large: in a separate model run with only herd size
+changed (six-month scenario, other values at their centrals), herds of 30 animals instead of 100
+lowered the six-month estimate from about 0.93 to about 0.88.</p>
+<p class="small">Fly trapping and season are not in the model: see
+<a href="#limits" data-open="limits">what the model leaves out</a>.</p>
+<p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
+</div>
+</article>
+<article class="card " id="limits" data-title="What the model leaves out" tabindex="-1" aria-labelledby="limits-h">
+<header class="bar"><h2 id="limits-h">What the model leaves out</h2>
+<button class="x" type="button" data-close="limits" aria-label="Close What the model leaves out">&times;</button></header>
+<div class="body">
+<ul>
+<li><strong>Fly trapping:</strong> not in the model; trap results add no evidence here.</li>
+<li><strong>Season:</strong> the rates come from summer 2026 and are held constant; a six-month
+horizon runs into winter, when fly activity falls.</li>
+<li><strong>Wildlife and pets:</strong> the model has no surveillance stream for them; they enter
+only through the introduction rate, so reports about them add no evidence in the model, although
+such reports do happen in practice. The model says nothing about freedom in wildlife.</li>
+<li><strong>Herds under 10 animals:</strong> outside the model's farms.</li>
+<li><strong>Pupae and the next fly generation:</strong> a farm stops seeding others when its
+animals stop carrying larvae; in the field, flies emerge about a week after the larvae drop and
+lay eggs about a week after that.</li>
+<li><strong>Controls after the last detection:</strong> quarantine, movement controls and
+sterile-fly releases are not states of the model.</li>
+<li><strong>Spread between farms inside a free zone:</strong> spread between farms acts only once a
+farm in the zone is infested. Spread from nearby infested areas enters through the <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a>.</li>
+<li><strong>Introduction pathways:</strong> the <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a> is one
+zone-level rate covering flies, moved animals and wildlife. Weather (temperature and rain), the
+frequency and amount of sterile-fly release, and preventive treatment change arrivals in practice
+but do not change the rate in the model. Sterile-fly release enters only as part of the cut in
+between-farm spread after a detection.</li>
+<li><strong>Confirmation:</strong> a detection means a laboratory-confirmed case; false alarms
+are not modelled.</li>
+</ul>
+<h3>Freedom in the model and in an APHIS declaration</h3>
+<p>In the model, the zone is free when none of its 100 farms is infested. This is not the APHIS
+release or freedom criterion. The APHIS response strategy (the Green Book, <a href="#s-A-1-1" data-open="s-A-1-1">A-1.1</a>,
+<a href="https://www.aphis.usda.gov/sites/default/files/nws-myiasis-disease-strategy.pdf#page=25"
+target="_blank" rel="noopener">page 25 of the PDF</a>) says:</p>
+<blockquote>A declaration of NWS freedom after an infestation in the United States would be based
+on surveillance for NWS that includes trapping of flies and visual inspection of animals for
+myiasis. Depending on specific weather and seasonal conditions in the area(s) of infestation,
+surveillance should be carried out for 3 months past the last NWS detection</blockquote>
+<p>and gives that as generally 3 to 4 fly life cycles during an outbreak. The model's
+probability is at most a supporting quantity beside that, not a substitute for it.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
 </article>
@@ -711,25 +797,30 @@ are right.</p>
 <header class="bar"><h2 id="table-h">The parameter table</h2>
 <button class="x" type="button" data-close="table" aria-label="Close The parameter table">&times;</button></header>
 <div class="body">
-<p>Ordered by average effect on the six-month estimate.</p>
+<p>Grouped by part of the model: how infested farms are found, one farm, and the zone.
+Each group heading opens its card.
+Within a group, rows are ordered by average effect on the six-month estimate.</p>
 <div class="scroll"><table class="ptable">
 <thead><tr><th>Parameter</th><th>Chosen value</th><th>Range (90 percent interval)</th>
 <th class="num">Average effect</th><th>What the value rests on</th>
 <th class="num">Quotes found</th><th>Evidence mix</th></tr>
 </thead>
 <tbody>
-<tr><td><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a></td><td>130 d</td><td>50 to 400 d</td><td class="num">+0.117</td><td><span class="chip basis b-der">counted from reports</span></td><td class="num">4 of 4</td><td><span class="mix k-news" title="news report">3 news report</span> <span class="mix k-obs" title="outbreak observation">1 outbreak observation</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span> <span class="mix k-model" title="model or expert estimate">1 model or expert estimate</span></td></tr>
+<tr class="grp"><th colspan="7" scope="colgroup"><span class="grph"><a href="#detection" data-open="detection">Detection: &quot;Finds the farm&quot; on the farm picture, &quot;Finds them&quot; on the zone picture</a></span></th></tr>
 <tr><td><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a></td><td>0.33 /d (mean 3 d)</td><td>0.08 to 1.0 /d (mean delay 1 to 12.5 d)</td><td class="num">-0.089</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">7 of 7</td><td><span class="mix k-news" title="news report">2 news report</span> <span class="mix k-obs" title="outbreak observation">2 outbreak observation</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span></td></tr>
 <tr><td><a href="#p-rho_a" data-open="p-rho_a">Chance the owner notices a wound</a></td><td>0.70</td><td>0.45 to 0.90</td><td class="num">+0.028</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">6 of 7</td><td><span class="mix k-obs" title="outbreak observation">3 outbreak observation</span> <span class="mix k-unclear" title="unclear">1 unclear</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span></td></tr>
+<tr><td><a href="#p-f_clinical_max" data-open="p-f_clinical_max">Share of wounds visible</a></td><td>0.9</td><td>0.75 to 0.98</td><td class="num">+0.014</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">5 of 6</td><td><span class="mix k-agency" title="agency rule or guidance">3 agency rule or guidance</span> <span class="mix k-review" title="review or textbook">1 review or textbook</span> <span class="mix k-obs" title="outbreak observation">1 outbreak observation</span></td></tr>
+<tr><td><a href="#p-Se_animal" data-open="p-Se_animal">Inspection sensitivity</a></td><td>0.85</td><td>0.65 to 0.95</td><td class="num">+0.002</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">6 of 6</td><td><span class="mix k-agency" title="agency rule or guidance">2 agency rule or guidance</span> <span class="mix k-obs" title="outbreak observation">2 outbreak observation</span></td></tr>
+<tr><td><a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">Mean clinical onset time</a></td><td>3 d</td><td>1.5 to 6 d</td><td class="num">+0.000</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">4 of 5</td><td><span class="mix k-exp" title="experimental study">2 experimental study</span> <span class="mix k-review" title="review or textbook">2 review or textbook</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span></td></tr>
+<tr class="grp"><th colspan="7" scope="colgroup"><span class="grph"><a href="#farm" data-open="farm">Spread inside a farm: &quot;Animals on one infested farm&quot; on the farm picture</a></span></th></tr>
 <tr><td><a href="#p-mean_latent_time" data-open="p-mean_latent_time">Mean latent time</a></td><td>2 d</td><td>1 to 3 d</td><td class="num">-0.019</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">6 of 7</td><td><span class="mix k-agency" title="agency rule or guidance">2 agency rule or guidance</span> <span class="mix k-review" title="review or textbook">2 review or textbook</span> <span class="mix k-exp" title="experimental study">2 experimental study</span></td></tr>
 <tr><td><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a></td><td>7 d</td><td>3 to 15 d</td><td class="num">+0.015</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">12 of 12</td><td><span class="mix k-review" title="review or textbook">3 review or textbook</span> <span class="mix k-agency" title="agency rule or guidance">2 agency rule or guidance</span> <span class="mix k-exp" title="experimental study">1 experimental study</span> <span class="mix k-model" title="model or expert estimate">1 model or expert estimate</span> <span class="mix k-news" title="news report">1 news report</span></td></tr>
 <tr><td><a href="#p-doubling_time_within" data-open="p-doubling_time_within">Within-premises doubling time</a></td><td>3.6 d</td><td>3.2 to 3.9 d (at the central recovery time)</td><td class="num">+0.014</td><td><span class="chip basis b-der">converted from a related setting</span></td><td class="num">10 of 10</td><td><span class="mix k-obs" title="outbreak observation">2 outbreak observation</span> <span class="mix k-model" title="model or expert estimate">2 model or expert estimate</span> <span class="mix k-review" title="review or textbook">1 review or textbook</span></td></tr>
-<tr><td><a href="#p-f_clinical_max" data-open="p-f_clinical_max">Share of wounds visible</a></td><td>0.9</td><td>0.75 to 0.98</td><td class="num">+0.014</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">5 of 6</td><td><span class="mix k-agency" title="agency rule or guidance">3 agency rule or guidance</span> <span class="mix k-review" title="review or textbook">1 review or textbook</span> <span class="mix k-obs" title="outbreak observation">1 outbreak observation</span></td></tr>
+<tr class="grp"><th colspan="7" scope="colgroup"><span class="grph"><a href="#zone" data-open="zone">The zone: &quot;Adds infested farms&quot; on the zone picture, with lockdown and release</a></span></th></tr>
+<tr><td><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a></td><td>130 d</td><td>50 to 400 d</td><td class="num">+0.117</td><td><span class="chip basis b-der">counted from reports</span></td><td class="num">4 of 4</td><td><span class="mix k-news" title="news report">3 news report</span> <span class="mix k-obs" title="outbreak observation">1 outbreak observation</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span> <span class="mix k-model" title="model or expert estimate">1 model or expert estimate</span></td></tr>
 <tr><td><a href="#p-beta_lockdown_multiplier" data-open="p-beta_lockdown_multiplier">Lockdown spread multiplier</a></td><td>0.25</td><td>0.07 to 0.6</td><td class="num">+0.006</td><td><span class="chip basis b-set">operating setting</span></td><td class="num">7 of 9</td><td><span class="mix k-news" title="news report">4 news report</span> <span class="mix k-review" title="review or textbook">1 review or textbook</span> <span class="mix k-obs" title="outbreak observation">1 outbreak observation</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span></td></tr>
 <tr><td><a href="#p-doubling_time" data-open="p-doubling_time">Zone doubling time</a></td><td>24 d</td><td>6 to 25 d (not re-centred)</td><td class="num">-0.005</td><td><span class="chip basis b-der">converted from a related setting</span></td><td class="num">5 of 6</td><td><span class="mix k-obs" title="outbreak observation">2 outbreak observation</span> <span class="mix k-model" title="model or expert estimate">1 model or expert estimate</span> <span class="mix k-exp" title="experimental study">1 experimental study</span></td></tr>
-<tr><td><a href="#p-Se_animal" data-open="p-Se_animal">Inspection sensitivity</a></td><td>0.85</td><td>0.65 to 0.95</td><td class="num">+0.002</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">6 of 6</td><td><span class="mix k-agency" title="agency rule or guidance">2 agency rule or guidance</span> <span class="mix k-obs" title="outbreak observation">2 outbreak observation</span></td></tr>
 <tr><td><a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">Zone clearance time</a></td><td>21 d, after a new detection only (off before)</td><td>7 to 40 d</td><td class="num">none (not drawn)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">8 of 8</td><td><span class="mix k-news" title="news report">5 news report</span> <span class="mix k-agency" title="agency rule or guidance">2 agency rule or guidance</span></td></tr>
-<tr><td><a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">Mean clinical onset time</a></td><td>3 d</td><td>1.5 to 6 d</td><td class="num">+0.000</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">4 of 5</td><td><span class="mix k-exp" title="experimental study">2 experimental study</span> <span class="mix k-review" title="review or textbook">2 review or textbook</span> <span class="mix k-agency" title="agency rule or guidance">1 agency rule or guidance</span></td></tr>
 </tbody>
 </table>
 </div>
@@ -945,7 +1036,7 @@ appear only where the page or a separate model run computed them.</p>
 interval); average effect on six-month freedom +0.117.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-der">counted from reports</span> <span class="small">First cases counted from news reports and a public case compilation, then divided by a window and a judged number of at-risk counties; fails the page&#x27;s rule for a high-impact parameter.</span></p>
 <p class="small">Quote check on this card's sources: 4 quotes: 4 found word for word.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#zone" data-open="zone">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen 130 days (range 50 to 400) is for a free county next to an active zone. The AI literature review dated every Texas county&#x27;s first case in summer 2026 [<a href="#s-C-2-1" data-open="s-C-2-1">C-2.1</a>, <a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>, <a href="#s-C-2-7a" data-open="s-C-2-7a">C-2.7a</a>, <a href="#s-C-2-7b" data-open="s-C-2-7b">C-2.7b</a>]. Six far-apart counties seeded within ten days of the first case, and one later far jump (Jim Hogg, 25 June), were set aside as spread before anyone knew. Nine later first cases (20 June to 16 August) all bordered an active quarantine zone and were counted as introductions, so spread from infested areas next door is part of this rate. Nine events over the AI literature review&#x27;s 85-day window, spread across 12 to 20 at-risk counties, gives 0.005 to 0.009 per county per day, a mean interval of 110 to 190 days; 130 was picked inside that. The nine dates span 57 days (20 June to 16 August), and the review does not say what the 85 days covers; over 57 days the same arithmetic gives 76 to 127 days, below the chosen 130. Read literally, as a county sharing a border with a county that already had a case, the rule would drop Medina County: none of its neighbours had a confirmed case by its 24 June first case (Uvalde&#x27;s came on 29 June), though Uvalde had been in a quarantine zone since 3 June [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>]. That leaves eight events, 0.0047 to 0.0078 per county per day over the 85 days, an interval of 128 to 213 days, with the chosen 130 at the lower edge (source census). The Medina date is in the case compilation [<a href="#s-C-2-1" data-open="s-C-2-1">C-2.1</a>] and in a dated case list relaying the USDA dashboard [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>]; the other news article cited with it gives no Medina date [<a href="#s-C-2-7b" data-open="s-C-2-7b">C-2.7b</a>]. The 12 to 20 at-risk counties is the AI literature review&#x27;s judgement; no source gives the ring. Mismatch: a first case is dated by laboratory confirmation, not by arrival, and a county is not necessarily the model&#x27;s zone; a larger zone means a shorter interval. The range ends are judgement. A model paper&#x27;s seeding rate [<a href="#s-C-2-6" data-open="s-C-2-6">C-2.6</a>] was used only as a consistency check. High-impact rule: this is the top parameter (about half the variance in six-month freedom) and it fails the page&#x27;s own rule for high-impact parameters (step 4 of the review process): its evidence is a public compilation and news reports, with no primary source and no expert elicitation. Official case records with dates would fix that. Source caution: every case date behind the count comes through a public online encyclopedia&#x27;s case table [<a
 href="#s-C-2-1" data-open="s-C-2-1">C-2.1</a>] and a syndicated news article [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>], and no quote on file carries those dates; the 4 found quotes on this card&#x27;s sources are context (long-distance spread [<a href="#s-C-2-4" data-open="s-C-2-4">C-2.4</a>], a model&#x27;s seeding rate [<a href="#s-C-2-6" data-open="s-C-2-6">C-2.6</a>]), not the dates that were counted.</p>
@@ -1002,7 +1093,7 @@ positive identification by local veterinarians. The range does not cover it.</p>
 interval); average effect on six-month freedom -0.089.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">Three timed cases set a floor of about 1.5 to 2 days; the 3 days and the 12.5-day end are judgement.</span></p>
 <p class="small">Quote check on this card's sources: 7 quotes: 6 found word for word, 1 near match.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#detection" data-open="detection">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is a mean delay of 3 days (rate 0.33 per day), range 1 to 12.5 days (rates 1.0 to 0.08 per day). Three timed cases were found. The Zavala County calf: the ranch manager found the wound on a routine check and the laboratory confirmed it 2.5 days later [<a href="#s-B-3-7" data-open="s-B-3-7">B-3.7</a>]; this is the only one timed from the owner. A household dog from Lea County, New Mexico, seen at a veterinary clinic in Andrews County, Texas on Saturday 6 June 2026 [<a href="#s-B-3-19" data-open="s-B-3-19">B-3.19</a>]: the news report gives confirmation on Monday 8 June, but a case table based on APHIS data dates it 7 June [<a href="#s-C-2-1" data-open="s-C-2-1">C-2.1</a>], so the interval is 1 to 2 days. Its clock starts at the clinic, so the owner&#x27;s own delay is missing, and with the dog&#x27;s travel history unknown the case is perhaps better read as evidence of an introduction. Sabinas Hidalgo, Mexico: a heifer recently moved to a certified feedlot was detected officially on 20 September 2025 and confirmed on 21 September, 1 day [<a href="#s-B-3-10" data-open="s-B-3-10">B-3.10</a>, <a href="#s-B-3-9" data-open="s-B-3-9">B-3.9</a>]; it was not an owner report, so it times only the sampling and laboratory part. Texas rules ask for a report within 24 hours of a suspect case [<a href="#s-B-3-8" data-open="s-B-3-8">B-3.8</a>]: what owners are required to do, not a measured delay. Mismatch: two of the three intervals leave out the owner&#x27;s step, so they understate the delay; their average, about 1.5 to 2 days, is a floor, not an estimate. All three come from areas on alert during an active response, while the six-month scenario applies the same 3 days after release, when alertness may have fallen; the AI literature review&#x27;s alternative for a naive area, from Florida 2016, is a rate of 0.07 per day (a mean of about 14 days) and is not used in the headline. The 3 days and the 12.5-day upper end are the AI literature review&#x27;s judgement.</p>
 <h3>What the sources do not tell us</h3>
@@ -1035,7 +1126,7 @@ counts as primary for what the rule says)</li>
 interval); no effect on six-month freedom (not drawn in the ranking).</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">An agency release rule plus news snapshots of active cases; they time paperwork, not biology; the tails are judgement. Used only after a new detection, so it does not move freedom.</span></p>
 <p class="small">Quote check on this card's sources: 8 quotes: 7 found word for word, 1 near match.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#zone" data-open="zone">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 21 days, range 7 to 40; it sets only the release clock after a new detection, so it does not move freedom. It comes from two things. First, the release rule: a treated animal is re-inspected 24 hours after treatment and released once no live larvae remain and an official veterinarian signs off [<a href="#s-C-3-1" data-open="s-C-3-1">C-3.1</a>], and the Green Book keeps animals in quarantine until the wounds heal [<a href="#s-C-3-2" data-open="s-C-3-2">C-3.2</a>]. Second, how long Texas 2026 cases stayed on the active list, read from news snapshots of active counts on 30 June, 6 August, 18 August and 3 September [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>, <a href="#s-B-2-22" data-open="s-B-2-22">B-2.22</a>, <a href="#s-B-2-17" data-open="s-B-2-17">B-2.17</a>, <a href="#s-A-3-18" data-open="s-A-3-18">A-3.18</a>]: each case is only bracketed between two dates (for example 25 to 62 days, or 0 to 19 days), not timed. A fit that treats each of 46 Texas cases as such a bracket (interval-censored maximum likelihood) gives a mean of 18.7 days with an exponential curve and 20.1 days with a lognormal (median 14.8 days); the spread is wide. The 3 September count of four active cases is the AI literature review&#x27;s reading, because that tracker page has since been overwritten. Mismatch: this is the administrative clock, not the biology. The first Texas calf&#x27;s wound healed in a week [<a href="#s-B-3-7" data-open="s-B-3-7">B-3.7</a>], and its case was off the active list by 30 June [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>], at most 27 days after its 3 June confirmation; no source says how much sooner. The times are also per animal case, interval-censored, not per premises. A 21-day Texas release rule seen only in a search summary could not be verified. The tails (7 and 40 days) are judgement, set low-confidence by the AI literature review.</p>
 <h3>What the sources do not tell us</h3>
@@ -1070,7 +1161,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.015.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">Sources bound the treated and untreated courses; the 7-day mix of the two is a modelling choice.</span></p>
 <p class="small">Quote check on this card's sources: 12 quotes: 10 found word for word, 2 near matches.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#farm" data-open="farm">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 7 days, range 3 to 15. Larvae feed 5 to 7 days after hatching and then leave the wound [<a href="#s-A-3-1" data-open="s-A-3-1">A-3.1</a>, <a href="#s-A-3-2" data-open="s-A-3-2">A-3.2</a>, <a href="#s-A-3-4" data-open="s-A-3-4">A-3.4</a>]. Untreated wounds attract more egg-laying and the animal dies in 5 to 10 days [<a href="#s-A-3-4" data-open="s-A-3-4">A-3.4</a>], 7 to 10 [<a href="#s-A-3-7" data-open="s-A-3-7">A-3.7</a>], 7 to 14 [<a href="#s-A-3-8" data-open="s-A-3-8">A-3.8</a>], or one to two weeks [<a href="#s-A-3-1" data-open="s-A-3-1">A-3.1</a>]; the AI literature review put the untreated larvae-bearing period at 6 to 12 days, central 10. In a trial, doramectin given 2 hours before first-stage larvae were placed in wounds cleared them within 24 to 48 hours [<a href="#s-A-3-13" data-open="s-A-3-13">A-3.13</a>]; that is preventive dosing against young larvae, not treatment of an established wound, so it bounds the treated course only loosely (the federal procedure&#x27;s re-inspection 24 hours after treatment [<a href="#s-C-3-1" data-open="s-C-3-1">C-3.1</a>] is closer). On that reading an animal found on day 3 to 5 and treated carries larvae 3 to 6 days. The 7 days is a mix of treated and untreated animals under surveillance; the mix is a modelling choice, not data. Figures that time something else were set aside as too long: the 15 to 17 days of a Mexico model&#x27;s &quot;infection process&quot; [<a href="#s-A-3-12" data-open="s-A-3-12">A-3.12</a>] (the paper gives no end point; reading it as running to wound healing is the AI literature review&#x27;s) and the roughly 22 days of Mexico&#x27;s active-case list [<a href="#s-A-3-17" data-open="s-A-3-17">A-3.17</a>] both run to wound healing. Open: if the model already removes reported animals by treatment, the AI literature review recommends 10 days (6 to 17) for the undetected course instead.</p>
 <h3>What the sources do not tell us</h3>
@@ -1106,7 +1197,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.028.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-gue">guessed</span> <span class="small">No study measures it; bounded by indirect numbers.</span></p>
 <p class="small">Quote check on this card's sources: 7 quotes: 6 found word for word, 1 not found (not shown).
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#detection" data-open="detection">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 0.70, range 0.45 to 0.90. No study measures it; it is a judgement bounded by indirect numbers. Mexico handled 10,511 animal myiasis reports from 1 January 2024 to 1 November 2025, and larvae from 9,049 of them were identified as screwworm [<a href="#s-B-2-7" data-open="s-B-2-7">B-2.7</a>]; set against the 9,574 cases the same bulletin confirms to the same end date (counted from 21 November 2024, when the outbreak&#x27;s case count starts), the ratio is about 95 percent. That is identifications from reports per confirmed case, not the share of cases found through reports: one case can give several reports, and the two counts start on different dates: that shows most cases are found through owners and veterinarians, but it cannot say how many infested animals nobody reported, because those appear in neither count. In Florida 2016, 3 of 9 pet cases (33 percent) surfaced only through a later questionnaire [<a href="#s-B-2-1" data-open="s-B-2-1">B-2.1</a>]: these were animals veterinarians had seen, so this measures missed reporting in a naive area, not owners failing to notice. For wild Key deer, biologists estimated one undetected death per known one [<a href="#s-B-2-2" data-open="s-B-2-2">B-2.2</a>]: carcass finding in wildlife, not a handled herd. Handling frequency comes from a 2015 online forum thread of small cattle producers, with answers from daily to weekly [<a href="#s-B-2-18" data-open="s-B-2-18">B-2.18</a>] (the AI literature review&#x27;s tally of 17 US posters does not reproduce: the saved page has about 15 answers that give a frequency, two of them from Canada), and a daily-check recommendation [<a href="#s-B-2-19" data-open="s-B-2-19">B-2.19</a>]. Mismatch: none of these numbers is the per-animal chance the model needs. The central value and both range ends are judgement; the verdict on file is guessed.</p>
 <h3>What the sources do not tell us</h3>
@@ -1140,7 +1231,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.014.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-der">converted from a related setting</span> <span class="small">Growth rates of wild deer deaths and of fly populations, converted by a formula to spread between animals on one farm; no direct measurement.</span></p>
 <p class="small">Quote check on this card's sources: 10 quotes: 10 found word for word.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#farm" data-open="farm">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 3.6 days, range 3.2 to 3.9. It is derived, not observed. Observed doublings of case counts are net of recovery: the uncontrolled Key deer deaths (4, 7, 20, 96 per month, July to October 2016) double every 13 to 20 days [<a href="#s-A-5-8" data-open="s-A-5-8">A-5.8</a>]; a five-fold rise per fly generation, Knipling&#x27;s design assumption [<a href="#s-A-5-2" data-open="s-A-5-2">A-5.2</a>], over a generation of about 21 days [<a href="#s-A-5-4" data-open="s-A-5-4">A-5.4</a>] doubles every 9 days; a fly-population model gives a potential 14 days [<a href="#s-A-5-1" data-open="s-A-5-1">A-5.1</a>]. The model&#x27;s parameter is the gross rate, so the recovery rate was added back: gross doubling = 1 / (1/net doubling + 1/(0.69 x recovery time)), with recovery 7 to 14 days, giving 3.2 to 7.7 days across the AI literature review&#x27;s table, central 4.5. The model&#x27;s own within-premises recovery time is 7 days, not about 14, so the value is derived at 7 days: a net doubling of 9, 13.4 and 20 days gives 3.15, 3.56 and 3.90 days, hence central 3.6 and range 3.2 to 3.9. The value is tied to the recovery time: across recovery 3 to 15 days the consistent value runs from 1.7 to 6.8 days, and in the ranking it is derived in each draw from a sampled net doubling (9 to 20 days) and that draw&#x27;s recovery time. Mismatch: the deer series (the same report and series is the main input to the zone doubling time [<a href="#s-C-1-4" data-open="s-C-1-4">C-1.4</a>], for spread between farms) counts deaths of wild deer across whole islands, and the other two are fly-population growth, not animals on one premises. The formula is the AI literature review&#x27;s, and the model&#x27;s instant recruitment ignores the 18 to 24 day fly generation, so early growth runs fast. Texas 2026 (47 cases on 38 premises) [<a href="#s-A-5-13a" data-open="s-A-5-13a">A-5.13a</a>] was a consistency check only.</p>
 <h3>What the sources do not tell us</h3>
@@ -1172,7 +1263,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.014.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">No study counts hidden infestations; an estimate from site tallies of found cases.</span></p>
 <p class="small">Quote check on this card's sources: 6 quotes: 5 found word for word, 1 not found (not shown).
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#detection" data-open="detection">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 0.9, range 0.75 to 0.98. No study counts how many infestations stay hidden on a careful look. Reference texts all name the same hard sites: nostrils, anus, prepuce, vagina and deep pocket wounds, where slight movement may be the only sign [<a href="#s-A-4-1" data-open="s-A-4-1">A-4.1</a>, <a href="#s-A-4-2" data-open="s-A-4-2">A-4.2</a>, <a href="#s-A-4-3" data-open="s-A-4-3">A-4.3</a>]. A Colombian cattle study lists barbed-wire injuries in 32.7 percent of 49 cases and navel and scrotum in 18.4 percent each [<a href="#s-A-4-4" data-open="s-A-4-4">A-4.4</a>]; the AI literature review read this as 70 percent or more of cases at plainly visible sites. Newborns are an estimated 80 percent of potential livestock cases, mostly at the navel [<a href="#s-A-4-7" data-open="s-A-4-7">A-4.7</a>]. Mismatch: a site tally only includes cases someone found, so hidden cases are missing from it and the visible share is pushed up; the Colombian quote was also not found verbatim, and wire injury is a cause while navel and scrotum are sites, so the sum may double count. The 0.9 and its range are an educated estimate; the AI literature review calls it that. Note: the hidden share here (10 percent at the central value) and the 15 to 25 percent at hidden sites assumed on the inspection sensitivity card are two separate judgements and do not agree.</p>
 <h3>What the sources do not tell us</h3>
@@ -1204,7 +1295,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom -0.019.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">Life-history summaries agree on 1 to 3 days; the two trials time wounding to detection, so they bound it only loosely.</span></p>
 <p class="small">Quote check on this card's sources: 7 quotes: 6 found word for word, 1 not found (not shown).
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#farm" data-open="farm">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 2 days, range 1 to 3. Eggs hatch in 10 to 12 hours [<a href="#s-A-1-1" data-open="s-A-1-1">A-1.1</a>], 12 to 24 hours [<a href="#s-A-1-2" data-open="s-A-1-2">A-1.2</a>, <a href="#s-A-1-3" data-open="s-A-1-3">A-1.3</a>] or 10 to 21 hours [<a href="#s-A-1-4" data-open="s-A-1-4">A-1.4</a>]. Larvae are hard to see for the first day or two [<a href="#s-A-1-3" data-open="s-A-1-3">A-1.3</a>] and visible by the third day [<a href="#s-A-1-1" data-open="s-A-1-1">A-1.1</a>]; disease can show as early as 1 to 2 days after egg laying [<a href="#s-A-1-2" data-open="s-A-1-2">A-1.2</a>]. Two field trials with regular inspection found infestations by day 3 to 5 after wounding in Mexico [<a href="#s-A-1-7" data-open="s-A-1-7">A-1.7</a>] (those early detections were in the ivermectin group, where the drug failed; untreated controls were infested by day 8, as on the clinical onset card) and in 9 of 10 untreated castration wounds by the day-3 check in Argentina [<a href="#s-A-1-8" data-open="s-A-1-8">A-1.8</a>]. Mismatch, minor: the trials count from the day of wounding, not the day eggs were laid, so day 3 to 5 is an upper bound on latency plus the time to notice; the Mexican authors also found larvae older than expected, which suggests young larvae were being missed. The life-history sources agree on 1 to 3 days, and the trials are consistent with it without timing it, so 2 days (1 to 3) is supported; the range ends match the life-history sources&#x27; span. The Argentine quote on file was not found verbatim in the source.</p>
 <h3>What the sources do not tell us</h3>
@@ -1237,7 +1328,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.000.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">No study measures it; trials only bound it. Known mismatch: the model&#x27;s clock starts earlier than the review intended.</span></p>
 <p class="small">Quote check on this card's sources: 5 quotes: 4 found word for word, 1 not found (not shown).
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#detection" data-open="detection">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 3 days, range 1.5 to 6. No study measures how long owners take to notice. Under daily chute inspection, infestations were found on day 3 to 5 after wounding [<a href="#s-A-2-4" data-open="s-A-2-4">A-2.4</a>], and 9 of 10 untreated castration wounds were obviously infested at the day-3 check [<a href="#s-A-2-5" data-open="s-A-2-5">A-2.5</a>]. Both trials looked on fixed days (the Argentine one on days 3, 6 and 13 only), and the Mexican day 3 to 5 detections were in the ivermectin group, where the drug failed; the abstract gives untreated controls infested on day 8. So the trials show wounds obvious by day 3 to 5 after wounding and say nothing about shorter times. On extensive range, herds are mustered only every few days [<a href="#s-A-2-7" data-open="s-A-2-7">A-2.7</a>], and observers rely on odour [<a href="#s-A-2-2" data-open="s-A-2-2">A-2.2</a>] and animals leaving the herd [<a href="#s-A-2-3" data-open="s-A-2-3">A-2.3</a>]. A 3-day mean after larvae appear, with 1.5 to 6 days, was chosen to span both; the ends are judgement. Mismatch: the AI literature review meant 3 days from the start of the larvae-bearing stage, but the model&#x27;s ramp runs on the premises&#x27; age since infestation, which already includes the roughly 2-day latent period. So in the model wounds become obvious sooner after larvae appear than the review intended, by about the 2-day latent time, which makes owner detection look faster and freedom higher.</p>
 <h3>What the sources do not tell us</h3>
@@ -1269,7 +1360,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.006.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-set">operating setting</span> <span class="small">A control setting informed by sterile-fly literature; almost no effect in this model.</span></p>
 <p class="small">Quote check on this card's sources: 9 quotes: 7 found word for word, 2 with no full text to check.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#zone" data-open="zone">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 0.25, range 0.07 to 0.6. It is set as an operating setting, not a literature value; a formal extraction is planned for a later phase. Released sterile flies at 9 to 1 leave only 10 percent of females laying fertile eggs, and at least 10 to 1 is the working rule [<a href="#s-C-4-1" data-open="s-C-4-1">C-4.1</a>]. The effect lags a fly generation: in Florida the last fertile fly was caught 27 days after releases began [<a href="#s-C-4-4" data-open="s-C-4-4">C-4.4</a>]. Averaging over a 90-day lockdown of about four life cycles, the AI literature review computed about 0.3 for the fly part, using per-generation factors (1, 0.15, 0.03, 0.01) whose origin is not in the files. Movement permits cut the animal-movement part to perhaps 0.1 to 0.3, a judgement. The Green Book says long-distance movement of the fly is generally a result of moving an infested animal [<a href="#s-C-2-4" data-open="s-C-2-4">C-2.4</a>], an entry for the same document as C-4.7a; that covers long-distance spread only, not local spread by flies, which permits do not touch. Texas 2026 active-case counts [<a href="#s-C-2-2" data-open="s-C-2-2">C-2.2</a>, <a href="#s-B-2-22" data-open="s-B-2-22">B-2.22</a>, <a href="#s-B-2-17" data-open="s-B-2-17">B-2.17</a>, <a href="#s-A-3-18" data-open="s-A-3-18">A-3.18</a>] gave 0.06 to 0.5. Mismatch: Texas already had sterile flies from February, so its &#x27;before&#x27; was not uncontrolled. In this model structure spread between premises is almost nil, so this setting has almost no effect.</p>
 <h3>What the sources do not tell us</h3>
@@ -1303,7 +1394,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom -0.005.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-der">converted from a related setting</span> <span class="small">The growth of one wild deer death series, converted by a formula to spread between farms; almost no effect in this model.</span></p>
 <p class="small">Quote check on this card's sources: 6 quotes: 3 found word for word, 2 near matches, 1 not found (not shown).
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#zone" data-open="zone">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 24 days, range 6 to 25. It is derived from one series. Key deer deaths rose from 4 in July to 20 in September 2016 with no control, a net growth of 0.026 per day, doubling every 26 days; July to October gives 20 days [<a href="#s-C-1-4" data-open="s-C-1-4">C-1.4</a>]. The AI literature review took a net 24 days. With zone clearance off before a detection, the net figure, about 24 days, is the consistent value. The 54 to 139 days in a fly-population model [<a href="#s-C-1-1" data-open="s-C-1-1">C-1.1</a>] was set aside: it comes from mark-recapture work on an established Costa Rican population in balance [<a href="#s-C-1-2" data-open="s-C-1-2">C-1.2</a>], not an invasion. Mexico&#x27;s national counts, doubling every 63 then 144 days, bound it from above [<a href="#s-C-1-5" data-open="s-C-1-5">C-1.5</a>]. Mismatch: the series counts wild deer deaths on islands, not infested premises. The same Key deer series, from the same report, is also the main input to the within-premises doubling time [<a href="#s-A-5-8" data-open="s-A-5-8">A-5.8</a>], for a different process. The range ends are judgement. In this model this value has almost no effect on the estimate.</p>
 <h3>What the sources do not tell us</h3>
@@ -1334,7 +1425,7 @@ counts as primary for what the rule says)</li>
 interval); average effect on six-month freedom +0.002.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-gue">guessed</span> <span class="small">No study measures it for this fly; a weighted guess.</span></p>
 <p class="small">Quote check on this card's sources: 6 quotes: 6 found word for word.
-<a href="#diagram" data-open="diagram">See where it enters the model pictures</a></p>
+<a href="#detection" data-open="detection">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
 <p>The chosen value is 0.85, range 0.65 to 0.95. No study measures it for this fly; it is a weighted guess. Inspection protocols require a whole-body look including mucous membranes and genitals [<a href="#s-B-1-2" data-open="s-B-1-2">B-1.2</a>], larvae are visible from day 3, and deep wounds may show only movement [<a href="#s-B-1-1" data-open="s-B-1-1">B-1.1</a>]. The AI literature review assumed 15 to 25 percent of infestations sit at hidden sites, based on Mexican cases found in an ear and a prepuce [<a href="#s-B-1-7" data-open="s-B-1-7">B-1.7</a>] and the protocol lists, with sensitivity about 0.6 there and 0.95 at visible sites, giving 0.85 to 0.9. The 15 to 25 percent, the 0.6 and the 0.95 are judgement, not measurements. The 15 to 25 percent hidden share does not agree with the 10 percent on the share of wounds visible card; the two are separate judgements. The nearest data are for the Old World screwworm: herd inspections detected it 30 percent of the time at low fly density and every time at high density [<a href="#s-B-1-4" data-open="s-B-1-4">B-1.4</a>]. Mismatch: those are herd-level detection per round for a different fly, driven by how many animals were infested, not the per-animal chance the model uses.</p>
 <h3>What the sources do not tell us</h3>
