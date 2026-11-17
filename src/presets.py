@@ -36,7 +36,8 @@ from __future__ import annotations
 
 import math
 
-# APHIS freedom marks (E6: shown, never tuned to). 24-d life cycle at about 22 C.
+# APHIS freedom marks (E6: shown, never tuned to). 24-d life cycle at about 22 C. Since 2026-11-17 the
+# app no longer draws them (policy dates, not model results); the scenario-check figures still use them.
 LIFE_CYCLE_D = 24.0
 MARKS = [
     (3 * LIFE_CYCLE_D, "3 life cycles (72 d)"),
@@ -55,13 +56,15 @@ _BASE = dict(
     # detection: scheduled inspection + owner reporting (alert zone: 3-day mean reporting delay)
     Se_animal=0.85, n_animals_per_round=30, rho_a=0.70, rho_r=0.33,
     # zone (first-pass review, 2026-09-08: a county adjacent to active zones)
+    # intro_rate: the rate of newly infected premises (introductions), per day
     M=100, design_prevalence=0.0, intro_rate=round(1.0 / 130.0, 4),  # 0.0077 /d ~ 130 d
     spread_on=True, doubling_time=24.0,  # 2026-10-24 (accepted 2026-10-28): the net figure (was 10, gross with 21-d clearance subtracted; 30 before that)
     clearance_on=False, clearance_mean=21, beta_lockdown_multiplier=0.25,  # 2026-10-23: clearance off (was on, C11)
     # 2026-10-24 (accepted 2026-10-28): course-end exit, and the release clock after a detection
     course_end_on=True, release_on=True, release_mean=21,
     # schedule
-    n_rounds=6, round_interval=30, n_farms_per_round=20,
+    # 2026-11-17: the schedule is a period covered and a spacing; rounds = floor(period / spacing)
+    period_days=180, round_interval=30, n_farms_per_round=20,
     # initial state (v0.6): the CLEAN start is the default, so every scenario-check preset below
     # inherits k0_mean = 0 and reproduces the 2026-09-08 numbers exactly (scenarios.md #16, the
     # reduction anchor). Only the four zone presets carry leftovers.
@@ -91,9 +94,9 @@ _LEFTOVERS = dict(k0_mean=1.0, age0_scale=14.0)
 SCENARIOS = {
     # ---- screwworm presets (F1) ----
     "six_months":          _s(**_LEFTOVERS),                                 # 180 d, 6 monthly rounds
-    "zone_last_detection": _s(n_rounds=3, round_interval=30, **_LEFTOVERS),  # 90 d, the APHIS release window
-    "three_cycles":        _s(n_rounds=3, round_interval=24, **_LEFTOVERS),  # 72 d, one round per life cycle
-    "twelve_months":       _s(n_rounds=12, round_interval=30, **_LEFTOVERS),  # 360 d
+    "zone_last_detection": _s(period_days=90, round_interval=30, **_LEFTOVERS),  # 90 d, the APHIS release window
+    "three_cycles":        _s(period_days=72, round_interval=24, **_LEFTOVERS),  # 72 d, one round per life cycle
+    "twelve_months":       _s(period_days=360, round_interval=30, **_LEFTOVERS),  # 360 d
     "early_warning":       _s(intro_rate=round(1.0 / 1000.0, 4)),             # still-free county 200 km north (A2)
     # ---- scenario-check presets (scenarios.md numbering) ----
     "s1":                  _s(intro_rate=0.0),                                                    # 1
@@ -109,7 +112,7 @@ SCENARIOS = {
     "s2c_farm":            _s(rho_r=0.0, n_farms_per_round=0, clearance_on=True),                                   # 6
     "s5":                  _s(intro_rate=0.05, rho_r=0.0, Se_animal=1.0, clearance_on=True,
                               n_animals_per_round=100, n_farms_per_round=100, **_DETECTABLE),      # 7
-    "s6":                  _s(rho_r=0.0, spread_on=False, clearance_on=False, n_rounds=1,
+    "s6":                  _s(rho_r=0.0, spread_on=False, clearance_on=False, period_days=30,
                               round_interval=30, n_farms_per_round=20, Se_animal=1.0,
                               n_animals_per_round=100, **_DETECTABLE),                             # 8
     "s_wild":              _s(intro_rate=round(1.0 / 65.0, 4), n_farms_per_round=50, clearance_on=True),            # 9 (doubled introductions)
@@ -174,9 +177,20 @@ CHECKBOXES = ("recovery_within_on", "spread_on", "clearance_on", "course_end_on"
 NUMERICS = ("c_lost_freedom", "c_per_case", "c_per_test", "c_per_round")
 
 
+def rounds_in(pack: dict) -> int:
+    """Number of inspection rounds in the period covered: floor(period_days / round_interval).
+    A last partial round is dropped. A pack that still carries an explicit `n_rounds` keeps it."""
+    if "n_rounds" in pack:
+        return int(pack["n_rounds"])
+    interval = float(pack["round_interval"])
+    if interval <= 0.0:
+        return 0
+    return int(math.floor(float(pack["period_days"]) / interval + 1e-9))
+
+
 def preset_to_params(pack: dict, dt: float) -> dict:
     """Map an app input pack to the lane's parameter dict. The ONLY such mapping."""
-    n_rounds = int(pack["n_rounds"])
+    n_rounds = rounds_in(pack)
     interval = float(pack["round_interval"])
     round_times = [round(interval * (i + 1), 6) for i in range(n_rounds)]
     horizon = max(round_times) if round_times else 0.0

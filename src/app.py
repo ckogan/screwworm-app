@@ -67,8 +67,8 @@ from shiny import App, reactive, render, ui
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-from presets import (CHECKBOXES, MARKS, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
-                     preset_to_params)
+from presets import (CHECKBOXES, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
+                     preset_to_params, rounds_in)
 
 # --------------------------------------------------------------------------------------
 # Load this example's own closed-form lane (forked from regional-freedom 2026-09-09, v0.6).
@@ -152,7 +152,7 @@ RANGES = dict(
     M=(20, 500, 10), design_prevalence=(0.0, 0.05, 0.005), intro_rate=(0.0, 0.2, 0.0001),
     doubling_time=(0.01, 150.0, 0.01), clearance_mean=(1, 365, 1), release_mean=(1, 365, 1),
     beta_lockdown_multiplier=(0.0, 1.0, 0.05),
-    n_rounds=(1, 12, 1), round_interval=(1, 60, 1), n_farms_per_round=(0, 100, 1),
+    period_days=(1, 720, 1), round_interval=(1, 60, 1), n_farms_per_round=(0, 100, 1),
     k0_mean=(0.0, 20.0, 0.1), age0_scale=(0, 180, 1),
     release_threshold=(0.5, 0.999, 0.001),
 )
@@ -218,6 +218,7 @@ def _review_sidebar():
                 _sl("design_prevalence", "Design prevalence"),
                 ui.help_text("0 = absolute freedom, P(K=0) (C12)."),
                 _sl("intro_rate", "Zone introduction rate (/day)"),
+                ui.help_text("An introduction is a newly infected premises; intro_rate is their rate per day."),
                 ui.output_ui("intro_caption"),
                 ui.help_text("Fly immigration + infested-animal movement + wildlife, one zone rate."),
                 _cb("spread_on", "Between-premises spread (else none)"),
@@ -241,17 +242,18 @@ def _review_sidebar():
             ),
             ui.accordion_panel(
                 "Inspection schedule",
-                _sl("n_rounds", "Number of inspection rounds"),
+                _sl("period_days", "Period covered (days)"),
                 _sl("round_interval", "Days between rounds"),
-                ui.help_text("Horizon = rounds x interval. 6 x 30 = 180 d (default); 3 x 24 = 72 d (3 life cycles); "
-                             "12 x 30 = 360 d."),
+                ui.output_ui("rounds_caption"),
+                ui.help_text("Rounds = floor(period / interval); a last partial round is dropped. 180 / 30 = 6 "
+                             "(default); 72 / 24 = 3 (3 life cycles); 360 / 30 = 12."),
                 _sl("n_farms_per_round", "Premises visited per round"),
                 ui.help_text("0 = no premises visited. Set to M for a census."),
             ),
             ui.accordion_panel(
                 "Initial state: leftovers at the last detection (v0.6)",
                 _sl("k0_mean", "Expected undetected infested premises at the start (k0_mean)"),
-                _sl("age0_scale", "Their mean age at the start (age0_scale, d)"),
+                _sl("age0_scale", "Average age of those undetected infestations at the start (age0_scale, d)"),
                 ui.help_text("The outbreak's leftovers: premises still infested and not yet found when the "
                              "clock starts. The values in the zone presets (1 premises, 14 d) are guessed "
                              "placeholders, not literature (priors_design.md). 0 = the clean start, which "
@@ -310,6 +312,7 @@ def _plain_sidebar():
             ui.accordion_panel(
                 "Introductions",
                 _sl("intro_rate", "Introductions into the zone (per day)"),
+                ui.help_text("An introduction is a newly infected premises; this is their rate per day."),
                 ui.output_ui("intro_caption"),
             ),
             ui.accordion_panel(
@@ -320,14 +323,15 @@ def _plain_sidebar():
             ),
             ui.accordion_panel(
                 "Inspection schedule",
-                _sl("n_rounds", "Number of inspection rounds"),
+                _sl("period_days", "Period covered (days)"),
                 _sl("round_interval", "Days between rounds"),
+                ui.output_ui("rounds_caption"),
                 _sl("n_farms_per_round", "Premises inspected per round"),
             ),
             ui.accordion_panel(
                 "Infestation on a premises",
                 _sl("k0_mean", "Undetected infested premises at the start (expected number)"),
-                _sl("age0_scale", "Their average age at the start (days)"),
+                _sl("age0_scale", "Average age of those undetected infestations at the start (days)"),
                 _cb("recovery_within_on", "Infested animals recover"),
                 _sl("mean_recovery_time_within", "Average time until an infestation ends (days)"),
             ),
@@ -376,12 +380,21 @@ def _plain_sidebar():
 _NARROW_RC = {"font.size": 7, "axes.titlesize": 8, "axes.labelsize": 7, "xtick.labelsize": 6.5,
               "ytick.labelsize": 6.5, "legend.fontsize": 6.5}
 
+# What the detection box assumes (2026-11-17). P_lost_freedom is P(at least one alarm from an
+# inspection round or an owner report over [0, horizon]), horizon = the last round, over all
+# outcomes: it is not conditioned on the inspection results. It counts leftovers at the start,
+# introductions and spread. A free zone never alarms (L_r(0) = 1 and the owner-report hazard is
+# zero at K = 0), so every detection is real: no false positives.
+DETECTION_NOTE = ("Computed before any inspection results are counted: the chance that inspections or "
+                  "owner reports confirm at least one infested premises by the last round. A confirmed "
+                  "detection is treated as real (no false positives).")
+
 _CAPTION_STYLE = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 8px; "
                   "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
 
 PLAIN_NOTE = ("Draft model estimate based on literature-derived parameters; "
               "for discussion, not a determination.")
-FREEDOM_PLOT_TITLE = "Zone freedom over time, with the APHIS marks and the reference line"
+FREEDOM_PLOT_TITLE = "Zone freedom over time, with the inspection rounds and the reference line"
 
 if PLAIN:
     app_ui = ui.page_sidebar(
@@ -435,8 +448,8 @@ else:
                     "estimate read off one full-horizon evaluation of the model (`eval_times`), not a "
                     "re-evaluation at a shorter horizon. "
                     "The faint dashed line is the **unconditional** `P(K=0)(t) = P_free * (1 - P_lost)`; with "
-                    "clearance on it settles toward a plateau instead of decaying. Vertical marks are the APHIS "
-                    "freedom milestones, shown, never tuned to. Since v0.6 the curve starts at "
+                    "clearance on it settles toward a plateau instead of decaying. Short arrows under the curve "
+                    "mark the inspection rounds. Since v0.6 the curve starts at "
                     "`P_free(0) = e^-k0_mean`, the chance the last detection left nothing behind, so with "
                     "leftovers the first stretch is the climb the release rule waits out.*"
                 ),
@@ -562,7 +575,7 @@ def server(input, output, session):
             course_end_on=input.course_end_on(), release_on=input.release_on(),
             release_mean=input.release_mean(),
             beta_lockdown_multiplier=input.beta_lockdown_multiplier(),
-            n_rounds=input.n_rounds(), round_interval=input.round_interval(),
+            period_days=input.period_days(), round_interval=input.round_interval(),
             n_farms_per_round=input.n_farms_per_round(),
             k0_mean=input.k0_mean(), age0_scale=input.age0_scale(),   # initial state (v0.6)
             release_threshold=input.release_threshold(),
@@ -716,30 +729,30 @@ def server(input, output, session):
         tr = pfree_trajectory()
         ts, pfree, puncond, rounds = tr["t"], tr["pfree"], tr["puncond"], tr["rounds"]
         thr = float(input.release_threshold())
-        horizon = max(ts) if ts else 0.0
         fig, ax = plt.subplots(figsize=(9, 4.4 if PLAIN else 4.0))
         if PLAIN:
             lab_free = "Chance the zone is free, given no detection so far"
-            lab_unc = "Chance of no detection so far and a free zone"
+            lab_unc = "Baseline, before counting the inspection results: chance the zone is free and nothing detected so far"
             lab_thr = f"{_pct(thr)} reference line (for illustration)"
             xlab = "Days since the last detection"
         else:
             lab_free = r"$P_{free}(t)$ (given no confirmed detection yet)"
-            lab_unc = r"$P(K{=}0)(t)=P_{free}\cdot(1-P_{lost})$ (unconditional)"
+            lab_unc = r"Baseline, before counting the inspection results: $P_{free}\cdot(1-P_{lost})$"
             lab_thr = f"{thr:.3g} reference line (for illustration)"
             xlab = "time since the last detection, t (days)"
         ax.plot(ts, pfree, color="#1f77b4", lw=2, label=lab_free)
         ax.plot(ts, puncond, color="#1f77b4", lw=1.3, ls="--", alpha=0.5, label=lab_unc)
-        for t in rounds:
-            ax.axvline(t, color="0.6", lw=0.9, ls=":")
+        # Inspection rounds: a dot on the curve and a short upward arrow just under it (no
+        # full-height lines, so the curve crosses nothing). The policy milestones are not drawn
+        # (2026-11-17): they are policy dates, not model results.
         for t in rounds:
             idx = min(range(len(ts)), key=lambda i: abs(ts[i] - t))
             ax.plot(ts[idx], pfree[idx], "o", color="#1f77b4", ms=5)
-        # APHIS freedom marks: shown, never tuned to (E6)
-        for tm, label in MARKS:
-            if tm <= horizon + 1e-9:
-                ax.axvline(tm, color="#ff7f0e", lw=1.2, ls="-.", alpha=0.8)
-                ax.text(tm, 0.03, f" {label}", color="#ff7f0e", fontsize=6 if narrow else 8, rotation=90, va="bottom", ha="right")
+            ax.annotate("", xy=(ts[idx], pfree[idx] - 0.025), xytext=(ts[idx], pfree[idx] - 0.10),
+                        arrowprops=dict(arrowstyle="-|>", color="0.35", lw=1.0, mutation_scale=8))
+        if rounds:
+            ax.plot([], [], ls="none", marker=r"$\uparrow$", color="0.35", ms=9,
+                    label="Inspection round" if PLAIN else "inspection round")
         ax.axhline(thr, color="#2ca02c", lw=1.0, ls="--", alpha=0.7)
         ax.text(0.5, thr + 0.01, lab_thr, color="#2ca02c", fontsize=6 if narrow else 8)
         ax.set_xlabel(xlab)
@@ -752,13 +765,13 @@ def server(input, output, session):
         ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
         if PLAIN:
             ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
-        if PLAIN:   # below the axes, so the legend never covers the mark labels
+        if PLAIN:   # below the axes, so the legend never covers the curve
             ax.legend(loc="upper left" if narrow else "upper center",
                       bbox_to_anchor=(-0.2, -0.16) if narrow else (0.5, -0.16), ncol=1 if narrow else 2,
                       fontsize=7 if narrow else 9, frameon=False)
         else:
             ax.legend(loc="lower left", fontsize=9)
-        ax.grid(alpha=0.25)
+        ax.grid(axis="y", alpha=0.25)   # no vertical grid lines: the curve crosses nothing
         fig.tight_layout()
         return fig
 
@@ -808,10 +821,9 @@ def server(input, output, session):
             last = max(rounds)
             aphis = (f"90 d is not a round in this schedule; last round day {last:g}: "
                      f"`P_free = {pf_by_t[float(last)]:.4f}`")
-        marks = ", ".join(f"{lab}: `{pf_by_t[tm]:.4f}`" for tm, lab in MARKS if tm in pf_by_t)
         text = (f"**Release question.** The curve starts at `P_free(0) = {p_free_0:.4f}` "
                 f"(the leftovers at the last detection). Floor `P_free >= {thr:.3f}`: {first_txt}. "
-                f"{aphis}." + (f" Marks on rounds: {marks}." if marks else ""))
+                f"{aphis}.")
         return ui.div(ui.markdown(text),
                       style=("font-size:1.0rem; padding:6px 10px; margin:4px 0 8px; "
                              "border-left:4px solid #2ca02c; background:#f0f8f0; border-radius:4px;"))
@@ -835,6 +847,7 @@ def server(input, output, session):
                              f"not by day {last:g}" if t_rel is None else f"day {float(t_rel):g}",
                              theme="bg-gradient-blue-purple"),
                 ui.value_box(f"Chance of a confirmed detection by day {last:g}", _pct(s["P_lost_freedom"]),
+                             ui.p(DETECTION_NOTE, style="font-size:0.8rem; margin:0;"),
                              theme="bg-gradient-red-orange"),
                 ui.value_box(f"Expected infested premises by day {last:g}",
                              f"{s['cumulative_incidence']:.1f}", theme="bg-gradient-orange-yellow"),
@@ -854,6 +867,7 @@ def server(input, output, session):
                          theme="bg-gradient-blue-purple"),
             ui.value_box("P_free (final round)", f"{s['P_free']:.3f}", theme="bg-gradient-blue-purple"),
             ui.value_box("P_lost_freedom (confirmed detection over horizon)", f"{s['P_lost_freedom']:.3f}",
+                         ui.p(DETECTION_NOTE, style="font-size:0.8rem; margin:0;"),
                          theme="bg-gradient-red-orange"),
             ui.value_box("Cumulative incidence", f"{s['cumulative_incidence']:.2f} premises",
                          theme="bg-gradient-orange-yellow"),
@@ -894,6 +908,11 @@ def server(input, output, session):
         return ui.div(ui.markdown(text),
                       style=("font-size:1.0rem; color:#0b5394; font-weight:500; padding:6px 10px; "
                              "margin:4px 0 2px; border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;"))
+
+    @render.ui
+    def rounds_caption():
+        n = rounds_in(dict(period_days=input.period_days(), round_interval=input.round_interval()))
+        return ui.div(ui.markdown(f"= **{n}** inspection round{'' if n == 1 else 's'}"), style=_CAPTION_STYLE)
 
     @render.ui
     def delay_caption():
