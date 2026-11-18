@@ -67,7 +67,8 @@ from shiny import App, reactive, render, ui
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-from presets import (CHECKBOXES, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
+from intro_module import MONTH_NAMES, schedule as intro_schedule  # noqa: E402
+from presets import (COUNTY, CHECKBOXES, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
                      preset_to_params, rounds_in)
 
 # --------------------------------------------------------------------------------------
@@ -94,7 +95,7 @@ def _lane_commit() -> str:
 
 LANE_COMMIT = _lane_commit()
 DT = float(model.DEFAULTS["dt"])
-_BASE = SCENARIOS["six_months"]
+
 
 STATUS_LINE = (
     f"**Model lane:** `model.py`, **this pack's own lane at "
@@ -139,6 +140,10 @@ def _env_on(name: str) -> bool:
 
 REVIEW = _env_on("NWS_REVIEW") and not _env_on("NWS_DEMO")
 PLAIN = not REVIEW
+# Default scenario: the county worked example in the plain layout; the generic six-month zone in the
+# reviewer layout (its checks are written against it).
+DEFAULT_SCENARIO = "county_12mo" if PLAIN else "six_months"
+_BASE = SCENARIOS[DEFAULT_SCENARIO]
 
 # Slider ranges, shared by both layouts so the two modes cannot drift: id -> (min, max, step).
 # Defaults always come from presets._BASE.
@@ -148,13 +153,20 @@ RANGES = dict(
     f_clinical_max=(0.0, 1.0, 0.01), mean_clinical_onset_time=(0.1, 10.0, 0.1),
     p_latent_seed=(0.0, 1.0, 0.01), p_infectious_seed=(0.0, 1.0, 0.01), age_window=(5, 200, 5),
     Se_animal=(0.0, 1.0, 0.01), n_animals_per_round=(0, 100, 1),
-    rho_a=(0.0, 1.0, 0.01), rho_r=(0.0, 1.0, 0.001),
+    rho_a=(0.0, 1.0, 0.01), rho_r=(0.0, 1.0, 0.001), owner_contact_interval=(0.0, 30.0, 0.5),
     M=(20, 500, 10), design_prevalence=(0.0, 0.05, 0.005), intro_rate=(0.0, 0.2, 0.0001),
     doubling_time=(0.01, 150.0, 0.01), clearance_mean=(1, 365, 1), release_mean=(1, 365, 1),
     beta_lockdown_multiplier=(0.0, 1.0, 0.05),
-    period_days=(1, 720, 1), round_interval=(1, 60, 1), n_farms_per_round=(0, 100, 1),
+    period_days=(1, 1080, 1), round_interval=(1, 60, 1), n_farms_per_round=(0, 100, 1),
     k0_mean=(0.0, 20.0, 0.1), age0_scale=(0, 180, 1),
     release_threshold=(0.5, 0.999, 0.001),
+    # introduction module (issues #55 to #58)
+    start_month=(1, 12, 1), temp_shift=(-5.0, 5.0, 0.5),
+    share_fly=(0.0, 1.0, 0.05), share_move=(0.0, 1.0, 0.05),
+    release_coverage=(0.0, 1.5, 0.05), release_coverage_ref=(0.0, 1.5, 0.05), release_kappa=(0.0, 9.0, 0.05),
+    nearby_pressure=(0.0, 5.0, 0.1), wound_factor=(0.25, 3.0, 0.05),
+    treat_share=(0.0, 1.0, 0.05), treat_effect=(0.0, 1.0, 0.05),
+    move_check_effect=(0.0, 1.0, 0.05), spread_move_share=(0.0, 1.0, 0.05),
 )
 
 
@@ -210,6 +222,7 @@ def _review_sidebar():
                 ui.help_text("Owner reporting"),
                 _sl("rho_a", "Owner notices a visible wound (rho_a)"),
                 _sl("rho_r", "Reporting rate once noticed (rho_r, /d)"),
+                _sl("owner_contact_interval", "Days between the owner's close looks (0 = every day)"),
                 ui.help_text("1/7 = a one-week mean reporting delay."),
             ),
             ui.accordion_panel(
@@ -261,6 +274,17 @@ def _review_sidebar():
                              "(0.3679 at 1, 0.0498 at 3), so the release question is about the climb."),
             ),
             ui.accordion_panel(
+                "Introduction module (issues #55 to #58)",
+                _cb("module_on", "Module on"), _cb("season_on", "Season on"),
+                _sl("start_month", "Start month"), _sl("temp_shift", "Temperature shift (deg C)"),
+                _sl("share_fly", "Share: flies"), _sl("share_move", "Share: moved animals"),
+                _sl("release_coverage", "Sterile-fly coverage"), _sl("release_coverage_ref", "Coverage (reference)"),
+                _sl("release_kappa", "kappa"), _sl("nearby_pressure", "Nearby pressure"),
+                _sl("wound_factor", "Wound factor"), _sl("treat_share", "Treated share"),
+                _sl("treat_effect", "Treatment effect"), _sl("move_check_effect", "Movement-check effect"),
+                _sl("spread_move_share", "Moved-animal share of spread"),
+            ),
+            ui.accordion_panel(
                 "Release question",
                 _sl("release_threshold", "P_free floor for releasing the zone"),
                 ui.help_text("The APHIS 3-month rule is shown as one point on the curve; the 6- and 12-month marks "
@@ -286,10 +310,13 @@ def _review_sidebar():
 # Plain scenario menu: the five screwworm scenarios only (the numbered model-check presets are
 # reviewer material and stay in the reviewer menu).
 PLAIN_SCENARIOS = {
-    "six_months": "6 months after the last detection (default)",
-    "zone_last_detection": "3 months after the last detection",
-    "three_cycles": "3 fly life cycles (72 days)",
-    "twelve_months": "12 months after the last detection",
+    "county_12mo": "Zavala County: 12 months from the last detection (default)",
+    "county_3yr": "Zavala County: 3 years from the last detection",
+    "county_6mo": "Zavala County: 6 months from the last detection",
+    "six_months": "Generic zone, constant rates: 6 months",
+    "zone_last_detection": "Generic zone, constant rates: 3 months",
+    "three_cycles": "Generic zone, constant rates: 3 fly life cycles (72 days)",
+    "twelve_months": "Generic zone, constant rates: 12 months",
     "early_warning": "Early warning: a still-free county farther north",
 }
 
@@ -306,17 +333,45 @@ def _plain_sidebar():
     schedule a program sets. Everything else sits under one collapsed "More settings" group.
     """
     return ui.sidebar(
-        ui.input_select("scenario", "Scenario", PLAIN_SCENARIOS, selected="six_months"),
+        ui.input_select("scenario", "Scenario", PLAIN_SCENARIOS, selected=DEFAULT_SCENARIO),
         ui.input_action_button("apply_preset", "Load scenario", class_="btn-sm btn-outline-primary"),
         ui.accordion(
             ui.accordion_panel(
                 "Introductions",
-                _sl("intro_rate", "Introductions into the zone (per day)"),
-                ui.help_text("An introduction is a newly infected premises; this is their rate per day."),
+                _sl("intro_rate", "Introductions into the zone in a warm month (per day)"),
+                ui.help_text("An introduction is a newly infected premises. This is the rate under the "
+                             "reference conditions: a warm month, half the sterile-fly target met, "
+                             "nearby detections as in summer 2026."),
                 ui.output_ui("intro_caption"),
+                _sl("release_coverage", "Share of the sterile-fly release target being met"),
+                _sl("nearby_pressure", "Detections in nearby counties, relative to summer 2026 (1 = the same)"),
+                ui.help_text("Counties to the south count most. 0 = no active zones nearby."),
+                _sub("Where introductions come from (shares in a warm month)"),
+                _sl("share_fly", "Flies arriving"),
+                _sl("share_move", "Moved animals"),
+                ui.output_ui("share_caption"),
+                _sl("wound_factor", "Open wounds on animals, relative to usual (1 = usual)"),
+            ),
+            ui.accordion_panel(
+                "Season",
+                _cb("season_on", "Rates change with the season"),
+                _sl("start_month", "Month of the last detection (1 = January)"),
+                _sl("temp_shift", "Warmer or cooler than normal (deg C)"),
+                ui.help_text(f"Monthly temperatures: {COUNTY['station']}."),
+            ),
+            ui.accordion_panel(
+                "Mitigations",
+                _sl("treat_share", "Share of animals given preventive treatment"),
+                _sl("treat_effect", "How well treatment protects an animal (0 to 1)"),
+                _sl("move_check_effect", "Share of infested moved animals stopped by movement checks"),
+                ui.help_text("Treatment lowers introductions and spread between premises. Movement "
+                             "checks act on moved animals."),
             ),
             ui.accordion_panel(
                 "Owner reporting",
+                _sl("owner_contact_interval", "Days between the owner's close looks at the animals"),
+                ui.help_text("On large ranches an owner may see the animals closely about once a week. "
+                             "Little data: an assumed value."),
                 _sl("rho_r", "Reporting rate once a wound is noticed (per day)"),
                 ui.output_ui("delay_caption"),
                 _sl("rho_a", "Chance an owner notices a visible wound"),
@@ -341,6 +396,10 @@ def _plain_sidebar():
                 _sl("Se_animal", "Chance an inspection finds an infested animal"),
                 _sl("n_animals_per_round", "Animals inspected per premises per round"),
                 _sub("Zone"),
+                _cb("module_on", "Use the introduction module (season, pathways, mitigations)"),
+                _sl("release_coverage_ref", "Sterile-fly share met when the reference rate was estimated"),
+                _sl("release_kappa", "Strength of sterile-fly effect (fertile share = 1 / (1 + k x share))"),
+                _sl("spread_move_share", "Share of spread between premises carried by moved animals"),
                 _sl("M", "Premises in the zone"),
                 _cb("clearance_on", "Infested premises clear after a set time"),
                 _sl("clearance_mean", "Average time to clear (days)"),
@@ -368,7 +427,7 @@ def _plain_sidebar():
                 _num("c_per_test", "Cost per animal inspected ($)"),
                 _num("c_per_round", "Fixed cost per inspection round ($)"),
             ),
-            open=["Introductions", "Owner reporting", "Inspection schedule", "Infestation on a premises"],
+            open=["Introductions", "Season", "Owner reporting", "Inspection schedule"],
             multiple=True,
         ),
         width=360,
@@ -388,6 +447,16 @@ _NARROW_RC = {"font.size": 7, "axes.titlesize": 8, "axes.labelsize": 7, "xtick.l
 DETECTION_NOTE = ("Computed before any inspection results are counted: the chance that inspections or "
                   "owner reports confirm at least one infested premises by the last round. A confirmed "
                   "detection is treated as real (no false positives).")
+# Issue #53: the plain layout shows the complement, under a planning heading.
+NO_DETECTION_NOTE = ("Worked out before any inspection results are in: the chance that neither the "
+                     "inspections nor owner reports confirm an infested premises by the last round. "
+                     "It includes cases where the zone is infested and nothing was found.")
+FREE_MEANS = ("**What \"free\" means here:** no infested premises in the zone. It does not mean there "
+              "are no flies in the environment. A positive fly trap counts as a detection; empty traps "
+              "are given no credit.")
+BY_HAND = ("**Conditions this model does not cover, to confirm by hand:** enough roadside checkpoints; "
+           "adequate outreach to producers and veterinarians; no pending or unresolved laboratory "
+           "samples; wildlife surveillance clean during the window.")
 
 _CAPTION_STYLE = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 8px; "
                   "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
@@ -409,8 +478,22 @@ if PLAIN:
             ui.nav_panel(
                 "Zone freedom",
                 ui.output_ui("release_readout"),
+                ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
                 ui.output_ui("scorecard"),
+                ui.div(ui.markdown(BY_HAND), style=_CAPTION_STYLE),
+            ),
+            ui.nav_panel(
+                "Introductions by month",
+                ui.p("Where new infested premises come from in each month of the run, as the "
+                     "introduction module works it out from the season, sterile-fly coverage, nearby "
+                     "detections and mitigations.", style="margin:4px 0 6px;"),
+                ui.output_plot("module_plot", height="420px"),
+                ui.output_ui("module_note"),
+            ),
+            ui.nav_panel(
+                "What would have to be true",
+                ui.output_ui("must_be_true"),
             ),
             ui.nav_panel(
                 "Inside one premises",
@@ -419,7 +502,7 @@ if PLAIN:
                 ui.output_plot("premises_plot", height="640px"),
             ),
         ),
-        title="Zone freedom from New World screwworm",
+        title=f"Zone freedom from New World screwworm: {COUNTY['name']} (worked example)",
         fillable=False,
     )
 else:
@@ -483,6 +566,45 @@ def _pct(x: float, near: float | None = None) -> str:
     if v >= 99.5 or (near is not None and abs(v - 100.0 * near) < 1.0):
         return f"{v:.1f}%"
     return f"{v:.0f}%"
+
+
+def _held_from(out: dict, rounds: list):
+    """The first round from which the running chance of freedom stays at or above the reference
+    line through the last round, or None. With seasonal rates a winter crossing does not count
+    unless it holds to the end of the run."""
+    thr = float(out["release_threshold"])
+    held = None
+    for t in sorted(rounds, reverse=True):
+        if float(out["p_free_by_time"][float(t)]) >= thr:
+            held = float(t)
+        else:
+            break
+    return held
+
+
+def _season_headline(out: dict, rounds: list, rows: list) -> str:
+    """Plain headline when rates change with the season (issues #56, #59): the value at the last
+    round, the range over the run from day 60 on with the months, and what the winter rise means."""
+    thr = float(out["release_threshold"])
+    pf = out["p_free_by_time"]
+    last = float(max(rounds))
+    month = lambda t: rows[min(len(rows) - 1, max(0, int(math.ceil(t / 30.0 - 1e-9)) - 1))]["month"]
+    later = [float(t) for t in rounds if float(t) >= 60.0] or [last]
+    lo = min(later, key=lambda t: pf[t]); hi = max(later, key=lambda t: pf[t])
+    first = (f"Chance the zone is free at the last inspection round (day {last:g}, {month(last)}): "
+             f"**{_pct(pf[last], thr)}**.")
+    if abs(pf[hi] - pf[lo]) < 0.005:
+        second = "It is steady over the run."
+    else:
+        second = (f"Over the run it moves between **{_pct(pf[lo], thr)}** ({month(lo)}) and "
+                  f"**{_pct(pf[hi], thr)}** ({month(hi)}). The rise in the cold months comes from fewer "
+                  f"flies arriving, not from stronger evidence, and it falls back when the weather warms. "
+                  f"Read the warm-season value.")
+    held = _held_from(out, rounds)
+    line = f"the {_pct(thr)} reference line (for illustration)"
+    third = (f"It stays at or above {line} from day {held:g} to the end of the run." if held is not None
+             else f"It does not stay at or above {line} to the end of the run.")
+    return f"{first} {second} {third}"
 
 
 def _plain_headline(out: dict, rounds: list) -> str:
@@ -555,6 +677,30 @@ def _debounce(delay_secs: float):
 # --------------------------------------------------------------------------------------
 # Server
 # --------------------------------------------------------------------------------------
+def _dense_times(p: dict):
+    """The dense evaluation grid of the freedom curve and the round times (one lane call serves the
+    curve, the boxes and the headline: zone_outputs and pfree_trajectory pass the same eval_times,
+    so the second is a cache hit)."""
+    dt = float(p["dt"])
+    horizon = float(p["horizon"])
+    rounds = sorted(float(t) for t in p["round_times"] if float(t) <= horizon + 1e-9)
+    interior = 3 if len(rounds) <= 6 else 1           # sparser for long horizons (app_design.md)
+    pts = {0.0}
+    prev = 0.0
+    for tr in rounds:
+        for j in range(1, interior + 1):
+            t = round(round((prev + (tr - prev) * j / (interior + 1)) / dt) * dt, 6)
+            if prev < t < tr:
+                pts.add(t)
+        pre = round(tr - dt, 6)
+        if pre > prev:
+            pts.add(pre)
+        pts.add(tr)
+        prev = tr
+    ts = sorted(x for x in pts if 0.0 <= x <= horizon + 1e-9)
+    return ts, rounds
+
+
 def server(input, output, session):
 
     @reactive.calc
@@ -569,6 +715,14 @@ def server(input, output, session):
             age_window=input.age_window(),
             Se_animal=input.Se_animal(), n_animals_per_round=input.n_animals_per_round(),
             rho_a=input.rho_a(), rho_r=input.rho_r(),
+            owner_contact_interval=input.owner_contact_interval(),
+            module_on=input.module_on(), season_on=input.season_on(), start_month=input.start_month(),
+            temp_shift=input.temp_shift(), share_fly=input.share_fly(), share_move=input.share_move(),
+            release_coverage=input.release_coverage(), release_coverage_ref=input.release_coverage_ref(),
+            release_kappa=input.release_kappa(), nearby_pressure=input.nearby_pressure(),
+            wound_factor=input.wound_factor(), treat_share=input.treat_share(),
+            treat_effect=input.treat_effect(), move_check_effect=input.move_check_effect(),
+            spread_move_share=input.spread_move_share(),
             M=input.M(), design_prevalence=input.design_prevalence(), intro_rate=input.intro_rate(),
             spread_on=input.spread_on(), doubling_time=input.doubling_time(),
             clearance_on=input.clearance_on(), clearance_mean=input.clearance_mean(),
@@ -604,7 +758,7 @@ def server(input, output, session):
     @reactive.calc
     def zone_outputs():
         p = params_d()
-        out = evaluate(p)
+        out = evaluate(dict(p, eval_times=_dense_times(p)[0]))   # same call as the curve
         n_rounds = len([t for t in p["round_times"] if t <= p["horizon"] + 1e-9])
         n_prem = min(int(p["n_farms_per_round"]), int(p["M"]))
         n_insp = n_rounds * n_prem * int(p["n_animals_per_round"])
@@ -627,23 +781,7 @@ def server(input, output, session):
     @reactive.calc
     def pfree_trajectory():
         p = params_d()
-        dt = float(p["dt"])
-        horizon = float(p["horizon"])
-        rounds = sorted(float(t) for t in p["round_times"] if float(t) <= horizon + 1e-9)
-        interior = 3 if len(rounds) <= 6 else 1           # sparser for long horizons (app_design.md)
-        pts = {0.0}
-        prev = 0.0
-        for tr in rounds:
-            for j in range(1, interior + 1):
-                t = round(round((prev + (tr - prev) * j / (interior + 1)) / dt) * dt, 6)
-                if prev < t < tr:
-                    pts.add(t)
-            pre = round(tr - dt, 6)
-            if pre > prev:
-                pts.add(pre)
-            pts.add(tr)
-            prev = tr
-        ts = sorted(x for x in pts if 0.0 <= x <= horizon + 1e-9)
+        ts, rounds = _dense_times(p)
         # One lane call: the grid goes in as eval_times (every entry a multiple of dt by
         # construction, which the lane checks). The round values and every scalar output of this
         # run are identical to zone_outputs' plain run (lane self-test, check_eval_times (a)).
@@ -753,15 +891,30 @@ def server(input, output, session):
         if rounds:
             ax.plot([], [], ls="none", marker=r"$\uparrow$", color="0.35", ms=9,
                     label="Inspection round" if PLAIN else "inspection round")
+        # Season shading (issue #56): the colder the month, the darker the band; month names on top.
+        rows = module_rows() if PLAIN else None
+        if rows is not None and input.season_on():
+            for j, row in enumerate(rows):
+                cold = 1.0 - float(row["activity"])
+                if cold > 0.02:
+                    ax.axvspan(30.0 * j, min(30.0 * (j + 1), ts[-1]), color="#6baed6", alpha=0.35 * cold, lw=0)
+            every = max(1, len(rows) // 12)
+            for j, row in enumerate(rows):
+                if j % every == 0 and 30.0 * j + 15.0 < ts[-1]:
+                    ax.text(30.0 * j + 15.0, 1.03, row["month"], ha="center", va="bottom",
+                            fontsize=6 if narrow else 7.5, color="0.35")
+            ax.fill_between([], [], [], color="#6baed6", alpha=0.3, label="Cold months: low fly activity")
         ax.axhline(thr, color="#2ca02c", lw=1.0, ls="--", alpha=0.7)
         ax.text(0.5, thr + 0.01, lab_thr, color="#2ca02c", fontsize=6 if narrow else 8)
         ax.set_xlabel(xlab)
         ax.set_ylabel("Chance the zone is free")
         # narrow screens (phones): wrap the title and stack the legend so nothing is cut off
-        ax.set_title(FREEDOM_PLOT_TITLE.replace(", with", ",\nwith") if narrow else FREEDOM_PLOT_TITLE)
+        ax.set_title(FREEDOM_PLOT_TITLE.replace(", with", ",\nwith") if narrow else FREEDOM_PLOT_TITLE,
+                     pad=16 if rows is not None else 6)
         ax.set_xlim(left=0)
         ax.set_ylim(0, 1.02)
-        ax.set_xticks([0.0] + list(rounds))
+        ticks = [0.0] + list(rounds)
+        ax.set_xticks(ticks[::max(1, len(ticks) // 13)])
         ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
         if PLAIN:
             ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
@@ -784,7 +937,11 @@ def server(input, output, session):
         r = zone_outputs()
         out = r["out"]
         if PLAIN:
-            return ui.div(ui.markdown(_plain_headline(out, r["round_times"])),
+            rows = module_rows()
+            text = (_season_headline(out, r["round_times"], rows)
+                    if rows is not None and input.season_on() and r["round_times"]
+                    else _plain_headline(out, r["round_times"]))
+            return ui.div(ui.markdown(text),
                           style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
                                  "border-left:4px solid #2ca02c; background:#f0f8f0; border-radius:4px;"))
         # v0.6: the floor and the crossing are the LANE's own (release_threshold now reaches it
@@ -838,17 +995,36 @@ def server(input, output, session):
         if PLAIN:
             last = max(r["round_times"]) if r["round_times"] else 0.0
             thr = float(s["release_threshold"])
-            return ui.layout_columns(
+            # owners never notice: inspections only. A second lane call, so skipped on long runs.
+            weak = evaluate(dict(params_d(), rho_a=0.0)) if last <= 400.0 else None
+            results = ui.layout_columns(
                 ui.value_box("Chance free at the start", _pct(s["p_free_by_time"][0.0], thr),
                              theme="bg-gradient-indigo-blue"),
                 ui.value_box(f"Chance free at the last round (day {last:g})", _pct(s["P_free"], thr),
                              theme="bg-gradient-blue-purple"),
-                ui.value_box(f"{_pct(thr)} reference line first reached",
-                             f"not by day {last:g}" if t_rel is None else f"day {float(t_rel):g}",
+                ui.value_box(f"The same, if owners never report (day {last:g})",
+                             _pct(weak["P_free"], thr) if weak is not None else "not computed",
+                             ui.p("Inspection rounds alone. The gap to the box on the left is how much "
+                                  "of the result rests on owner reporting."
+                                  if weak is not None else
+                                  "Computed for runs of up to 400 days, to keep long runs quick.",
+                                  style="font-size:0.8rem; margin:0;"),
                              theme="bg-gradient-blue-purple"),
-                ui.value_box(f"Chance of a confirmed detection by day {last:g}", _pct(s["P_lost_freedom"]),
-                             ui.p(DETECTION_NOTE, style="font-size:0.8rem; margin:0;"),
-                             theme="bg-gradient-red-orange"),
+                (ui.value_box(f"{_pct(thr)} reference line held to the end of the run",
+                              "no" if _held_from(s, r["round_times"]) is None
+                              else f"from day {_held_from(s, r['round_times']):g}",
+                              theme="bg-gradient-blue-purple")
+                 if module_rows() is not None else
+                 ui.value_box(f"{_pct(thr)} reference line first reached",
+                              f"not by day {last:g}" if t_rel is None else f"day {float(t_rel):g}",
+                              theme="bg-gradient-blue-purple")),
+                col_widths=(3, 3, 3, 3),
+            )
+            planning = ui.layout_columns(
+                ui.value_box(f"Chance of no detection by day {last:g} (before any results)",
+                             _pct(1.0 - float(s["P_lost_freedom"])),
+                             ui.p(NO_DETECTION_NOTE, style="font-size:0.8rem; margin:0;"),
+                             theme="bg-gradient-orange-yellow"),
                 ui.value_box(f"Expected infested premises by day {last:g}",
                              f"{s['cumulative_incidence']:.1f}", theme="bg-gradient-orange-yellow"),
                 ui.value_box("Chance of any spread between premises", _pct(s["P_R_gt0"]),
@@ -857,7 +1033,14 @@ def server(input, output, session):
                              theme="bg-gradient-teal-cyan"),
                 ui.value_box("Expected total cost (illustrative)", money(s["expected_cost"]),
                              theme="bg-gradient-cyan-blue"),
-                col_widths=(4, 4, 4, 4, 4, 4, 4, 4),
+                col_widths=(4, 4, 4, 6, 6),
+            )
+            return ui.TagList(
+                results,
+                ui.tags.h5("Planning", style="margin:18px 0 2px;"),
+                ui.p("Projections made at the start, before any inspection results. They are not "
+                     "part of the freedom estimate above.", style="font-size:0.9rem; margin:0 0 8px;"),
+                planning,
             )
         boxes = ui.layout_columns(
             ui.value_box("P_free at start (t = 0)", f"{s['p_free_by_time'][0.0]:.3f}",
@@ -909,6 +1092,109 @@ def server(input, output, session):
                       style=("font-size:1.0rem; color:#0b5394; font-weight:500; padding:6px 10px; "
                              "margin:4px 0 2px; border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;"))
 
+    @reactive.calc
+    def module_rows():
+        pk = pack()
+        if not pk["module_on"]:
+            return None
+        m = dict(pk, monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"])
+        return intro_schedule(m, float(params()["horizon"]))["rows"]
+
+    @render.plot
+    def module_plot():
+        rows = module_rows()
+        fig, ax = plt.subplots(figsize=(9, 4.2))
+        if rows is None:
+            ax.text(0.5, 0.5, "The introduction module is off in this scenario:\nthe introduction rate is constant.",
+                    ha="center", va="center"); ax.axis("off")
+            return fig
+        base = float(input.intro_rate()) * 30.0
+        x = list(range(len(rows)))
+        fly = [r["fly"] * base for r in rows]; mv = [r["move"] * base for r in rows]
+        wl = [r["wild"] * base for r in rows]
+        ax.bar(x, fly, color="#1f77b4", label="Flies arriving")
+        ax.bar(x, mv, bottom=fly, color="#ff7f0e", label="Moved animals")
+        ax.bar(x, wl, bottom=[a + b for a, b in zip(fly, mv)], color="#2ca02c", label="Wildlife")
+        step = max(1, len(rows) // 18)
+        ax.set_xticks(x[::step]); ax.set_xticklabels([r["month"] for r in rows][::step])
+        ax.set_ylabel("Expected new infested premises per month")
+        ax.set_xlabel("Month of the run")
+        ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.16))
+        ax.grid(axis="y", alpha=0.25)
+        fig.tight_layout()
+        return fig
+
+    @render.ui
+    def module_note():
+        rows = module_rows()
+        if rows is None:
+            return ui.div()
+        lo = min(rows, key=lambda r: r["intro"]); hi = max(rows, key=lambda r: r["intro"])
+        text = (f"Lowest month: **{lo['month']}**, {100 * lo['intro']:.0f}% of the reference rate "
+                f"(fly activity {100 * lo['activity']:.0f}%). Highest: **{hi['month']}**, "
+                f"{100 * hi['intro']:.0f}%. Fly activity comes from monthly temperatures for "
+                f"{COUNTY['name']}. Rain, wind and terrain are not modelled.")
+        return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    @render.ui
+    def must_be_true():
+        """Issue #59: the conditions and data a freedom statement from this run rests on, written
+        from the current inputs."""
+        pk = pack()
+        r = zone_outputs()
+        last = max(r["round_times"]) if r["round_times"] else 0.0
+        n_r = len(r["round_times"])
+        share = 100.0 * min(int(pk["n_farms_per_round"]), int(pk["M"])) / max(1, int(pk["M"]))
+        delay = (1.0 / float(pk["rho_r"]) if float(pk["rho_r"]) > 0 else float("inf"))
+        rows = module_rows()
+        warm = (sum(1 for x in rows if x["activity"] >= 0.9) if rows is not None else None)
+        season = (f"The run covers **{warm}** warm month{'' if warm == 1 else 's'} (fly activity at "
+                  f"90% or more). A clean cold month counts for little."
+                  if warm is not None else
+                  "Rates are constant in this scenario, so the season is not considered.")
+        text = f"""
+The chance of freedom shown for this run (**{_pct(r['out']['P_free'])}** at day {last:g}) holds only if all of
+the following are true.
+
+**The surveillance happened as entered**
+- {n_r} inspection round{'' if n_r == 1 else 's'} over {last:g} days, each visiting {share:.0f}% of premises
+  and {int(pk['n_animals_per_round'])} animals on each.
+- Owners look their animals over closely at least every {float(pk['owner_contact_interval']):g} days and
+  report a wound within about {delay:.0f} days. Most of the result rests on this.
+- No confirmed detection of any kind in the zone over the whole period: no inspection finding, no owner
+  report, and no positive fly trap.
+
+**The pressure from outside is as entered**
+- About one new infested premises every {1.0 / float(pk['intro_rate']) if float(pk['intro_rate']) > 0 else float('inf'):.0f}
+  days in a warm month, under the reference conditions.
+- Sterile-fly release meets {100 * float(pk['release_coverage']):.0f}% of its target.
+- Detections in nearby counties are at {float(pk['nearby_pressure']):g} times their summer 2026 level.
+- {season}
+
+**Conditions the model does not cover are confirmed by hand**
+- Enough roadside checkpoints.
+- Adequate outreach to producers and veterinarians.
+- No pending or unresolved laboratory samples.
+- Wildlife surveillance clean during the window.
+- The neighbouring zones, and zones to the south, are clear for the same window.
+
+**Data that would tighten the answer most**
+- How often owners of large ranches see their animals closely, and how quickly they report.
+- The share of past detections found by inspection and by owner report.
+- Sterile-fly release numbers against the target.
+- The share of infestations in wildlife.
+
+One county is a worked example. A statement about the whole state needs many counties and the spread
+between them.
+"""
+        return ui.markdown(text)
+
+    @render.ui
+    def share_caption():
+        w = max(0.0, 1.0 - float(input.share_fly()) - float(input.share_move()))
+        return ui.div(ui.markdown(f"Wildlife: the remaining **{100 * w:.0f}%**. Assumed shares; little data."),
+                      style=_CAPTION_STYLE)
+
     @render.ui
     def rounds_caption():
         n = rounds_in(dict(period_days=input.period_days(), round_interval=input.round_interval()))
@@ -917,8 +1203,15 @@ def server(input, output, session):
     @render.ui
     def delay_caption():
         r = float(input.rho_r())
-        text = (f"Average delay about **{1.0 / r:.0f} days** from noticing to reporting."
-                if r > 0.0 else "Owners never report.")
+        tc = float(input.owner_contact_interval())
+        if r <= 0.0:
+            text = "Owners never report."
+        elif tc > 0.0:
+            text = (f"Average delay about **{1.0 / r + tc / 2.0:.0f} days** from a visible wound to a "
+                    f"report: {tc / 2.0:.1f} days until the owner's next close look, then "
+                    f"{1.0 / r:.0f} days to report.")
+        else:
+            text = f"Average delay about **{1.0 / r:.0f} days** from noticing to reporting."
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
 
     # ---- scenario loader: writes EVERY input ----

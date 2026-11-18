@@ -36,6 +36,8 @@ from __future__ import annotations
 
 import math
 
+from intro_module import schedule as _intro_schedule
+
 # APHIS freedom marks (E6: shown, never tuned to). 24-d life cycle at about 22 C. Since 2026-11-17 the
 # app no longer draws them (policy dates, not model results); the scenario-check figures still use them.
 LIFE_CYCLE_D = 24.0
@@ -55,6 +57,9 @@ _BASE = dict(
     p_latent_seed=0.01, p_infectious_seed=0.0, age_window=60,
     # detection: scheduled inspection + owner reporting (alert zone: 3-day mean reporting delay)
     Se_animal=0.85, n_animals_per_round=30, rho_a=0.70, rho_r=0.33,
+    # days between the owner's close looks at the animals (issue #48). 0 here, so every
+    # scenario-check preset keeps its numbers; the screwworm presets carry the ranch value below.
+    owner_contact_interval=0.0,
     # zone (first-pass review, 2026-09-08: a county adjacent to active zones)
     # intro_rate: the rate of newly infected premises (introductions), per day
     M=100, design_prevalence=0.0, intro_rate=round(1.0 / 130.0, 4),  # 0.0077 /d ~ 130 d
@@ -73,6 +78,27 @@ _BASE = dict(
     release_threshold=0.95,
     # costs (placeholders; phase 2)
     c_lost_freedom=1_000_000, c_per_case=20_000, c_per_test=5, c_per_round=2_000,
+    # introduction module (issues #55 to #58; intro_design.md). OFF here, so every scenario-check
+    # preset keeps constant rates and its earlier numbers. The county presets switch it on.
+    module_on=False, season_on=True, start_month=6, temp_shift=0.0,
+    share_fly=0.60, share_move=0.25,                 # wildlife share = 1 - both (assumed shares)
+    release_coverage=0.5, release_coverage_ref=0.5, release_kappa=0.75,
+    nearby_pressure=1.0, wound_factor=1.0,
+    treat_share=0.0, treat_effect=0.3, move_check_effect=0.0, spread_move_share=0.3,
+)
+
+# Worked-example county (issue #50): Zavala County, Texas. Sources and pull dates:
+# changes/2026-11-18-county-tailoring/data/README.md.
+COUNTY = dict(
+    name="Zavala County, Texas",
+    M=114,                       # operations with cattle, 2022 Census of Agriculture
+    cattle=38198, mean_herd=335, median_class="20 to 49 head",
+    area_km2=3360.3,
+    last_detection="11 June 2026", start_month=6,
+    station="Crystal City (USC00412160), 1991 to 2020 normals",
+    # mean daily maximum and minimum temperature by month, deg C, January first
+    monthly_tmax=[19.3, 22.3, 26.1, 30.1, 32.8, 35.8, 36.3, 37.3, 33.8, 29.4, 23.4, 19.8],
+    monthly_tmin=[6.6, 9.2, 12.8, 16.6, 20.9, 23.7, 24.2, 24.3, 21.9, 17.6, 11.8, 7.3],
 )
 
 
@@ -91,13 +117,27 @@ _DETECTABLE = dict(mean_latent_time=0.0, recovery_within_on=False,
 # course). Carried by the four zone presets only; `early_warning` keeps the clean start.
 _LEFTOVERS = dict(k0_mean=1.0, age0_scale=14.0)
 
+# Large ranches: the owner looks the animals over closely about once a week (issue #48). An assumed
+# value with little data behind it; the range to explore is 1 to 30 days.
+_RANCH = dict(owner_contact_interval=7.0)
+
+# The county presets: real premises count, the introduction module on, the clock starting in the
+# month of the county's last detection. N_herd is set in _COUNTY_HERD (see intro_design.md).
+_COUNTY_HERD = 100
+_ZAVALA = dict(M=COUNTY["M"], N_herd=_COUNTY_HERD, n_farms_per_round=23, module_on=True,
+               start_month=COUNTY["start_month"])
+
 SCENARIOS = {
+    # ---- county presets (issue #50) ----
+    "county_12mo":         _s(period_days=360, round_interval=30, **_LEFTOVERS, **_RANCH, **_ZAVALA),
+    "county_6mo":          _s(**_LEFTOVERS, **_RANCH, **_ZAVALA),
+    "county_3yr":          _s(period_days=1080, round_interval=30, **_LEFTOVERS, **_RANCH, **_ZAVALA),
     # ---- screwworm presets (F1) ----
-    "six_months":          _s(**_LEFTOVERS),                                 # 180 d, 6 monthly rounds
-    "zone_last_detection": _s(period_days=90, round_interval=30, **_LEFTOVERS),  # 90 d, the APHIS release window
-    "three_cycles":        _s(period_days=72, round_interval=24, **_LEFTOVERS),  # 72 d, one round per life cycle
-    "twelve_months":       _s(period_days=360, round_interval=30, **_LEFTOVERS),  # 360 d
-    "early_warning":       _s(intro_rate=round(1.0 / 1000.0, 4)),             # still-free county 200 km north (A2)
+    "six_months":          _s(**_LEFTOVERS, **_RANCH),                                 # 180 d, 6 monthly rounds
+    "zone_last_detection": _s(period_days=90, round_interval=30, **_LEFTOVERS, **_RANCH),  # 90 d, the APHIS release window
+    "three_cycles":        _s(period_days=72, round_interval=24, **_LEFTOVERS, **_RANCH),  # 72 d, one round per life cycle
+    "twelve_months":       _s(period_days=360, round_interval=30, **_LEFTOVERS, **_RANCH),  # 360 d
+    "early_warning":       _s(intro_rate=round(1.0 / 1000.0, 4), **_RANCH),             # still-free county 200 km north (A2)
     # ---- scenario-check presets (scenarios.md numbering) ----
     "s1":                  _s(intro_rate=0.0),                                                    # 1
     "s2":                  _s(Se_animal=0.0, rho_r=0.0, clearance_on=False, course_end_on=False),  # 2 (oracle: no exit)
@@ -139,6 +179,9 @@ SCENARIOS = {
 }
 
 SCENARIO_LABELS = {
+    "county_12mo":         "Zavala County: 12 months from the last detection (monthly rounds)",
+    "county_6mo":          "Zavala County: 6 months from the last detection",
+    "county_3yr":          "Zavala County: 3 years from the last detection",
     "six_months":          "6 months clean: technically-free mark (180 d, monthly) [default]",
     "zone_last_detection": "Zone at last detection: the APHIS 3-month release window (90 d)",
     "three_cycles":        "3 life cycles clean: one round per 24-d cycle (72 d)",
@@ -173,7 +216,8 @@ SCENARIO_LABELS = {
 }
 
 # Input ids by widget type (the loader needs to call the right update function).
-CHECKBOXES = ("recovery_within_on", "spread_on", "clearance_on", "course_end_on", "release_on")
+CHECKBOXES = ("recovery_within_on", "spread_on", "clearance_on", "course_end_on", "release_on",
+              "module_on", "season_on")
 NUMERICS = ("c_lost_freedom", "c_per_case", "c_per_test", "c_per_round")
 
 
@@ -203,7 +247,14 @@ def preset_to_params(pack: dict, dt: float) -> dict:
     release = (float(pack["release_mean"]) if pack.get("release_on", False) else None)
     rate = float(pack["intro_rate"])
     intro_interval = math.inf if rate <= 0.0 else 1.0 / rate
+    sched = {}
+    if pack.get("module_on", False) and horizon > 0.0:
+        m = dict(pack, monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"])
+        sc = _intro_schedule(m, horizon)
+        sched = dict(schedule_times=sc["schedule_times"], intro_multiplier=sc["intro_multiplier"],
+                     spread_multiplier=sc["spread_multiplier"])
     return dict(
+        **sched,
         mean_latent_time=float(pack["mean_latent_time"]),
         doubling_time_within=float(pack["doubling_time_within"]),
         mean_recovery_time_within=recovery_within,
@@ -214,6 +265,7 @@ def preset_to_params(pack: dict, dt: float) -> dict:
         mean_clinical_onset_time=float(pack["mean_clinical_onset_time"]),
         rho_a=float(pack["rho_a"]),
         rho_r=float(pack["rho_r"]),
+        owner_contact_interval=float(pack.get("owner_contact_interval", 0.0)),   # issue #48
         Se_animal=float(pack["Se_animal"]),
         n_animals_per_round=int(pack["n_animals_per_round"]),
         mean_intro_interval=intro_interval,

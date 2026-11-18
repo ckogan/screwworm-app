@@ -76,6 +76,7 @@ from __future__ import annotations
 
 import math
 import os
+import sys
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.special import gammaln, xlogy
@@ -144,6 +145,8 @@ DEFAULTS = dict(
     mean_clinical_onset_time=1.5,
     rho_a=0.89,
     rho_r=0.70,
+    owner_contact_interval=0.0,      # days between the owner's close looks at the animals; 0 = the
+                                     # previous lane exactly (model_design.md, owner-reporting hazard)
     # surveillance schedule
     round_times=(30.0, 60.0, 90.0, 120.0),
     n_farms_per_round=20,            # farms sampled per round (scalar; symmetric policy)
@@ -164,6 +167,12 @@ DEFAULTS = dict(
     # so every pack that does not set them keeps the lane's previous outputs bit for bit.
     course_end_exit=False,           # True: a premises leaves K when its within-premises course ends
     mean_release_time=None,          # clearance mean in the D = 1 branch; None = mean_recovery_time
+    # rate schedule (2026-11-18, model_design.md "Rate schedule"): piecewise-constant multipliers on
+    # the zone introduction rate and on between-premises spread. All three None = no schedule, the
+    # lane's previous outputs bit for bit; all three given together or not at all.
+    schedule_times=None,             # breakpoints 0 = s_0 < s_1 < ..., multiples of dt
+    intro_multiplier=None,           # a_j >= 0 on [s_j, s_{j+1}): lambda(t) = a_j * lambda_region
+    spread_multiplier=None,          # m_j >= 0 on [s_j, s_{j+1}): beta_max(t) = m_j * beta_max
     # cost weights (NOT lit-derived; placeholders per priors_design.md note)
     c_lost_freedom=1.0,
     c_per_case=1.0,
@@ -269,6 +278,11 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
     # Passive hazard (per-farm clinical-reporting hazard), model_design.md.
     rho_a = float(p["rho_a"])
     rho_r = float(p["rho_r"])
+    # Owner contact interval: a noticed wound waits on average half the interval for the owner's
+    # next close look, so the mean delay is 1/rho_r + T_c/2 (0 leaves rho_r unchanged, bit for bit).
+    T_c = float(p.get("owner_contact_interval", 0.0))
+    if T_c > 0.0:
+        rho_r = rho_r / (1.0 + rho_r * T_c / 2.0)
     h_pass = rho_r * (1.0 - (1.0 - rho_a * np.clip(p_clin, 0.0, 1.0)) ** N_herd)
 
     # 2026-10-24: the infested share (latent + larvae-bearing), read by the course-end exit only.
@@ -377,6 +391,68 @@ def _truncated_poisson(mu: float, N: int) -> np.ndarray:
 
 
 # --------------------------------------------------------------------------------------
+# Rate schedule (2026-11-18, model_design.md "Rate schedule").
+# --------------------------------------------------------------------------------------
+SCHEDULE_KEYS = ("schedule_times", "intro_multiplier", "spread_multiplier")
+
+
+def _schedule_list(name: str, values) -> np.ndarray:
+    """One schedule input as a 1-d float array; ValueError if it is not a list of numbers."""
+    try:
+        arr = np.atleast_1d(np.asarray(values, dtype=float))
+    except (TypeError, ValueError):
+        raise ValueError(f"{name} must be a list of numbers, got {values!r}") from None
+    if arr.ndim != 1:
+        raise ValueError(f"{name} must be a flat list of numbers, got {values!r}")
+    return arr
+
+
+def step_multipliers(p: dict, nT: int, h: float, horizon: float) -> tuple:
+    """Per-step multipliers (a_step, m_step), each of length nT, from the three schedule inputs.
+
+    The coefficients are frozen across each step, so step i, covering [i*h, (i+1)*h), uses the
+    segment that contains i*h; the breakpoints are multiples of h, so no step straddles one and
+    the frozen value is the exact one over the whole step.
+    No schedule (all three None) gives arrays of exactly 1.0. Multiplying a rate by 1.0 returns the
+    same float, so the march below runs one code path and still reproduces the unscheduled lane bit
+    for bit (normative), as does a schedule whose multipliers are all 1.
+    # HAZARD (segment lookup): the lookup runs on integer step indices, never on i*h compared with
+    # the float breakpoints; i*h carries rounding (3 * 0.05 != 0.15) and would put a breakpoint's
+    # own step in the segment before it.
+    Raises ValueError for: one or two of the three inputs given; unequal or zero lengths; a first
+    breakpoint other than 0; a non-finite or non-increasing breakpoint; a breakpoint that is not a
+    multiple of dt; a negative or non-finite multiplier. A breakpoint at or beyond the horizon is
+    accepted and never reached (as a round time beyond the horizon is)."""
+    given = [k for k in SCHEDULE_KEYS if p[k] is not None]
+    if not given:
+        return np.ones(nT), np.ones(nT)
+    if len(given) != len(SCHEDULE_KEYS):
+        missing = [k for k in SCHEDULE_KEYS if p[k] is None]
+        raise ValueError(f"rate schedule: {given} given without {missing}; give all three or none")
+    s, a, m = (_schedule_list(k, p[k]) for k in SCHEDULE_KEYS)
+    if not (len(s) == len(a) == len(m)):
+        raise ValueError(f"rate schedule: the three lists must have the same length, got "
+                         f"{len(s)}, {len(a)}, {len(m)}")
+    if len(s) == 0:
+        raise ValueError("rate schedule: the lists are empty; the first breakpoint must be 0")
+    if not np.all(np.isfinite(s)):
+        raise ValueError(f"schedule_times must be finite, got {list(s)}")
+    if s[0] != 0.0:
+        raise ValueError(f"schedule_times must start at 0, got {s[0]}")
+    if np.any(np.diff(s) <= 0.0):
+        raise ValueError(f"schedule_times must be strictly increasing, got {list(s)}")
+    for name, v in (("intro_multiplier", a), ("spread_multiplier", m)):
+        if not np.all(np.isfinite(v)) or np.any(v < 0.0):
+            raise ValueError(f"{name} entries must be finite and >= 0, got {list(v)}")
+    idx = np.rint(s / h).astype(int)
+    for sj, ij in zip(s[1:], idx[1:]):
+        if abs(ij * h - sj) > 1e-6:
+            raise ValueError(f"schedule time {sj} is not a multiple of dt={h}")
+    seg = np.searchsorted(idx, np.arange(nT), side="right") - 1
+    return a[seg], m[seg]
+
+
+# --------------------------------------------------------------------------------------
 # Main evaluation.
 # --------------------------------------------------------------------------------------
 def evaluate(params: dict) -> dict:
@@ -413,6 +489,9 @@ def evaluate(params: dict) -> dict:
         raise ValueError(f"release_threshold must be in (0, 1], got {p['release_threshold']}")
 
     nT = int(round(horizon / h))
+    # rate schedule (2026-11-18): per-step multipliers on lam and beta_max; exactly 1.0 with no schedule
+    scheduled = any(p[k] is not None for k in SCHEDULE_KEYS)
+    a_step, m_step = step_multipliers(p, nT, h, horizon)
     age_grid = np.arange(nT + 1) * h                        # ages 0, h, ..., horizon
     # v0.6: an initial premises of age tau_0 in [0, horizon] reaches tau_0 + t <= 2*horizon
     # within the program, so its curves are needed on (horizon, 2*horizon] as well. The
@@ -518,11 +597,20 @@ def evaluate(params: dict) -> dict:
             mean_pshed = 0.0
             mean_hpass = 0.0
 
-        beta0 = beta_max * mean_pshed
-        beta1 = lock * beta_max * mean_pshed
-        bint = frac * lam
-        b0 = frac * (lam + beta0 * Karr)
-        b1 = frac * (lam + beta1 * Karr)
+        # Rate schedule (2026-11-18): this step's introduction rate and between-premises rate. They
+        # enter the new-infestation rate (b0, b1), hence cumulative incidence and the age field's
+        # births, and the introduction-only inflow of the no-secondary chain (bint); nothing else.
+        # HAZARD (bit identity at multiplier 1): the multiplier is applied to lam and to beta_max
+        # alone, before any other factor, so that x * 1.0 == x restores the unscheduled operands
+        # and every later product is the same expression in the same order. Folding it in further
+        # down (lock * beta_max * mean_pshed * m, say) is the same number only to rounding.
+        lam_i = lam * float(a_step[i])
+        beta_i = beta_max * float(m_step[i])
+        beta0 = beta_i * mean_pshed
+        beta1 = lock * beta_i * mean_pshed
+        bint = frac * lam_i
+        b0 = frac * (lam_i + beta0 * Karr)
+        b1 = frac * (lam_i + beta1 * Karr)
         hpassK = Karr * mean_hpass
 
         # 2026-10-24 course-end exit: the share of the counted (D = 0) premises whose age reaches tau_end
@@ -632,7 +720,10 @@ def evaluate(params: dict) -> dict:
     if course_end:
         # 2026-10-24 diagnostic, present only when the switch is on (the default output keeps its keys)
         out["_tau_end"] = None if i_end is None else i_end * h
-    assert_invariants(out, p, lam, horizon, p_k0_zero)
+    # Rate schedule: the alarm ceiling needs the scheduled exposure lam * A(horizon), A the integral
+    # of the introduction multiplier (the sum is exact up to rounding: steps do not straddle breakpoints).
+    intro_exposure = lam * float(a_step.sum()) * h if scheduled else None
+    assert_invariants(out, p, lam, horizon, p_k0_zero, intro_exposure)
     return out
 
 
@@ -674,10 +765,12 @@ def assert_monotonicity(intro_interval: float = 20.0, **backdrop) -> None:
 
 
 def assert_invariants(out: dict, p: dict, lam: float, horizon: float,
-                      p_k0_zero: float = 1.0) -> None:
+                      p_k0_zero: float = 1.0, intro_exposure: float | None = None) -> None:
     """Logical bounds + known monotonicities as invariants (cheapest spec-error detector).
 
-    `p_k0_zero` = P(K_0 = 0) from the truncated Poisson (1.0 at k0_mean = 0, v0.6)."""
+    `p_k0_zero` = P(K_0 = 0) from the truncated Poisson (1.0 at k0_mean = 0, v0.6).
+    `intro_exposure` = the expected number of introduction events over the horizon under a rate
+    schedule, lam * A(horizon); None = lam * horizon (no schedule)."""
     # probabilities in [0,1]
     for t, v in out["p_free_by_time"].items():
         assert -1e-9 <= v <= 1 + 1e-9, f"P_free out of [0,1] at t={t}: {v}"
@@ -691,7 +784,11 @@ def assert_invariants(out: dict, p: dict, lam: float, horizon: float,
     # introduction or to an initial premises, and the instantaneous intro rate is <= lam, so
     # P(no alarm) >= P(K_0 = 0) * exp(-lam * horizon). At k0_mean = 0 this is the v0.5 ceiling
     # unchanged (P(K_0 = 0) = 1).
-    intro_ceiling = 1.0 - p_k0_zero * math.exp(-lam * horizon)
+    # Under a rate schedule the instantaneous rate is a(t) * lam, which can exceed lam, so the
+    # exposure is lam * A(horizon) instead of lam * horizon.
+    if intro_exposure is None:
+        intro_exposure = lam * horizon
+    intro_ceiling = 1.0 - p_k0_zero * math.exp(-intro_exposure)
     assert out["P_lost_freedom"] <= intro_ceiling + 1e-6, \
         f"P_lost {out['P_lost_freedom']} exceeds alarm ceiling {intro_ceiling}"
     # cumulative incidence non-negative
@@ -768,7 +865,7 @@ def load_anchor_cells(path: str | None = None) -> list:
         for row in csv.DictReader(f):
             params = {}
             for k, v in row.items():
-                if k in DEFAULTS and k not in ("round_times", "dt"):
+                if k in DEFAULTS and k not in ("round_times", "dt") + SCHEDULE_KEYS:
                     val = _parse_cell(v)
                     if val is not None:
                         params[k] = val
@@ -858,7 +955,14 @@ def _load_presets(path: str | None = None):
             f"apps/review_app/presets.py)")
     spec = importlib.util.spec_from_file_location("nws_presets", path)
     mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+    # The preset table imports its sibling modules by bare name (2026-11-18: intro_module), so its
+    # own folder has to be importable while it loads; the path entry is removed again afterwards.
+    folder = os.path.dirname(os.path.abspath(path))
+    sys.path.insert(0, folder)
+    try:
+        spec.loader.exec_module(mod)
+    finally:
+        sys.path.remove(folder)
     return mod
 
 
@@ -963,6 +1067,10 @@ def check_eval_times(verbose: bool = True) -> dict:
 
     # (c) aged start: the documented difference
     p = P("zone_last_detection")
+    # The 1e-4 bound of (c) was set on the preset as it stood before the owner contact interval
+    # (issue #48); with the interval the aged-leftover transient decays more slowly. Pin it to 0.
+    p = dict(p, owner_contact_interval=0.0)
+    assert p["owner_contact_interval"] == 0.0
     assert float(p["k0_mean"]) == 1.0 and float(p["age0_scale"]) == 14.0, \
         "the zone preset no longer carries k0_mean = 1, age0_scale = 14; update check (c)"
     rounds = sorted(float(t) for t in p["round_times"])
@@ -1026,6 +1134,141 @@ def check_course_end_oracle(verbose: bool = True) -> float:
                 print(f"   age0_scale={a0:4.0f} tau_end={out['_tau_end']:.2f}  t={t:5.0f}  P_free={got:.12f}"
                       f"  grid law={expect:.12f}  |diff|={abs(got - expect):.1e}")
             assert abs(got - expect) < COURSE_END_TOL, f"course-end oracle broken at age0 {a0}, t {t}"
+    return worst
+
+
+# --------------------------------------------------------------------------------------
+# Rate-schedule self-test (2026-11-18, model_design.md "Rate schedule"; NORMATIVE for this lane).
+# --------------------------------------------------------------------------------------
+SCHEDULE_ORACLE_TOL = 1e-9              # closed form vs exp(-lambda_region * A(t))
+SCHEDULE_EQUIV_TOL = 1e-12              # a schedule vs the equivalent unscheduled parameter
+
+
+def _identical(a, b) -> bool:
+    """Exact equality of two evaluate() outputs: same keys in the same order, same types, and every
+    value equal under == (no tolerance)."""
+    if isinstance(a, dict):
+        return (isinstance(b, dict) and list(a.keys()) == list(b.keys())
+                and all(_identical(a[k], b[k]) for k in a))
+    if isinstance(a, (list, tuple)):
+        return type(a) is type(b) and len(a) == len(b) and all(_identical(x, y) for x, y in zip(a, b))
+    return type(a) is type(b) and a == b
+
+
+def check_rate_schedule(verbose: bool = True) -> dict:
+    """NORMATIVE (2026-11-18). (a) Unit multipliers: a schedule whose multipliers are all 1, at
+    breakpoints that fall inside and between rounds, returns every output of the unscheduled run
+    exactly (==), on the lane defaults and on the six_months and early_warning presets. (b) Oracle:
+    no detection, spread, exits or initial premises, three segments (multipliers 1, 0, 2.5 from 0,
+    60 and 120 d): P_free(t) = exp(-lambda_region * A(t)), A the integral of the introduction
+    multiplier, to 1e-9, flat across the zero segment. (c) spread_multiplier = 0 in every segment
+    equals doubling_time = Inf on every P_free to 1e-12, with P_R_gt0 = 0. (d) An introduction
+    multiplier of c in every segment equals mean_intro_interval / c with no schedule, to 1e-12.
+    (e) Each malformed schedule the spec lists raises ValueError."""
+    presets = _load_presets()
+    h = float(DEFAULTS["dt"])
+    six = presets.preset_to_params(presets.SCENARIOS["six_months"], h)
+    assert all(six.get(k) is None for k in SCHEDULE_KEYS), \
+        "six_months now carries a rate schedule of its own; checks (c) and (d) need an unscheduled preset"
+    worst = {}
+
+    # (a) unit multipliers, exact
+    cases = [("lane defaults", {}), ("six_months", six),
+             ("early_warning", presets.preset_to_params(presets.SCENARIOS["early_warning"], h))]
+    for name, p in cases:
+        assert all(p.get(k) is None for k in SCHEDULE_KEYS), \
+            f"{name} now carries a rate schedule of its own; pick an unscheduled preset for check (a)"
+        hz = float(p.get("horizon", DEFAULTS["horizon"]))
+        ones = dict(schedule_times=[0.0, 10.05, 30.0, hz - h], intro_multiplier=[1.0] * 4,
+                    spread_multiplier=[1.0] * 4)
+        same = _identical(evaluate(p), evaluate(dict(p, **ones)))
+        if verbose:
+            print(f"   (a) unit multipliers, {name:<14} every output == the unscheduled run: {same}")
+        assert same, f"{name}: a schedule of unit multipliers changed an output"
+
+    # (b) oracle: P(K = 0)(t) = exp(-lambda_region * A(t))
+    interval, sched_t, a = 130.0, [0.0, 60.0, 120.0], [1.0, 0.0, 2.5]
+    out = evaluate(dict(
+        mean_intro_interval=interval, Se_animal=0.0, rho_r=0.0, rho_a=0.0,
+        doubling_time=float("inf"), mean_recovery_time=float("inf"), course_end_exit=False,
+        k0_mean=0.0, horizon=180.0, round_times=(30.0, 60.0, 90.0, 120.0, 150.0, 180.0),
+        eval_times=[0.0, 45.0, 60.05, 75.0, 119.95, 120.05, 165.0],
+        schedule_times=sched_t, intro_multiplier=a, spread_multiplier=[1.0, 1.0, 1.0]))
+
+    def A(t):
+        ends = sched_t[1:] + [float("inf")]
+        return sum(aj * max(0.0, min(t, e) - s0) for aj, s0, e in zip(a, sched_t, ends))
+
+    worst["oracle"] = 0.0
+    for t in sorted(out["p_free_by_time"]):
+        expect = math.exp(-A(t) / interval)
+        got = out["p_free_by_time"][t]
+        worst["oracle"] = max(worst["oracle"], abs(got - expect))
+        if verbose:
+            print(f"   (b) t={t:7.2f}  A(t)={A(t):7.2f}  P_free={got:.14f}  exp(-lam A)={expect:.14f}"
+                  f"  |diff|={abs(got - expect):.1e}")
+        assert abs(got - expect) < SCHEDULE_ORACLE_TOL, \
+            f"rate-schedule oracle broken at t={t}: got {got!r}, expected {expect!r}"
+    # Cumulative incidence under the same schedule: each of the M premises is infested at rate
+    # a(t) * lambda_region / M and never leaves, so E[K(t)] = M (1 - exp(-lambda_region A(t) / M)).
+    # The lane's incidence is a left-endpoint sum over the steps (first order in dt), hence 1e-3.
+    Mz = int(DEFAULTS["M"])
+    ci_expect = Mz * (1.0 - math.exp(-A(180.0) / interval / Mz))
+    worst["oracle_incidence"] = abs(out["cumulative_incidence"] - ci_expect)
+    if verbose:
+        print(f"   (b) cumulative incidence={out['cumulative_incidence']:.6f}  "
+              f"M (1 - exp(-lam A / M))={ci_expect:.6f}  |diff|={worst['oracle_incidence']:.1e}")
+    assert worst["oracle_incidence"] < 1e-3, "rate-schedule oracle: cumulative incidence off the scheduled law"
+
+    # (c) no spread by schedule == no spread by parameter
+    zero = evaluate(dict(six, schedule_times=[0.0, 45.0], intro_multiplier=[1.0, 1.0],
+                         spread_multiplier=[0.0, 0.0]))
+    noss = evaluate(dict(six, doubling_time=float("inf")))
+    worst["spread_zero"] = max(abs(zero["p_free_by_time"][t] - noss["p_free_by_time"][t])
+                               for t in noss["p_free_by_time"])
+    worst["spread_zero_R"] = abs(zero["P_R_gt0"])
+    if verbose:
+        print(f"   (c) spread_multiplier = 0 vs doubling_time = Inf on six_months: max|dP_free| = "
+              f"{worst['spread_zero']:.1e}, P_R_gt0 = {zero['P_R_gt0']:.1e} (parameter route "
+              f"{noss['P_R_gt0']:.1e})")
+    assert worst["spread_zero"] < SCHEDULE_EQUIV_TOL, "spread_multiplier = 0 differs from doubling_time = Inf"
+    assert worst["spread_zero_R"] < SCHEDULE_EQUIV_TOL, "spread_multiplier = 0 left secondary spread"
+
+    # (d) a constant introduction multiplier == the scaled interval
+    c = 2.5
+    sc = evaluate(dict(six, schedule_times=[0.0, 30.0, 95.0], intro_multiplier=[c] * 3,
+                       spread_multiplier=[1.0] * 3))
+    un = evaluate(dict(six, mean_intro_interval=float(six["mean_intro_interval"]) / c))
+    worst["intro_const"] = max(
+        max(abs(sc["p_free_by_time"][t] - un["p_free_by_time"][t]) for t in un["p_free_by_time"]),
+        max(abs(sc[k] - un[k]) for k in ("P_lost_freedom", "cumulative_incidence", "P_R_gt0")))
+    if verbose:
+        print(f"   (d) intro_multiplier = {c} throughout vs mean_intro_interval / {c} on six_months: "
+              f"max|d| over P_free, P_lost_freedom, cumulative_incidence, P_R_gt0 = {worst['intro_const']:.1e}")
+    assert worst["intro_const"] < SCHEDULE_EQUIV_TOL, "constant intro_multiplier differs from the scaled interval"
+
+    # (e) malformed schedules
+    ok = dict(schedule_times=[0.0, 30.0], intro_multiplier=[1.0, 2.0], spread_multiplier=[1.0, 0.5])
+    bad = {
+        "times without multipliers": dict(schedule_times=[0.0, 30.0]),
+        "one multiplier list missing": dict(ok, spread_multiplier=None),
+        "unequal lengths": dict(ok, intro_multiplier=[1.0]),
+        "first breakpoint not 0": dict(ok, schedule_times=[5.0, 30.0]),
+        "breakpoints not increasing": dict(ok, schedule_times=[0.0, 0.0]),
+        "negative multiplier": dict(ok, intro_multiplier=[1.0, -0.1]),
+        "non-finite multiplier": dict(ok, spread_multiplier=[1.0, float("inf")]),
+        "NaN multiplier": dict(ok, intro_multiplier=[float("nan"), 1.0]),
+        "breakpoint off the dt grid": dict(ok, schedule_times=[0.0, 30.02]),
+        "empty lists": dict(schedule_times=[], intro_multiplier=[], spread_multiplier=[]),
+    }
+    for label, over in bad.items():
+        try:
+            evaluate(over)
+        except ValueError:
+            continue
+        raise AssertionError(f"malformed rate schedule accepted: {label}")
+    if verbose:
+        print(f"   (e) {len(bad)} malformed schedules each raise ValueError")
     return worst
 
 
@@ -1159,5 +1402,14 @@ if __name__ == "__main__":
     print(f"\n[oracle] course-end exit (k0_mean=3, nothing else), tol {COURSE_END_TOL:.0e}:")
     w = check_course_end_oracle()
     print(f"   max |P_free - grid law| = {w:.1e}  (asserted)")
+
+    # (13) RATE SCHEDULE (2026-11-18, normative): unit multipliers change nothing (exact), the
+    #      exp(-lambda A(t)) oracle on three segments, spread multiplier 0 against doubling time Inf,
+    #      a constant introduction multiplier against the scaled interval, and the input errors.
+    print(f"\n[rate schedule] unit multipliers exact, oracle tol {SCHEDULE_ORACLE_TOL:.0e}, "
+          f"equivalences tol {SCHEDULE_EQUIV_TOL:.0e}:")
+    w = check_rate_schedule()
+    print(f"   worst: oracle {w['oracle']:.1e}, spread 0 vs Inf {w['spread_zero']:.1e}, "
+          f"constant intro {w['intro_const']:.1e}  (all asserted)")
 
     print("\nall invariants passed.")
