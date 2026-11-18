@@ -884,6 +884,12 @@ def _plain_sidebar():
                              "reference conditions: a warm month, 0.3 of the sterile-fly release target met, "
                              "nearby detections as in summer 2026."),
                 ui.output_ui("intro_caption"),
+                # The picture of the module is on the report page. The browser build runs the app in
+                # a frame one folder below the site, so the report is at ../report/.
+                ui.tags.p(ui.tags.a(
+                    "See the picture of how introductions are built", href="../report/#intro",
+                    target="_blank", rel="noopener"),
+                    style="margin:4px 0 8px"),
                 *_intro_ref_inputs(),
                 _sl("release_coverage", "Share of the sterile-fly release target being met"),
                 *_nearby_source_inputs(
