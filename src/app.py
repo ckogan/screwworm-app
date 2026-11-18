@@ -155,7 +155,7 @@ _BASE = SCENARIOS[DEFAULT_SCENARIO]
 # --------------------------------------------------------------------------------------
 import csv  # noqa: E402
 import json  # noqa: E402
-from datetime import date  # noqa: E402
+from datetime import date, datetime  # noqa: E402
 
 import nearby_index  # noqa: E402
 from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
@@ -192,6 +192,26 @@ except (OSError, KeyError, ValueError):
     _CASES, _CENTROIDS, _ADJACENCY, INDEX_DATE, INDEX_OK = [], {}, {}, None, False
 
 
+try:
+    # First day of the worked example's run: the county's last detection (presets.COUNTY).
+    INDEX_START = datetime.strptime(COUNTY["last_detection"], "%d %B %Y").date()
+except (KeyError, ValueError):
+    INDEX_START = None
+
+
+def _index_periods() -> int:
+    """Number of 30-day periods of the run that begin on or before the latest confirmation date."""
+    if INDEX_START is None or INDEX_DATE is None or INDEX_DATE < INDEX_START:
+        return 0
+    return (INDEX_DATE - INDEX_START).days // int(nearby_index.MONTH_DAYS) + 1
+
+
+def _ref_days_text() -> str:
+    """The interval of the adjacency-count option as a reader sees it, rounded and exact, for
+    example "400 days (397)". Built from days_per_event_counted in data/index_reference.json."""
+    return f"{round(INTRO_REF_DAYS, -1):.0f} days ({INTRO_REF_DAYS:.0f})"
+
+
 @functools.lru_cache(maxsize=256)
 def county_index(kernel_km: float, south_weight: float) -> dict:
     """The nearby-pressure index for the county on the data date, with its three largest source
@@ -200,7 +220,9 @@ def county_index(kernel_km: float, south_weight: float) -> dict:
     ref = nearby_index.reference_level(_CASES, _CENTROIDS, _ADJACENCY, **dials)["level"]
     rows = nearby_index.index_breakdown(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
     value = nearby_index.nearby_index(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
-    return dict(value=value, top=rows[:3], n_sources=len(rows))
+    return dict(value=value, top=rows[:3], n_sources=len(rows),
+                series=nearby_index.index_by_segment(INDEX_COUNTY, INDEX_START, _index_periods(),
+                                                     _CASES, _CENTROIDS, ref, **dials))
 
 
 def _load_tables() -> dict | None:
@@ -423,7 +445,8 @@ def check_2026_block():
         f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with the analytic build of "
         f"the model. One season, {int(at['seen'])} events in autumn and {int(wt['seen'])} in all, in "
         f"counties that are not independent: a check, not a calibration. The introduction-rate "
-        f"option on the left applies the lower rate."))
+        f"option on the left applies the lower rate"
+        + (f", about one introduction per {_ref_days_text()}." if INTRO_REF_DAYS else ".")))
     return ui.TagList(*parts)
 
 
@@ -496,8 +519,10 @@ def _table(header: list, rows: list, bold_last: bool = False):
 
 def _intro_ref_inputs():
     """The reference-rate option (both layouts): which count of counties at risk the rate rests on."""
-    alt = (f"Counties at risk counted from the adjacency file (about one introduction per "
-           f"{round(INTRO_REF_DAYS, -1):.0f} days)" if INTRO_REF_DAYS else "Adjacency count (data file missing)")
+    alt = (f"Counties at risk counted from the adjacency file: about one introduction per "
+           f"{_ref_days_text()}" if INTRO_REF_DAYS else "Adjacency count (data file missing)")
+    mult = (f" by {INTRO_REF_FACTOR:.3g}. At the default rate that is about one introduction per "
+            f"{_ref_days_text()}." if INTRO_REF_DAYS else ".")
     return [
         ui.input_radio_buttons(
             "intro_ref", "Counties at risk behind this rate",
@@ -505,7 +530,7 @@ def _intro_ref_inputs():
              "adjacency": alt},
             selected=OPTION_DEFAULTS["intro_ref"]),
         ui.help_text("The check against 2026 suggests the current value is about three times too "
-                     "high. The choice is open. The second option multiplies the rate entered above."),
+                     "high. The choice is open. The second option multiplies the rate entered above" + mult),
     ]
 
 
@@ -1714,7 +1739,8 @@ def server(input, output, session):
         if renewed > 0.0:
             ax.bar(x, [renewed] * len(rows), bottom=[a + b + c for a, b, c in zip(fly, mv, wl)],
                    color="#d9d9d9", edgecolor="#555555", hatch="//", linewidth=0.6,
-                   label=f"Renewed infestations, what-if (constant, {renewed:.2f} per 30 days)")
+                   label=(f"Renewed infestations, what-if (chance {float(pack()['renewed_chance']):.2f} "
+                          f"per 30 days, {renewed:.2f} expected)"))
         step = max(1, len(rows) // 18)
         ax.set_xticks(x[::step]); ax.set_xticklabels([r["month"] for r in rows][::step])
         ax.set_ylabel("Expected new infested premises per month")
@@ -1731,8 +1757,9 @@ def server(input, output, session):
         if h30 <= 0.0:
             return ""
         return (f"**What-if term in use:** a chance of {float(pk['renewed_chance']):.2f} per 30 days of "
-                f"a renewed infestation from causes the model does not represent, which adds a "
-                f"constant {h30:.2f} expected renewed infestations per 30 days in every month, "
+                f"a renewed infestation from causes the model does not represent, which is "
+                f"{h30:.2f} expected renewed infestations per 30 days (some periods have more than "
+                f"one). It is the same in every month, "
                 f"whatever the season, sterile-fly coverage, nearby detections or mitigations.")
 
     @render.ui
@@ -1856,8 +1883,14 @@ between them.
         text = (f"Using the index: **{ix['value']:.2f}** for {INDEX_COUNTY[1]} County. The slider above is "
                 f"not used. Data: confirmed animal cases in other counties in the 30 days to "
                 f"{_day(INDEX_DATE)}, the latest confirmation in the official export pulled "
-                f"{_day(INDEX_PULLED)}. Largest sources: {top}. The value is held for the whole run. "
-                f"That is a scenario, not a forecast.")
+                f"{_day(INDEX_PULLED)}. Largest sources: {top}. The app uses one fixed value for the "
+                f"whole run: the index on that latest confirmation date. In the data the value "
+                f"changes month by month.")
+        if ix["series"]:
+            text += (f" {INDEX_COUNTY[1]} County, 30-day periods from {_day(INDEX_START)}: "
+                     + ", ".join(f"{v:.2f}" for v in ix["series"])
+                     + f". On {_day(INDEX_DATE)}: {ix['value']:.2f}.")
+        text += " That is a scenario, not a forecast."
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
 
     @render.ui
