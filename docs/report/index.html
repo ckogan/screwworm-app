@@ -146,6 +146,7 @@ body{background:#fff;color:#000}.card{border-color:#999;break-inside:auto}
 
 .opening{border-left:4px solid var(--accent);background:var(--bar);border-radius:4px;
 padding:8px 12px;margin:4px 0 10px}
+p.prior{font-size:.93em;margin-top:4px}
 details.more{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
 details.more>summary{font-weight:600}
 .condt td:nth-child(2){white-space:nowrap}
@@ -1593,7 +1594,8 @@ meaning.</li>
 <li>Both rankings were run with one half as the reference share of the sterile-fly release
 target. The reference is now 0.3. The range drawn for the share is the same, and the runs were
 not repeated. With the lower reference, the sterile-fly factor is about 11 percent lower in every
-draw, so the chance of freedom would be higher in every draw. By how much was not computed.</li>
+draw, so the chance of freedom would be higher in every draw. By how much was not computed. The
+rank and effect in the opening of each parameter card come from this run.</li>
 </ul>
 <hr>
 <h3>The earlier ranking, on the six-month scenario</h3>
@@ -3386,8 +3388,9 @@ the rates with season.</p>
 <div class="body">
 <p class="opening"><strong>Value:</strong> one new infested farm arrives in the zone about every 130 days. <strong>Evidence:</strong> counted from reports. <strong>Assumed:</strong> An active quarantine zone lies next to the zone for the whole period, and a rate counted per county applies to the zone unchanged.</p>
 <p>The model assumes 130 days; the range explored is 50 to 400 days.</p>
-<p><strong>What this is:</strong> The average number of days between new infestations arriving in the zone from outside it (flies flying in, moved animals or wildlife), one rate for the whole zone. In the zone picture it is the &quot;New arrivals from outside&quot; input. It counts arrivals from outside the zone. As fitted, it also carries spread from infested areas next to the zone (see how the value was reached); the zone&#x27;s own spread term is separate and has almost no effect on freedom.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> log-uniform over 130 to 721 days, because the rate on record may be too high and by how much is not known (the first ranking drew 50 to 400 days). <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 6 of 29</a> rows, county scenario (effect +0.058 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
+<p><strong>What this is:</strong> The average number of days between new infestations arriving in the zone from outside it (flies flying in, moved animals or wildlife), one rate for the whole zone. In the zone picture it is the &quot;New arrivals from outside&quot; input. It counts arrivals from outside the zone. As fitted, it also carries spread from infested areas next to the zone (see how the value was reached); the zone&#x27;s own spread term is separate and has almost no effect on freedom.</p>
 <p><strong>Checked against the official record in this version:</strong> the first cases behind this count were taken from a public online encyclopedia's case table. The official record of confirmed detections, pulled on 17 November 2026, lists the same counties with the same totals through 31 August 2026. The nine counted introductions keep their dates, except the Starr County case, which moves by one day. The value is not recounted in this version, and the cases confirmed since 31 August are not in it (<a href="#changed" data-open="changed">what changed in this version</a>).</p>
 <p><strong>Value:</strong> 130 d, range 50 to 400 d (90 percent
 interval); average effect on six-month freedom +0.117.</p>
@@ -3426,6 +3429,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 3 days on average from the owner noticing a wound to a confirmed detection. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> The value and the upper end of the range are judgement above a floor set by three timed cases.</p>
 <p>There is little good data for this value. The model assumes 3 days; the range explored is 1 to 12.5 days.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> lognormal with 5th and 95th percentiles 1 and 12.5 days, because a delay is positive and the reports give a short and a long case. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 4 of 29</a> rows, county scenario (effect &minus;0.075 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> How fast a wound the owner has noticed becomes a confirmed detection, set as a daily rate; one over the rate is the mean delay in days. In the model pictures it is part of &quot;Owner reports a wound&quot; on the farm picture and the &quot;Owner reports&quot; input on the zone picture. It starts when the owner notices (the time for a wound to become visible and to be noticed is not in it) and it ends at confirmation, not at the owner&#x27;s call: the model treats a detection as a confirmed one and has no separate laboratory step, so the time from the call to laboratory confirmation sits inside this delay.</p>
 <h3>What the delay covers</h3>
@@ -3485,6 +3489,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 21 days on average from a new detection to the release of each farm still counted, and not used before a detection. <strong>Evidence:</strong> bounded by published sources. <strong>Assumed:</strong> The agency release rule for found and treated farms sets the clock for every counted farm.</p>
 <p>The model assumes 21 days; the range explored is 7 to 40 days.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> none drawn. <strong>Sensitivity:</strong> not in the ranking. Zone clearance is switched off in the county scenario, so this input is a fixed setting.</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The average number of days before a counted farm is removed from the zone&#x27;s infested count by clearance. It plays no part in any freedom number: clearance is off for farms nobody has found, which leave the count only when their own infestation has run its course (see the equations card). The 21 days is used only after a new confirmed detection, as the release clock: from then on each counted farm leaves at that rate, standing for the release rule for found and treated farms. The model pictures do not draw the release clock; the clock starts at a confirmed detection, a farm drawn as &quot;Found&quot; on the zone picture.</p>
 <p><strong>Value:</strong> 21 d, after a new detection only (off before), range 7 to 40 d (90 percent
@@ -3524,9 +3529,9 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 7 days on average for an infested animal to stop carrying larvae. <strong>Evidence:</strong> bounded by published sources. <strong>Assumed:</strong> The value is a mix of treated and untreated animals, and the share treated early is not known.</p>
 <p>The model assumes 7 days; the range explored is 3 to 15 days.</p>
-<p><strong>What this is:</strong> The average number of days one animal carries live larvae, until treatment, the larvae leaving, or death ends it. In the farm picture it is the Infested to Recovered step. It moves animals, and it also sets when a farm nobody has found leaves the zone&#x27;s infested count: at the end of its infestation&#x27;s course, 166 days after infestation at the central values, or about 9 days at a 3-day recovery, when the infestation dies out on its own.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> lognormal with 5th and 95th percentiles 3 and 15 days, because a time is positive and the sources give a low and a high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 8 of 29</a> rows, county scenario (effect +0.034 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
-
+<p><strong>What this is:</strong> The average number of days one animal carries live larvae, until treatment, the larvae leaving, or death ends it. In the farm picture it is the Infested to Recovered step. It moves animals, and it also sets when a farm nobody has found leaves the zone&#x27;s infested count: at the end of its infestation&#x27;s course, 166 days after infestation at the central values, or about 9 days at a 3-day recovery, when the infestation dies out on its own.</p>
 <p><strong>Value:</strong> 7 d, range 3 to 15 d (90 percent
 interval); average effect on six-month freedom +0.015.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">The sources bound the treated and untreated courses, and the 7-day mix of the two is a modelling choice.</span></p>
@@ -3565,6 +3570,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.70, the chance for each animal with a visible wound that the owner notices it. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> An alert owner notices most visible wounds.</p>
 <p>There is no data for this value. The model assumes 0.70; the range explored is 0.45 to 0.90.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> beta with 5th and 95th percentiles 0.45 and 0.9, because the value is a share and no source narrows it further. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 12 of 29</a> rows, county scenario (effect +0.018 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The chance that an owner notices a visible screwworm wound on an infested animal. In the model pictures it is part of &quot;Owner reports a wound&quot; on the farm picture and the &quot;Owner reports&quot; input on the zone picture. It applies only to wounds that have already become visible (the visible-wound ramp comes before it); the time from noticing to confirmation is the separate reporting delay. In the model this chance applies to each animal on the farm that has a visible wound. The more animals have visible wounds, the more likely it is that the owner has noticed at least one of them, and the farm reports at the reporting rate multiplied by that likelihood (the equation is shown below). The chance is therefore not a single decision, made once, about whether a wound will ever be noticed. While its wounds stay visible, the farm can still be reported on any later day.</p>
 <p><strong>Where it enters the model:</strong> The owner-report rate of a farm infested &tau; days ago is h(&tau;) = &rho;<sub>r</sub> &times; [1 &minus; (1 &minus; &rho;<sub>a</sub> p<sub>clin</sub>(&tau;))<sup>N</sup>], where &rho;<sub>a</sub> is this chance, &rho;<sub>r</sub> is the reporting rate, p<sub>clin</sub>(&tau;) is the share of animals with a visible wound, and N is the number of animals on the farm. It is the last equation in the detection part of <a href="#equations" data-open="equations">the model's equations</a>.</p>
@@ -3603,8 +3609,9 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 3.6 days for the number of infested animals on a farm to double, before any recover. <strong>Evidence:</strong> converted from a related setting. <strong>Assumed:</strong> Growth rates of wild deer deaths and of fly populations apply to spread between animals on one farm.</p>
 <p>The model assumes 3.6 days; the range explored is 3.2 to 3.9 days.</p>
-<p><strong>What this is:</strong> How fast infestation spreads between animals on one farm, set as a doubling time before any animals recover. In the farm picture it is the Susceptible to Latent step, driven by the &quot;their flies lay eggs on more animals&quot; loop from Infested. It stands in for the local flies; the model has no fly population and no pupal stage.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> not drawn directly. It is derived in each draw from the observed doubling time (lognormal, 5th and 95th percentiles 9 and 20 days) and the recovery time, so each draw matches the observed doubling (resulting range 1.8 to 6 days). <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 7 of 29</a> rows, county scenario (effect +0.035 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
+<p><strong>What this is:</strong> How fast infestation spreads between animals on one farm, set as a doubling time before any animals recover. In the farm picture it is the Susceptible to Latent step, driven by the &quot;their flies lay eggs on more animals&quot; loop from Infested. It stands in for the local flies; the model has no fly population and no pupal stage.</p>
 <p><strong>What it implies (derived, not an input):</strong> this value is a gross rate, before animals recover. With latent time 2 days and recovery 7 days at their central values, the net doubling time of a farm's infestation is about 19 days, and each infested animal leads to 1.35 more (the outbreak on a farm grows only above 1). Across this card's range (3.2 to 3.9 days) that number runs from 1.24 to 1.52, above 1 across the whole range (net doubling about 13 to 27 days). The derivation above leaves out the 2-day latent stage, which slows early growth, so this net figure is longer than the net doubling the value was derived from.</p>
 <p><strong>Value:</strong> 3.6 d, range 3.2 to 3.9 d (at the central recovery time) (90 percent
 interval); average effect on six-month freedom +0.014.</p>
@@ -3640,6 +3647,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.9, the share of infested animals whose wound ever becomes visible. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Few infestations stay hidden, as estimated from tallies of cases that were found.</p>
 <p>There is little good data for this value. The model assumes 0.9; the range explored is 0.75 to 0.98.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> beta with 5th and 95th percentiles 0.75 and 0.98, because the value is a share, and a few indirect figures and judgement put it high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 11 of 29</a> rows, county scenario (effect +0.019 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of infested animals whose wound eventually becomes visible to someone looking carefully; the rest sit in hidden places such as nostrils, genitals or deep pockets. The model pictures do not draw visible wounds; this share acts through &quot;Owner reports a wound&quot; on the farm picture, on animals at the Infested step. It acts on owner reporting only; inspection uses its own chance, the inspection sensitivity.</p>
 <p><strong>Value:</strong> 0.9, range 0.75 to 0.98 (90 percent
@@ -3676,6 +3684,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 2 days on average from eggs laid in a wound to larvae present. <strong>Evidence:</strong> bounded by published sources. <strong>Assumed:</strong> The same latent time holds at Texas temperatures.</p>
 <p>The model assumes 2 days; the range explored is 1 to 3 days.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> gamma with 5th and 95th percentiles 1 and 3 days, because a time is positive and the sources give a low and a high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 14 of 29</a> rows, county scenario (effect &minus;0.016 on the chance of freedom at day 360).</p>
 <p><strong>What this is:</strong> The average number of days from eggs laid in a wound to larvae present and visible. In the farm picture it is the Latent to Infested step. An animal still in the eggs-laid state cannot be found by inspection and does not pass infestation on.</p>
 <details class="more"><summary>Detail and sources</summary>
 
@@ -3714,6 +3723,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 3 days for an infested wound to become obvious to an observer. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> The clock runs from the day the farm was infested, which is earlier than the reviewed value intended.</p>
 <p>There is little good data for this value. The model assumes 3 days; the range explored is 1.5 to 6 days.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> gamma with 5th and 95th percentiles 1.5 and 6 days, because a time is positive and the few figures give a low and a high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 15 of 29</a> rows, county scenario (effect &minus;0.015 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> How many days it takes for an infested wound to become obvious to an observer; the visible share of wounds ramps up on this time scale. The model pictures do not draw visible wounds; this time acts through &quot;Owner reports a wound&quot; on the farm picture. Its clock runs from the day the farm was infested, not from the day each animal first carried larvae, and it feeds owner reporting only.</p>
 <p><strong>Value:</strong> 3 d, range 1.5 to 6 d (90 percent
@@ -3750,6 +3760,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.25, the factor applied to spread between farms after the first detection. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> More sterile flies and tighter movement controls cut spread by this factor, and the cut is never lifted.</p>
 <p>There is little good data for this value. The model assumes 0.25; the range explored is 0.07 to 0.6.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> lognormal with 5th and 95th percentiles 0.07 and 0.6, because the value is positive and only its rough size is known. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 27 of 29</a> rows, county scenario (effect &minus;0.001 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The factor by which spread between farms is cut once the first detection is confirmed, standing for sterile-fly releases plus movement controls; 1 means no cut. In the zone picture it is the dot-dash &quot;Spread reduced after lockdown&quot; arrow, which the &quot;Initiate lockdown&quot; box switches on once a farm is found. In the model&#x27;s formula it cuts spread between farms only; introductions from outside and spread inside a farm are not changed. Every freedom number on this page is computed given no confirmed detection, so this cut never acts on them.</p>
 <p><strong>Value:</strong> 0.25, range 0.07 to 0.6 (90 percent
@@ -3788,9 +3799,9 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 24 days for the number of infested farms to double with no control. <strong>Evidence:</strong> converted from a related setting. <strong>Assumed:</strong> The growth of one series of wild deer deaths applies to spread between farms.</p>
 <p>The model assumes 24 days; the range explored is 6 to 25 days.</p>
-<p><strong>What this is:</strong> How fast the number of infested farms in the zone would grow with no control, set as a doubling time. In the zone picture it is the &quot;Spread between farms&quot; input, drawn as the solid orange arrow in the farm grid (legend: &quot;Between-farm spread&quot;); its rate is multiplied by the share of animals carrying larvae on the infested farms. It has almost no effect on the estimate.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> lognormal with 5th and 95th percentiles 6 and 25 days, because a time is positive and the converted figures give a low and a high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 28 of 29</a> rows, county scenario (effect &minus;0.001 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
-
+<p><strong>What this is:</strong> How fast the number of infested farms in the zone would grow with no control, set as a doubling time. In the zone picture it is the &quot;Spread between farms&quot; input, drawn as the solid orange arrow in the farm grid (legend: &quot;Between-farm spread&quot;); its rate is multiplied by the share of animals carrying larvae on the infested farms. It has almost no effect on the estimate.</p>
 <p><strong>Value:</strong> 24 d, range 6 to 25 d (not re-centred) (90 percent
 interval); average effect on six-month freedom -0.005.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-der">converted from a related setting</span> <span class="small">The value is converted by a formula from the growth of one series of wild deer deaths and applied to spread between farms, and it has almost no effect in this model.</span></p>
@@ -3824,6 +3835,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.85, the chance an inspector finds an infested animal that is examined. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> A trained inspector misses few infested animals among those examined.</p>
 <p>There is no data for this value. The model assumes 0.85; the range explored is 0.65 to 0.95.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> beta with 5th and 95th percentiles 0.65 and 0.95, because the value is a share and judgement puts it high. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 23 of 29</a> rows, county scenario (effect +0.007 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The chance that an inspection finds an active infestation on one infested animal it examines. In the farm picture it acts through &quot;Inspection: a sample of animals&quot;, and in the zone picture through the &quot;Inspection rounds&quot; input: it feeds the chance an inspected infested farm is found; one the round does not find is drawn as &quot;Missed&quot;. It applies only to animals carrying larvae (eggs not yet hatched are missed) and plays no part in owner reporting.</p>
 <p><strong>Value:</strong> 0.85, range 0.65 to 0.95 (90 percent
@@ -3859,6 +3871,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 7 days between the owner&#x27;s close looks at the animals. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> The value suits large ranches, where the owner sees the animals closely about once a week.</p>
 <p>There is no data for this value. The model assumes 7 days; the range explored is 1 to 30 days.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> log-uniform over 1 to 30 days, because only the range is known, so each doubling of the value is equally likely. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 2 of 29</a> rows, county scenario (effect &minus;0.092 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> How many days pass between the owner&#x27;s close looks at the animals. A wound that has become visible waits for the owner&#x27;s next close look, on average half this interval, and then for the owner reporting delay. A value of 0 means a close look every day, which reproduces the model before this version. In the pictures: &quot;The owner&#x27;s next close look&quot; on the detection picture.</p>
 <p><strong>Where it enters the model:</strong> The effective owner reporting rate is &rho;<sub>r,eff</sub> = 1 / (1 / &rho;<sub>r</sub> + T<sub>look</sub> / 2), where T<sub>look</sub> is this interval and &rho;<sub>r</sub> is the owner reporting rate. It takes the place of &rho;<sub>r</sub> in the owner-report rate h(&tau;). It is written in the detection part of <a href="#equations" data-open="equations">the model's equations</a>. At the scenario values the mean delay from a visible wound to a report is 3 + 3.5 = 6.5 days.</p>
@@ -3882,6 +3895,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.60, the share of new infested farms that come from flies arriving, in a warm month. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Flies arriving are the largest of the three sources.</p>
 <p>There is no data for this value. The model assumes 0.60; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0.2 to 0.9, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 19 of 29</a> rows, county scenario (effect &minus;0.012 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of new infested farms that come from flies arriving from outside the zone, in a warm month under the reference conditions. The shares for flies and moved animals are set, and wildlife takes the remainder (0.15 at the values used). In the pictures: the &quot;Flies arriving&quot; source on the introductions picture.</p>
 <p><strong>Value:</strong> 0.60, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -3903,6 +3917,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.25, the share of new infested farms that come from moved animals. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Moved animals bring about a quarter of introductions, in every month alike.</p>
 <p>There is no data for this value. The model assumes 0.25; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0.05 to 0.5, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 24 of 29</a> rows, county scenario (effect +0.007 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of new infested farms that come from infested animals moved into the zone, under the reference conditions. Unlike the fly share, it does not change with the season. In the pictures: the &quot;Moved animals&quot; source on the introductions picture.</p>
 <p><strong>Value:</strong> 0.25, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -3924,6 +3939,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.3 of the sterile-fly release target is met. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Production against the planned level stands in for release over the county, and the same share held when the introduction rate was counted.</p>
 <p>There is little good data for this value. The model assumes 0.3; the range explored is 0 to 1.5.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0.1 to 1.2, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 10 of 29</a> rows, county scenario (effect +0.022 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> How much of the sterile-fly release target is being met, as a share, the same for every county. The reference is 0.3, the share assumed for the period in which the introduction rate was counted. At 0.3 the sterile-fly factor is 1. Above 0.3 fewer flies arriving are fertile, and below it more are. In the pictures: the &quot;Sterile-fly coverage&quot; dial on &quot;Flies arriving&quot; on the introductions picture.</p>
 <p><strong>Where it enters the model:</strong> With x this share and &kappa; the strength of the sterile-fly effect, the fertile share of matings is 1 / (1 + &kappa; x), and the sterile-fly factor is S = (1 + 0.3 &kappa;) / (1 + &kappa; x). The formula is on <a href="#intro" data-open="intro">the introductions card</a> and in <a href="#equations" data-open="equations">the model's equations</a>.</p>
@@ -3946,9 +3962,9 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.75, the strength of the sterile-fly effect in the ratio rule. <strong>Evidence:</strong> bounded by published sources. <strong>Assumed:</strong> Sterile-mating rates reported for Texas in the earlier eradication programme apply to the releases now.</p>
 <p>The model assumes 0.75; the range explored is 0.4 to 3.</p>
-<p><strong>What this is:</strong> How strongly sterile flies cut fertile matings. With the release target fully met, the fertile share of matings is 1 / (1 + this value). It folds together the ratio of sterile to wild flies at the target and how well sterile males compete. In the pictures: not drawn; it sets how strongly the &quot;Sterile-fly coverage&quot; dial acts on the introductions picture.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> log-uniform over 0.4 to 3, because only the range is known, so each doubling of the value is equally likely. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 26 of 29</a> rows, county scenario (effect &minus;0.003 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
-
+<p><strong>What this is:</strong> How strongly sterile flies cut fertile matings. With the release target fully met, the fertile share of matings is 1 / (1 + this value). It folds together the ratio of sterile to wild flies at the target and how well sterile males compete. In the pictures: not drawn; it sets how strongly the &quot;Sterile-fly coverage&quot; dial acts on the introductions picture.</p>
 <p><strong>Value:</strong> 0.75, range 0.4 to 3 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
 <p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">Calibrated to published sterile-mating rates for Texas. The range ends are judgement.</span></p>
 <p class="small"><a href="#intro" data-open="intro">See where it enters the model</a></p>
@@ -3968,6 +3984,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 1.5 times the detections in nearby counties at the time the reference rate was counted. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Introductions by flies and by moved animals rise and fall in proportion to detections nearby, and the distance that counts as nearby is judgement.</p>
 <p>There is little good data for this value. The model assumes 1.5; the range explored is 0 to 5.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> not drawn directly. The index sets it (1.22 to 2.42 over all draws) from its two dials, which are drawn: distance scale, log-uniform over 30 to 300 km, and southern weight, uniform over 1 to 5. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 17 of 29</a> rows, county scenario (effect &minus;0.014 on the chance of freedom at day 360).</p>
 <p><strong>Computed from detections:</strong> an index built from the official detections by distance and direction gives 1.69 for the county on 16 November 2026. The default here stays the value set by hand, 1.5. The index, its data and its limits: <a href="#pressure" data-open="pressure">nearby pressure, computed from detections</a>.</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> A multiplier on the flies arriving and the moved animals. A value of 1 stands for the detections in nearby counties in summer 2026, when the reference rate was counted. The county scenario uses 1.5, and the earlier six-month scenario does not use this input. The user sets it by hand. Counties to the south should weigh most, because seasonal spread runs northward. In the pictures: the two &quot;Nearby detections&quot; dials, on &quot;Flies arriving&quot; and on &quot;Moved animals&quot;, on the introductions picture.</p>
@@ -3990,6 +4007,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 1, meaning the usual number of open wounds on animals. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Introductions scale in proportion to open wounds.</p>
 <p>There is no data for this value. The model assumes 1; the range explored is 0.25 to 3.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> log-uniform over 0.5 to 2, because only the range is known, so each doubling of the value is equally likely. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 5 of 29</a> rows, county scenario (effect &minus;0.058 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> A multiplier on all introductions for times of year or practices with more or fewer open wounds, such as calving, branding, dehorning, castration or shearing. A value of 1 is usual. In the pictures: the &quot;Open wounds&quot; dial on the total on the introductions picture.</p>
 <p><strong>Value:</strong> 1, range 0.25 to 3 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -4011,6 +4029,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0, so no animal is given preventive treatment. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> The scenario has no preventive treatment.</p>
 <p>There is no data for this value. The model assumes 0; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0 to 0.8, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 13 of 29</a> rows, county scenario (effect +0.018 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of animals in the zone given a preventive treatment. Together with how well treatment protects, it scales down both introductions and spread between farms. In the pictures: the &quot;Preventive treatment&quot; dial on the total on the introductions picture.</p>
 <p><strong>Value:</strong> 0, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -4032,6 +4051,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.3, how much a preventive treatment lowers the chance that a treated animal becomes infested. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Protection is partial, as a judgement between trials that disagree.</p>
 <p>There is little good data for this value. The model assumes 0.3; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0 to 0.9, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 16 of 29</a> rows, county scenario (effect +0.015 on the chance of freedom at day 360).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> How much a preventive treatment lowers the chance that a treated animal becomes infested, from 0 (no protection) to 1 (full protection), averaged over the time between treatments. It matters only when some animals are treated. In the pictures: not drawn; it sets how strongly the &quot;Preventive treatment&quot; dial acts on the introductions picture.</p>
 <p><strong>Value:</strong> 0.3, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -4053,6 +4073,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0, so movement checks stop no infested moved animal beyond the reference conditions. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> The scenario adds no movement checks.</p>
 <p>There is no data for this value. The model assumes 0; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over 0 to 0.8, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 21 of 29</a> rows, county scenario (effect +0.009 on the chance of freedom at day 360, inside the noise band).</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of infested animals being moved that movement checks stop. It scales down the moved-animal source of introductions and the part of spread between farms that moved animals carry. In the pictures: the &quot;Movement checks&quot; dial on &quot;Moved animals&quot; on the introductions picture.</p>
 <p><strong>Value:</strong> 0, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -4074,6 +4095,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0.3, the share of spread between farms that moved animals carry. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Flies carry most of the spread between farms.</p>
 <p>There is no data for this value. The model assumes 0.3; the range explored is 0 to 1.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> none drawn. <strong>Sensitivity:</strong> not in the ranking. It is a fixed setting.</p>
 <details class="more"><summary>Detail and sources</summary>
 <p><strong>What this is:</strong> The share of spread between farms inside the zone that moved animals carry. Flies carry the rest. Movement checks act only on this share of spread. In the pictures: not drawn; it acts on &quot;Spread between farms&quot; on the zone picture.</p>
 <p><strong>Value:</strong> 0.3, range 0 to 1 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
@@ -4095,6 +4117,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> 0 degrees C, so the monthly temperatures are the published normals. <strong>Evidence:</strong> bounded by published sources. <strong>Assumed:</strong> The year of the run is a normal year.</p>
 <p>The model assumes 0 degrees C; the range explored is 5 degrees C cooler to 5 degrees C warmer.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> uniform over &minus;3 to 3 &deg;C, because there is no information to prefer any value in the range. <strong>Sensitivity:</strong> <a href="#matter" data-open="matter">rank 9 of 29</a> rows, county scenario (effect &minus;0.023 on the chance of freedom at day 360).</p>
 <p><strong>What this is:</strong> A number of degrees added to every monthly temperature of the county before fly activity is computed. A value of 0 uses the published normals as they are. In the pictures: the &quot;Daily high&quot; and &quot;Daily low&quot; rows on the season picture, which it shifts together.</p>
 <details class="more"><summary>Detail and sources</summary>
 
@@ -4117,6 +4140,7 @@ counts as primary for what the rule says)</li>
 <div class="body">
 <p class="opening"><strong>Value:</strong> month 6, June, the month of the last detection in the county. <strong>Evidence:</strong> counted from reports. <strong>Assumed:</strong> The last confirmed detection in the county marks the start of the run.</p>
 <p>The model assumes month 6; the range explored is months 1 to 12.</p>
+<p class="prior"><strong>Prior in the ranking:</strong> none drawn. <strong>Sensitivity:</strong> not in the ranking. It is a fixed setting, the month the run starts.</p>
 <p><strong>What this is:</strong> The calendar month in which the run starts, which is the month of the last detection in the county. It sets which months of the year the run passes through, in steps of 30 days. In the pictures: the dashed line &quot;The clock starts in June&quot; on the season picture.</p>
 <details class="more"><summary>Detail and sources</summary>
 
