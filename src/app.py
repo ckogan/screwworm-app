@@ -157,7 +157,7 @@ from datetime import date  # noqa: E402
 
 import nearby_index  # noqa: E402
 from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
-                     intro_ref_factor, module_schedule)
+                     intro_ref_factor, module_schedule, renewed_rate)
 
 _DATA = _HERE / "data"
 INDEX_COUNTY = ("Texas", "Zavala")          # the worked-example county (presets.COUNTY)
@@ -265,6 +265,31 @@ def _renewed_help() -> str:
             "it. Owners and rounds must still find a renewed infestation, so the chance of a renewed "
             "detection the model gives is lower than the value set here in the first month or two, then about equal. The value cannot "
             "be tested until new months of data arrive.")
+
+
+def _intro_caution() -> str:
+    """Standing caution under the headline of a scenario that uses the introduction module. The
+    counts are read from the two check files and are given only when the files are present and
+    show the stated direction."""
+    new = renewed = ""
+    if TABLES is not None:
+        try:
+            allc = TABLES["texas"]["variants"]["main"]["all"]
+            exp, obs = float(allc["expected"]), int(allc["observed"])
+            if exp > obs:
+                new = f" (about {exp:.0f} Texas counties expected, {obs} seen)"
+        except (KeyError, TypeError, ValueError):
+            pass
+    if CALIBRATION is not None:
+        ec = CALIBRATION["earlier_case"]
+        if float(ec["expected"]) < float(ec["observed"]):
+            renewed = (f" (about {float(ec['expected']):.0f} of {int(ec['county_periods'])} "
+                       f"county-periods of 30 days expected, {int(ec['observed'])} seen)")
+    return ("**Caution:** the introduction side of this model has not been validated against "
+            "outcomes. In a first check against 2026 it expected more new "
+            f"detections than occurred{new}. After its introduction rate was lowered to fit the summer "
+            f"data, it expected far fewer renewed detections than occurred in counties with an "
+            f"earlier case{renewed}. See the \"Check against 2026\" tab.")
 
 
 def calibration_2026_block():
@@ -754,6 +779,7 @@ if PLAIN:
             ui.nav_panel(
                 "Zone freedom",
                 ui.output_ui("release_readout"),
+                ui.output_ui("intro_caution"),
                 ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
                 ui.output_ui("rule_table"),
@@ -801,6 +827,7 @@ else:
             ui.nav_panel(
                 "2 · The zone (outcomes)",
                 ui.output_ui("release_readout"),
+                ui.output_ui("intro_caution"),
                 ui.output_ui("scorecard"),
                 ui.output_plot("pfree_plot", height="400px"),
                 ui.output_ui("rule_table"),
@@ -1309,6 +1336,14 @@ def server(input, output, session):
                       style=("font-size:1.0rem; padding:6px 10px; margin:4px 0 8px; "
                              "border-left:4px solid #2ca02c; background:#f0f8f0; border-radius:4px;"))
 
+    @render.ui
+    def intro_caution():
+        # standing caution for scenarios that use the introduction module (the county scenarios);
+        # nothing for the scenario checks and any scenario with the module off
+        if not input.module_on():
+            return None
+        return ui.div(ui.markdown(_intro_caution()), style=_CAPTION_STYLE)
+
     # ---------------------------------------------------------------- scorecard
     @render.ui
     def scorecard():
@@ -1453,14 +1488,30 @@ def server(input, output, session):
         ax.bar(x, fly, color="#1f77b4", label="Flies arriving")
         ax.bar(x, mv, bottom=fly, color="#ff7f0e", label="Moved animals")
         ax.bar(x, wl, bottom=[a + b for a, b in zip(fly, mv)], color="#2ca02c", label="Wildlife")
+        renewed = renewed_rate(pack()) * 30.0       # what-if term: constant, drawn only when on
+        if renewed > 0.0:
+            ax.bar(x, [renewed] * len(rows), bottom=[a + b + c for a, b, c in zip(fly, mv, wl)],
+                   color="#d9d9d9", edgecolor="#555555", hatch="//", linewidth=0.6,
+                   label=f"Renewed infestations, what-if (constant, {renewed:.2f} per 30 days)")
         step = max(1, len(rows) // 18)
         ax.set_xticks(x[::step]); ax.set_xticklabels([r["month"] for r in rows][::step])
         ax.set_ylabel("Expected new infested premises per month")
         ax.set_xlabel("Month of the run")
-        ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.16))
+        ax.legend(frameon=False, ncol=3 if renewed <= 0.0 else 2, loc="upper center",
+                  bbox_to_anchor=(0.5, -0.16))
         ax.grid(axis="y", alpha=0.25)
         fig.tight_layout()
         return fig
+
+    def _renewed_sentence(pk: dict) -> str:
+        """One sentence on the what-if term in use, or "" when it is off."""
+        h30 = renewed_rate(pk) * 30.0
+        if h30 <= 0.0:
+            return ""
+        return (f"**What-if term in use:** a chance of {float(pk['renewed_chance']):.2f} per 30 days of "
+                f"a renewed infestation from causes the model does not represent, which adds a "
+                f"constant {h30:.2f} expected renewed infestations per 30 days in every month, "
+                f"whatever the season, sterile-fly coverage, nearby detections or mitigations.")
 
     @render.ui
     def module_note():
@@ -1476,6 +1527,10 @@ def server(input, output, session):
             seen = [r["month"] for r in rows if r.get("observed")]
             text += (f" {seen[0]} to {seen[-1]} use 2026 observed temperatures. " + OBSERVED_CAVEAT
                      if len(seen) > 1 else f" {seen[0]} uses 2026 observed temperatures. " + OBSERVED_CAVEAT)
+        whatif = _renewed_sentence(pack())
+        if whatif:
+            text += ("\n\n" + whatif + " It is the hatched bar on the chart. The percentages above "
+                     "are for the module's own schedule and leave it out.")
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
 
     @render.ui
@@ -1497,6 +1552,8 @@ def server(input, output, session):
                   f"90% or more). A clean cold month counts for little."
                   if warm is not None else
                   "Rates are constant in this scenario, so the season is not considered.")
+        whatif = _renewed_sentence(pk)
+        whatif = f"\n- {whatif}" if whatif else ""
         text = f"""
 The chance of freedom shown for this run (**{_pct(r['out']['P_free'])}** at day {last:g}) holds only if all of
 the following are true.
@@ -1515,7 +1572,7 @@ the following are true.
 - Sterile-fly release meets {100 * float(pk['release_coverage']):.0f}% of its target.
 - Detections in nearby counties are at {round(float(pk['nearby_pressure']), 2):g} times their summer 2026 level
   ({nearby_how}).
-- {season}
+- {season}{whatif}
 
 **Conditions the model does not cover are confirmed by hand**
 - Enough roadside checkpoints.
