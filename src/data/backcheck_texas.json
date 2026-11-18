@@ -1,0 +1,373 @@
+{
+  "set": "texas",
+  "data_end": "2026-11-16",
+  "reference_level": 6.956173493692971,
+  "event_scale": 0.3272,
+  "variants": {
+    "main": {
+      "all": {
+        "counties": 254,
+        "observed": 17,
+        "expected": 93.79,
+        "lowest": 0.1921,
+        "highest": 0.8801,
+        "brier": 0.1532,
+        "brier_of_constant_base_rate": 0.0624,
+        "mean_p_where_detected": 0.568,
+        "mean_p_where_not": 0.355
+      },
+      "started_with_leftovers": {
+        "counties": 16,
+        "observed": 8,
+        "expected": 12.5,
+        "lowest": 0.6864,
+        "highest": 0.8801,
+        "brier": 0.3799,
+        "brier_of_constant_base_rate": 0.25,
+        "mean_p_where_detected": 0.734,
+        "mean_p_where_not": 0.829
+      },
+      "started_clean": {
+        "counties": 238,
+        "observed": 9,
+        "expected": 81.29,
+        "lowest": 0.1921,
+        "highest": 0.7408,
+        "brier": 0.1379,
+        "brier_of_constant_base_rate": 0.0364,
+        "mean_p_where_detected": 0.421,
+        "mean_p_where_not": 0.338
+      },
+      "bins_started_clean": [
+        {
+          "p_from": 0,
+          "p_to": 0.05,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.05,
+          "p_to": 0.1,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.1,
+          "p_to": 0.2,
+          "counties": 6,
+          "detected": 0
+        },
+        {
+          "p_from": 0.2,
+          "p_to": 0.4,
+          "counties": 172,
+          "detected": 6
+        },
+        {
+          "p_from": 0.4,
+          "p_to": 0.7,
+          "counties": 57,
+          "detected": 2
+        },
+        {
+          "p_from": 0.7,
+          "p_to": 1.0,
+          "counties": 3,
+          "detected": 1
+        }
+      ]
+    },
+    "event_scaled": {
+      "all": {
+        "counties": 254,
+        "observed": 17,
+        "expected": 61.8,
+        "lowest": 0.1293,
+        "highest": 0.7687,
+        "brier": 0.0831,
+        "brier_of_constant_base_rate": 0.0624,
+        "mean_p_where_detected": 0.455,
+        "mean_p_where_not": 0.228
+      },
+      "started_with_leftovers": {
+        "counties": 16,
+        "observed": 8,
+        "expected": 11.44,
+        "lowest": 0.6665,
+        "highest": 0.7687,
+        "brier": 0.3204,
+        "brier_of_constant_base_rate": 0.25,
+        "mean_p_where_detected": 0.692,
+        "mean_p_where_not": 0.738
+      },
+      "started_clean": {
+        "counties": 238,
+        "observed": 9,
+        "expected": 50.36,
+        "lowest": 0.1293,
+        "highest": 0.4171,
+        "brier": 0.0672,
+        "brier_of_constant_base_rate": 0.0364,
+        "mean_p_where_detected": 0.244,
+        "mean_p_where_not": 0.21
+      },
+      "bins_started_clean": [
+        {
+          "p_from": 0,
+          "p_to": 0.05,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.05,
+          "p_to": 0.1,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.1,
+          "p_to": 0.2,
+          "counties": 128,
+          "detected": 4
+        },
+        {
+          "p_from": 0.2,
+          "p_to": 0.4,
+          "counties": 107,
+          "detected": 4
+        },
+        {
+          "p_from": 0.4,
+          "p_to": 0.7,
+          "counties": 3,
+          "detected": 1
+        },
+        {
+          "p_from": 0.7,
+          "p_to": 1.0,
+          "counties": 0,
+          "detected": 0
+        }
+      ]
+    },
+    "event_scaled_wildlife_follows": {
+      "all": {
+        "counties": 254,
+        "observed": 17,
+        "expected": 35.82,
+        "lowest": 0.0258,
+        "highest": 0.7472,
+        "brier": 0.0591,
+        "brier_of_constant_base_rate": 0.0624,
+        "mean_p_where_detected": 0.393,
+        "mean_p_where_not": 0.123
+      },
+      "started_with_leftovers": {
+        "counties": 16,
+        "observed": 8,
+        "expected": 11.0,
+        "lowest": 0.6447,
+        "highest": 0.7472,
+        "brier": 0.311,
+        "brier_of_constant_base_rate": 0.25,
+        "mean_p_where_detected": 0.663,
+        "mean_p_where_not": 0.713
+      },
+      "started_clean": {
+        "counties": 238,
+        "observed": 9,
+        "expected": 24.82,
+        "lowest": 0.0258,
+        "highest": 0.3701,
+        "brier": 0.0421,
+        "brier_of_constant_base_rate": 0.0364,
+        "mean_p_where_detected": 0.153,
+        "mean_p_where_not": 0.102
+      },
+      "bins_started_clean": [
+        {
+          "p_from": 0,
+          "p_to": 0.05,
+          "counties": 56,
+          "detected": 0
+        },
+        {
+          "p_from": 0.05,
+          "p_to": 0.1,
+          "counties": 90,
+          "detected": 4
+        },
+        {
+          "p_from": 0.1,
+          "p_to": 0.2,
+          "counties": 66,
+          "detected": 2
+        },
+        {
+          "p_from": 0.2,
+          "p_to": 0.4,
+          "counties": 26,
+          "detected": 3
+        },
+        {
+          "p_from": 0.4,
+          "p_to": 0.7,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.7,
+          "p_to": 1.0,
+          "counties": 0,
+          "detected": 0
+        }
+      ]
+    },
+    "kernel_30km": {
+      "all": {
+        "counties": 254,
+        "observed": 17,
+        "expected": 78.56,
+        "lowest": 0.143,
+        "highest": 0.8966,
+        "brier": 0.1204,
+        "brier_of_constant_base_rate": 0.0624,
+        "mean_p_where_detected": 0.553,
+        "mean_p_where_not": 0.292
+      },
+      "started_with_leftovers": {
+        "counties": 16,
+        "observed": 8,
+        "expected": 12.61,
+        "lowest": 0.6849,
+        "highest": 0.8966,
+        "brier": 0.391,
+        "brier_of_constant_base_rate": 0.25,
+        "mean_p_where_detected": 0.734,
+        "mean_p_where_not": 0.842
+      },
+      "started_clean": {
+        "counties": 238,
+        "observed": 9,
+        "expected": 65.95,
+        "lowest": 0.143,
+        "highest": 0.8226,
+        "brier": 0.1022,
+        "brier_of_constant_base_rate": 0.0364,
+        "mean_p_where_detected": 0.392,
+        "mean_p_where_not": 0.273
+      },
+      "bins_started_clean": [
+        {
+          "p_from": 0,
+          "p_to": 0.05,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.05,
+          "p_to": 0.1,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.1,
+          "p_to": 0.2,
+          "counties": 81,
+          "detected": 0
+        },
+        {
+          "p_from": 0.2,
+          "p_to": 0.4,
+          "counties": 121,
+          "detected": 6
+        },
+        {
+          "p_from": 0.4,
+          "p_to": 0.7,
+          "counties": 33,
+          "detected": 2
+        },
+        {
+          "p_from": 0.7,
+          "p_to": 1.0,
+          "counties": 3,
+          "detected": 1
+        }
+      ]
+    },
+    "kernel_300km": {
+      "all": {
+        "counties": 254,
+        "observed": 17,
+        "expected": 108.44,
+        "lowest": 0.2407,
+        "highest": 0.8688,
+        "brier": 0.1902,
+        "brier_of_constant_base_rate": 0.0624,
+        "mean_p_where_detected": 0.581,
+        "mean_p_where_not": 0.416
+      },
+      "started_with_leftovers": {
+        "counties": 16,
+        "observed": 8,
+        "expected": 12.41,
+        "lowest": 0.6846,
+        "highest": 0.8688,
+        "brier": 0.3716,
+        "brier_of_constant_base_rate": 0.25,
+        "mean_p_where_detected": 0.733,
+        "mean_p_where_not": 0.819
+      },
+      "started_clean": {
+        "counties": 238,
+        "observed": 9,
+        "expected": 96.03,
+        "lowest": 0.2407,
+        "highest": 0.6781,
+        "brier": 0.178,
+        "brier_of_constant_base_rate": 0.0364,
+        "mean_p_where_detected": 0.446,
+        "mean_p_where_not": 0.402
+      },
+      "bins_started_clean": [
+        {
+          "p_from": 0,
+          "p_to": 0.05,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.05,
+          "p_to": 0.1,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.1,
+          "p_to": 0.2,
+          "counties": 0,
+          "detected": 0
+        },
+        {
+          "p_from": 0.2,
+          "p_to": 0.4,
+          "counties": 132,
+          "detected": 6
+        },
+        {
+          "p_from": 0.4,
+          "p_to": 0.7,
+          "counties": 106,
+          "detected": 3
+        },
+        {
+          "p_from": 0.7,
+          "p_to": 1.0,
+          "counties": 0,
+          "detected": 0
+        }
+      ]
+    }
+  }
+}

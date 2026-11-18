@@ -1,0 +1,150 @@
+confirmed_date,state,county,case_type,animal_type,species,status_on_pull_date,raw_row
+2026-06-03,Texas,Zavala,Domestic,Domestic,Cattle,Inactive,1
+2026-06-05,Texas,Zavala,Domestic,Domestic,Cattle,Inactive,2
+2026-06-07,New Mexico,Lea,Domestic,Domestic,Dog,Inactive,4
+2026-06-07,Texas,La Salle,Domestic,Domestic,Cattle,Inactive,3
+2026-06-08,Texas,Gillespie,Domestic,Domestic,Goats,Inactive,5
+2026-06-08,Texas,La Salle,Domestic,Domestic,Cattle,Inactive,6
+2026-06-09,Texas,Edwards,Domestic,Domestic,Cattle,Inactive,7
+2026-06-11,Texas,Edwards,Domestic,Domestic,Cattle,Inactive,8
+2026-06-11,Texas,Edwards,Domestic,Domestic,Goats,Inactive,9
+2026-06-11,Texas,Tom Green,Domestic,Domestic,Cattle,Inactive,10
+2026-06-11,Texas,Zavala,Domestic,Domestic,Cattle,Inactive,11
+2026-06-12,Texas,Sutton,Domestic,Domestic,Sheep,Inactive,12
+2026-06-20,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,13
+2026-06-21,Texas,Edwards,Domestic,Domestic,Cattle,Inactive,14
+2026-06-22,Texas,Terrell,Domestic,Domestic,Goats,Inactive,15
+2026-06-23,Texas,Terrell,Domestic,Domestic,Cattle,Inactive,16
+2026-06-23,Texas,Terrell,Domestic,Domestic,Cattle,Inactive,17
+2026-06-23,Texas,Terrell,Domestic,Domestic,Cattle,Inactive,18
+2026-06-24,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,19
+2026-06-24,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,20
+2026-06-24,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,21
+2026-06-24,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,22
+2026-06-24,Texas,Edwards,Domestic,Domestic,Sheep,Inactive,23
+2026-06-24,Texas,Medina,Domestic,Domestic,Cattle,Inactive,24
+2026-06-26,Texas,Jim Hogg,Domestic,Domestic,Cattle,Inactive,25
+2026-06-27,Texas,Crockett,Domestic,Domestic,Cattle,Inactive,26
+2026-06-29,Texas,Pecos,Domestic,Domestic,Dog,Inactive,27
+2026-06-29,Texas,Uvalde,Domestic,Domestic,Cattle,Inactive,28
+2026-06-30,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,29
+2026-06-30,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,30
+2026-07-03,Texas,Crockett,Domestic,Domestic,Sheep,Inactive,31
+2026-07-07,Texas,Crockett,Domestic,Domestic,Cattle,Inactive,32
+2026-07-09,Texas,Brewster,Domestic,Domestic,Cattle,Inactive,33
+2026-07-10,Texas,Crockett,Domestic,Domestic,Goats,Inactive,34
+2026-07-13,Texas,Brewster,Domestic,Domestic,Cattle,Inactive,35
+2026-07-13,Texas,Sutton,Domestic,Domestic,Dog,Inactive,36
+2026-07-14,Texas,Pecos,Domestic,Domestic,Sheep,Inactive,37
+2026-07-14,Texas,Pecos,Domestic,Domestic,Sheep,Inactive,38
+2026-07-18,Texas,Schleicher,Domestic,Domestic,Sheep,Inactive,39
+2026-07-18,Texas,Starr,Domestic,Domestic,Cattle,Inactive,40
+2026-07-21,Texas,Sutton,Domestic,Domestic,Goats,Inactive,41
+2026-07-29,Texas,Brewster,Domestic,Domestic,Cattle,Inactive,42
+2026-07-30,Texas,Brewster,Domestic,Domestic,Cattle,Inactive,43
+2026-07-31,Texas,Pecos,Domestic,Domestic,Sheep,Inactive,44
+2026-08-05,Texas,Terrell,Domestic,Domestic,Sheep,Inactive,45
+2026-08-16,Texas,Val Verde,Domestic,Domestic,Sheep,Inactive,46
+2026-08-25,Texas,Val Verde,Domestic,Domestic,Goats,Inactive,47
+2026-08-31,Texas,Crockett,Domestic,Domestic,Dog,Inactive,48
+2026-09-09,Texas,Presidio,Domestic,Domestic,Horse,Inactive,49
+2026-09-17,New Mexico,Grant,Domestic,Domestic,Horse,Inactive,50
+2026-09-25,Texas,Brewster,Fly Trap,Fly Trap,Fly,Inactive,51
+2026-09-26,Texas,Crockett,Domestic,Domestic,Goats,Inactive,52
+2026-10-02,Texas,Brewster,Domestic,Domestic,Dog,Inactive,53
+2026-10-10,Texas,Pecos,Domestic,Domestic,Cattle,Inactive,54
+2026-10-15,New Mexico,Grant,Domestic,Domestic,Cattle,Inactive,55
+2026-10-15,New Mexico,Grant,Domestic,Domestic,Horse,Inactive,56
+2026-10-18,Texas,Brewster,Domestic,Domestic,Horse,Inactive,57
+2026-10-20,Texas,Jeff Davis,Domestic,Domestic,Cattle,Inactive,58
+2026-10-21,New Mexico,Otero,Domestic,Domestic,Cattle,Active,59
+2026-10-21,Texas,Pecos,Wildlife & Feral,Wildlife,Elk,Inactive,61
+2026-10-21,Texas,Val Verde,Domestic,Domestic,Cattle,Inactive,60
+2026-10-22,New Mexico,Hidalgo,Domestic,Domestic,Cattle,Active,62
+2026-10-22,Texas,Hudspeth,Domestic,Domestic,Cattle,Inactive,63
+2026-10-23,Texas,Hudspeth,Domestic,Domestic,Cattle,Inactive,64
+2026-10-24,New Mexico,Dona Ana,Domestic,Domestic,Cattle,Active,65
+2026-10-24,New Mexico,Dona Ana,Domestic,Domestic,Sheep,Active,66
+2026-10-26,New Mexico,Luna,Domestic,Domestic,Cattle,Active,68
+2026-10-26,Texas,El Paso,Domestic,Domestic,Dog,Active,67
+2026-10-27,New Mexico,Dona Ana,Domestic,Domestic,Dog,Active,69
+2026-10-28,Arizona,Cochise,Domestic,Domestic,Dog,Active,70
+2026-10-28,New Mexico,Dona Ana,Domestic,Domestic,Dog,Inactive,71
+2026-10-28,New Mexico,Grant,Domestic,Domestic,Domestic Cat,Inactive,72
+2026-10-28,Texas,Presidio,Domestic,Domestic,Cattle,Active,73
+2026-10-29,New Mexico,Dona Ana,Domestic,Domestic,Cattle,Active,74
+2026-10-29,New Mexico,Dona Ana,Fly Trap,Fly Trap,Fly,Inactive,76
+2026-10-29,New Mexico,Luna,Domestic,Domestic,Cattle,Active,75
+2026-10-29,Texas,Hudspeth,Fly Trap,Fly Trap,Fly,Inactive,77
+2026-10-29,Texas,Jeff Davis,Fly Trap,Fly Trap,Fly,Inactive,78
+2026-10-29,Texas,Pecos,Fly Trap,Fly Trap,Fly,Inactive,79
+2026-10-30,New Mexico,Dona Ana,Domestic,Domestic,Cattle,Active,80
+2026-10-30,New Mexico,Dona Ana,Domestic,Domestic,Dog,Active,81
+2026-10-30,New Mexico,Dona Ana,Domestic,Domestic,Horse,Active,82
+2026-10-30,New Mexico,Grant,Domestic,Domestic,Cattle,Active,83
+2026-10-30,New Mexico,Grant,Domestic,Domestic,Dog,Inactive,84
+2026-10-30,New Mexico,Luna,Domestic,Domestic,Cattle,Active,86
+2026-10-30,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,85
+2026-10-31,Arizona,Cochise,Domestic,Domestic,Horse,Active,88
+2026-10-31,New Mexico,Catron,Domestic,Domestic,Cattle,Active,87
+2026-10-31,New Mexico,Luna,Domestic,Domestic,Dog,Active,89
+2026-10-31,Texas,Presidio,Domestic,Domestic,Chicken,Inactive,90
+2026-11-01,New Mexico,Grant,Domestic,Domestic,Horse,Active,92
+2026-11-01,New Mexico,Luna,Domestic,Domestic,Cattle,Active,93
+2026-11-01,New Mexico,Otero,Domestic,Domestic,Horse,Active,94
+2026-11-01,Texas,El Paso,Domestic,Domestic,Dog,Inactive,91
+2026-11-02,Texas,Jeff Davis,Domestic,Domestic,Cattle,Active,95
+2026-11-02,Texas,Starr,Domestic,Domestic,Dog,Active,96
+2026-11-02,Texas,Zapata,Domestic,Domestic,Cattle,Active,97
+2026-11-03,Arizona,Greenlee,Domestic,Domestic,Sheep,Active,101
+2026-11-03,New Mexico,Dona Ana,Domestic,Domestic,Cattle,Active,98
+2026-11-03,New Mexico,Dona Ana,Domestic,Domestic,Dog,Active,99
+2026-11-03,New Mexico,Grant,Domestic,Domestic,Cattle,Active,100
+2026-11-03,New Mexico,Hidalgo,Domestic,Domestic,Cattle,Active,102
+2026-11-03,New Mexico,Hidalgo,Domestic,Domestic,Cattle,Active,103
+2026-11-03,New Mexico,Hidalgo,Domestic,Domestic,Cattle,Active,104
+2026-11-03,New Mexico,Hidalgo,Domestic,Domestic,Dog,Active,105
+2026-11-03,New Mexico,Otero,Domestic,Domestic,Horse,Active,109
+2026-11-03,New Mexico,Sierra,Domestic,Domestic,Horse,Active,113
+2026-11-03,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,106
+2026-11-03,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,107
+2026-11-03,Texas,Hudspeth,Domestic,Domestic,Horse,Active,108
+2026-11-03,Texas,Pecos,Domestic,Domestic,Sheep,Active,110
+2026-11-03,Texas,Pecos,Domestic,Domestic,Sheep,Active,111
+2026-11-03,Texas,Pecos,Domestic,Domestic,Sheep,Active,112
+2026-11-04,Arizona,Greenlee,Domestic,Domestic,Horse,Active,115
+2026-11-04,New Mexico,Eddy,Domestic,Domestic,Horse,Active,114
+2026-11-04,New Mexico,Otero,Domestic,Domestic,Cattle,Active,116
+2026-11-04,New Mexico,Sierra,Domestic,Domestic,Dog,Active,117
+2026-11-04,Texas,Jeff Davis,Wildlife & Feral,Wildlife,Elk,Inactive,119
+2026-11-04,Texas,Starr,Domestic,Domestic,Cattle,Active,118
+2026-11-05,Arizona,Graham,Domestic,Domestic,Dog,Active,120
+2026-11-05,New Mexico,Luna,Domestic,Domestic,Cattle,Active,123
+2026-11-05,New Mexico,Otero,Fly Trap,Fly Trap,Fly,Active,125
+2026-11-05,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,121
+2026-11-05,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,122
+2026-11-05,Texas,Mitchell,Domestic,Domestic,Cattle,Active,124
+2026-11-06,New Mexico,Luna,Domestic,Domestic,Cattle,Active,126
+2026-11-06,New Mexico,Luna,Domestic,Domestic,Cattle,Active,127
+2026-11-08,Texas,El Paso,Domestic,Domestic,Dog,Active,128
+2026-11-08,Texas,Hudspeth,Domestic,Domestic,Cattle,Active,129
+2026-11-09,Texas,Bandera,Domestic,Domestic,Horse,Active,130
+2026-11-09,Texas,Reagan,Domestic,Domestic,Cattle,Active,131
+2026-11-09,Texas,Val Verde,Domestic,Domestic,Sheep,Active,132
+2026-11-10,Arizona,Cochise,Domestic,Domestic,Horse,Active,133
+2026-11-11,New Mexico,Otero,Domestic,Domestic,Horse,Active,134
+2026-11-11,Texas,Terrell,Domestic,Domestic,Cattle,Active,135
+2026-11-11,Texas,Val Verde,Domestic,Domestic,Cattle,Active,136
+2026-11-12,New Mexico,Hidalgo,Domestic,Domestic,Cattle,Active,137
+2026-11-12,New Mexico,Luna,Domestic,Domestic,Cattle,Active,138
+2026-11-12,New Mexico,Socorro,Fly Trap,Fly Trap,Fly,Active,139
+2026-11-13,Arizona,Pima,Domestic,Domestic,Horse,Active,144
+2026-11-13,Texas,Goliad,Domestic,Domestic,Horse,Active,140
+2026-11-13,Texas,Jim Hogg,Domestic,Domestic,Cattle,Active,141
+2026-11-13,Texas,La Salle,Domestic,Domestic,Cattle,Active,142
+2026-11-13,Texas,La Salle,Domestic,Domestic,Cattle,Active,143
+2026-11-13,Texas,Terrell,Domestic,Domestic,Sheep,Active,145
+2026-11-13,Texas,Terrell,Domestic,Domestic,Sheep,Active,146
+2026-11-14,New Mexico,Otero,Domestic,Domestic,Horse,Active,147
+2026-11-15,Texas,Brewster,Domestic,Domestic,Cattle,Active,148
+2026-11-16,Texas,Starr,Domestic,Domestic,Cattle,Active,149

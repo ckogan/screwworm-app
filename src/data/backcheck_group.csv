@@ -1,0 +1,8 @@
+county,in_group,premises,clock_start,start_state,days_to_16_nov,index_mean,index_last_segment,p_new_detection_main,p_new_detection_clean_start,p_new_detection_event_scaled,p_new_detection_event_scaled_wildlife_follows,p_new_detection_kernel_30km,p_new_detection_kernel_300km,new_detection,first_new_detection,days_to_first_new_detection,p_free_day_63,status_day_63,p_free_day_84,status_day_84,p_free_day_180,status_day_180,p_free_day_360,status_day_360
+Dimmit,yes,159,2026-06-01,clean,168,0.427,0.228,0.4596,0.4596,0.2651,0.1611,0.5219,0.465,no,,,,,,,,,,
+Frio,yes,387,2026-06-01,clean,168,0.466,0.204,0.4865,0.4865,0.2775,0.1773,0.5806,0.478,no,,,,,,,,,,
+Kinney,yes,75,2026-06-01,clean,168,0.662,0.375,0.5737,0.5737,0.3178,0.2356,0.6179,0.5344,no,,,,,,,,,,
+Maverick,yes,99,2026-06-01,clean,168,0.495,0.299,0.4925,0.4925,0.2794,0.1815,0.4993,0.4909,no,,,,,,,,,,
+Medina,yes,1312,2026-06-24,leftovers,145,0.584,0.193,0.8145,0.4959,0.7327,0.7015,0.8145,0.8119,no,,,0.922,no new detection by this day,0.9621,no new detection by this day,0.9196,after the data end,0.8621,after the data end
+Uvalde,yes,250,2026-06-29,leftovers,140,0.731,0.25,0.8335,0.5475,0.7405,0.7145,0.8696,0.821,no,,,0.9254,no new detection by this day,0.954,no new detection by this day,0.9207,after the data end,0.8653,after the data end
+Zavala,yes,114,2026-06-11,leftovers,158,0.531,0.777,0.8033,0.4652,0.7302,0.6929,0.7992,0.8051,no,,,0.8937,no new detection by this day,0.9372,no new detection by this day,0.9551,after the data end,0.8382,after the data end

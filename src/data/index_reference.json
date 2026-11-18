@@ -1,0 +1,184 @@
+{
+  "export": {
+    "animal_cases": 142,
+    "by_state": {
+      "Texas": 91,
+      "New Mexico": 44,
+      "Arizona": 7
+    },
+    "first": "2026-06-03",
+    "last": "2026-11-16",
+    "last_30_days": 87,
+    "last_30_days_states": [
+      "Arizona",
+      "New Mexico",
+      "Texas"
+    ],
+    "counties_with_cases": 38
+  },
+  "defaults": {
+    "kernel_km": 150.0,
+    "south_weight": 2.0,
+    "kernel_shape": "power",
+    "window_days": 30
+  },
+  "ranges": {
+    "kernel_km": [
+      30.0,
+      300.0
+    ],
+    "south_weight": [
+      1.0,
+      5.0
+    ]
+  },
+  "reference_period": [
+    "2026-06-13",
+    "2026-09-05"
+  ],
+  "reference_level": 6.956173493692971,
+  "county_days": 3576,
+  "days": 85,
+  "at_risk_counties_min": 36,
+  "at_risk_counties_max": 44,
+  "at_risk_counties_mean": 42.1,
+  "events": [
+    {
+      "date": "2026-06-20",
+      "county": "Crockett",
+      "index": 0.96
+    },
+    {
+      "date": "2026-06-22",
+      "county": "Terrell",
+      "index": 0.8
+    },
+    {
+      "date": "2026-06-24",
+      "county": "Medina",
+      "index": 1.79
+    },
+    {
+      "date": "2026-06-29",
+      "county": "Pecos",
+      "index": 1.91
+    },
+    {
+      "date": "2026-06-29",
+      "county": "Uvalde",
+      "index": 2.46
+    },
+    {
+      "date": "2026-07-09",
+      "county": "Brewster",
+      "index": 1.21
+    },
+    {
+      "date": "2026-07-18",
+      "county": "Schleicher",
+      "index": 2.96
+    },
+    {
+      "date": "2026-07-18",
+      "county": "Starr",
+      "index": 0.44
+    },
+    {
+      "date": "2026-08-16",
+      "county": "Val Verde",
+      "index": 0.48
+    }
+  ],
+  "n_events": 9,
+  "mean_index_at_events": 1.45,
+  "days_per_event_counted": 397.0,
+  "days_per_event_prior": 130,
+  "event_scale": 0.327,
+  "reference_set_variants": [
+    {
+      "neighbours_of": "any case so far",
+      "texas_only": false,
+      "at_risk_min": 36,
+      "at_risk_max": 44,
+      "at_risk_mean": 42.1,
+      "county_days": 3576,
+      "events": 9,
+      "days_per_event": 397.0,
+      "level": 6.9562,
+      "zavala_index_16_nov": 1.69
+    },
+    {
+      "neighbours_of": "any case so far",
+      "texas_only": true,
+      "at_risk_min": 27,
+      "at_risk_max": 35,
+      "at_risk_mean": 33.1,
+      "county_days": 2811,
+      "events": 9,
+      "days_per_event": 312.0,
+      "level": 7.4726,
+      "zavala_index_16_nov": 1.57
+    },
+    {
+      "neighbours_of": "a case in the last 60 days",
+      "texas_only": false,
+      "at_risk_min": 15,
+      "at_risk_max": 44,
+      "at_risk_mean": 34.9,
+      "county_days": 2964,
+      "events": 9,
+      "days_per_event": 329.0,
+      "level": 7.996,
+      "zavala_index_16_nov": 1.47
+    },
+    {
+      "neighbours_of": "a case in the last 60 days",
+      "texas_only": true,
+      "at_risk_min": 15,
+      "at_risk_max": 35,
+      "at_risk_mean": 29.0,
+      "county_days": 2469,
+      "events": 9,
+      "days_per_event": 274.0,
+      "level": 8.2854,
+      "zavala_index_16_nov": 1.42
+    },
+    {
+      "neighbours_of": "a case in the last 30 days",
+      "texas_only": false,
+      "at_risk_min": 1,
+      "at_risk_max": 44,
+      "at_risk_mean": 22.8,
+      "county_days": 1936,
+      "events": 9,
+      "days_per_event": 215.0,
+      "level": 9.557,
+      "zavala_index_16_nov": 1.23
+    },
+    {
+      "neighbours_of": "a case in the last 30 days",
+      "texas_only": true,
+      "at_risk_min": 1,
+      "at_risk_max": 35,
+      "at_risk_mean": 20.1,
+      "county_days": 1711,
+      "events": 9,
+      "days_per_event": 190.0,
+      "level": 10.0431,
+      "zavala_index_16_nov": 1.17
+    }
+  ],
+  "median_km_between_adjacent_texas_counties": 53.9,
+  "rate_ratio_200km_to_adjacent": {
+    "prior_on_record": 0.13,
+    "power_150km": 0.406,
+    "exponential_150km": 0.377,
+    "power_50km": 0.127,
+    "exponential_50km": 0.054
+  },
+  "front_km_per_30_days": [
+    100,
+    200
+  ],
+  "zavala_index_16_nov": 1.689
+}

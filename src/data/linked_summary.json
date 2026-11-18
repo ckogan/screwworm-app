@@ -1,0 +1,1136 @@
+{
+  "start": "2026-11-17",
+  "horizon_days": 360,
+  "group": [
+    "Zavala",
+    "Dimmit",
+    "Frio",
+    "Kinney",
+    "Maverick",
+    "Medina",
+    "Uvalde"
+  ],
+  "reference_level": 6.956173493692971,
+  "index_from_detections_outside_group": {
+    "Zavala": 1.6891,
+    "Dimmit": 1.5777,
+    "Frio": 1.7473,
+    "Kinney": 1.7778,
+    "Maverick": 1.5982,
+    "Medina": 1.6165,
+    "Uvalde": 1.6961
+  },
+  "index_from_all_other_counties": {
+    "Zavala": 1.6891,
+    "Dimmit": 1.5777,
+    "Frio": 1.7473,
+    "Kinney": 1.7778,
+    "Maverick": 1.5982,
+    "Medina": 1.6165,
+    "Uvalde": 1.6961
+  },
+  "link_weight_per_expected_premises": {
+    "Zavala": {
+      "Dimmit": 0.2597,
+      "Frio": 0.122,
+      "Kinney": 0.1098,
+      "Maverick": 0.1593,
+      "Medina": 0.1099,
+      "Uvalde": 0.1273
+    },
+    "Dimmit": {
+      "Zavala": 0.1299,
+      "Frio": 0.1113,
+      "Kinney": 0.0872,
+      "Maverick": 0.1218,
+      "Medina": 0.0868,
+      "Uvalde": 0.0977
+    },
+    "Frio": {
+      "Zavala": 0.1227,
+      "Dimmit": 0.1791,
+      "Kinney": 0.078,
+      "Maverick": 0.0995,
+      "Medina": 0.1273,
+      "Uvalde": 0.1098
+    },
+    "Kinney": {
+      "Zavala": 0.1801,
+      "Dimmit": 0.1613,
+      "Frio": 0.1076,
+      "Maverick": 0.2357,
+      "Medina": 0.0839,
+      "Uvalde": 0.1222
+    },
+    "Maverick": {
+      "Zavala": 0.126,
+      "Dimmit": 0.1867,
+      "Frio": 0.0884,
+      "Kinney": 0.1184,
+      "Medina": 0.0788,
+      "Uvalde": 0.1075
+    },
+    "Medina": {
+      "Zavala": 0.1815,
+      "Dimmit": 0.1606,
+      "Frio": 0.2547,
+      "Kinney": 0.0839,
+      "Maverick": 0.1186,
+      "Uvalde": 0.1222
+    },
+    "Uvalde": {
+      "Zavala": 0.2545,
+      "Dimmit": 0.1953,
+      "Frio": 0.1799,
+      "Kinney": 0.1226,
+      "Maverick": 0.1923,
+      "Medina": 0.1218
+    }
+  },
+  "start_state": {
+    "Zavala": "leftovers: one expected undetected premises, mean age 14 days",
+    "Dimmit": "clean",
+    "Frio": "clean",
+    "Kinney": "clean",
+    "Maverick": "clean",
+    "Medina": "leftovers: one expected undetected premises, mean age 14 days",
+    "Uvalde": "leftovers: one expected undetected premises, mean age 14 days"
+  },
+  "premises": {
+    "Zavala": 114,
+    "Dimmit": 159,
+    "Frio": 387,
+    "Kinney": 75,
+    "Maverick": 99,
+    "Medina": 1312,
+    "Uvalde": 250
+  },
+  "runs": {
+    "main": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 29.3
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.016447788801492003,
+          "seconds": 28.4
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 0.0012688114339670653,
+          "seconds": 30.7
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 0.0001012735108596452,
+          "seconds": 26.4
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.854,
+        "Dimmit": 0.8748,
+        "Frio": 0.8609,
+        "Kinney": 0.8699,
+        "Maverick": 0.8763,
+        "Medina": 0.873,
+        "Uvalde": 0.8773
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.8637,
+        "Dimmit": 0.8815,
+        "Frio": 0.8683,
+        "Kinney": 0.8785,
+        "Maverick": 0.8835,
+        "Medina": 0.8825,
+        "Uvalde": 0.8874
+      },
+      "lowest_p_free": {
+        "Zavala": 0.8177,
+        "Dimmit": 0.8306,
+        "Frio": 0.8157,
+        "Kinney": 0.8104,
+        "Maverick": 0.8279,
+        "Medina": 0.8228,
+        "Uvalde": 0.8142
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.4687,
+          0.1076,
+          0.0808,
+          0.089,
+          0.1089,
+          0.1391,
+          0.178,
+          0.1997,
+          0.2043,
+          0.2049,
+          0.2046,
+          0.1768
+        ],
+        "Dimmit": [
+          0.0621,
+          0.0846,
+          0.074,
+          0.081,
+          0.0989,
+          0.1217,
+          0.1552,
+          0.1809,
+          0.1884,
+          0.189,
+          0.1859,
+          0.1538
+        ],
+        "Frio": [
+          0.0648,
+          0.0896,
+          0.0789,
+          0.0864,
+          0.1049,
+          0.1306,
+          0.1695,
+          0.1985,
+          0.2067,
+          0.2073,
+          0.2043,
+          0.1709
+        ],
+        "Kinney": [
+          0.0646,
+          0.0868,
+          0.0754,
+          0.0834,
+          0.1044,
+          0.128,
+          0.1626,
+          0.1991,
+          0.213,
+          0.214,
+          0.2054,
+          0.1634
+        ],
+        "Maverick": [
+          0.0578,
+          0.0784,
+          0.0688,
+          0.0776,
+          0.0976,
+          0.1196,
+          0.1534,
+          0.1825,
+          0.1917,
+          0.1924,
+          0.1889,
+          0.1538
+        ],
+        "Medina": [
+          0.464,
+          0.0992,
+          0.0722,
+          0.079,
+          0.0961,
+          0.1158,
+          0.1488,
+          0.1842,
+          0.1976,
+          0.1986,
+          0.192,
+          0.1566
+        ],
+        "Uvalde": [
+          0.464,
+          0.0977,
+          0.0694,
+          0.0753,
+          0.0936,
+          0.1153,
+          0.1472,
+          0.1864,
+          0.2061,
+          0.2092,
+          0.1945,
+          0.1526
+        ]
+      },
+      "group_last_round": {
+        "run": "main",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.3755,
+        "group_free_upper_bound": 0.854,
+        "group_free_if_independent_not_linked": 0.4019
+      },
+      "group_lowest": {
+        "run": "main",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Kinney",
+        "group_free_if_independent": 0.249,
+        "group_free_upper_bound": 0.8104,
+        "group_free_if_independent_not_linked": 0.2795
+      }
+    },
+    "all_start_clean": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 22.5
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.01644778880834208,
+          "seconds": 19.3
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 0.0012688114367718217,
+          "seconds": 22.7
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 0.00010127351175726051,
+          "seconds": 21.1
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.854,
+        "Dimmit": 0.8748,
+        "Frio": 0.8609,
+        "Kinney": 0.8699,
+        "Maverick": 0.8763,
+        "Medina": 0.873,
+        "Uvalde": 0.8773
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.8637,
+        "Dimmit": 0.8815,
+        "Frio": 0.8683,
+        "Kinney": 0.8785,
+        "Maverick": 0.8835,
+        "Medina": 0.8825,
+        "Uvalde": 0.8874
+      },
+      "lowest_p_free": {
+        "Zavala": 0.8177,
+        "Dimmit": 0.8306,
+        "Frio": 0.8157,
+        "Kinney": 0.8104,
+        "Maverick": 0.8279,
+        "Medina": 0.8228,
+        "Uvalde": 0.8142
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.0602,
+          0.0877,
+          0.0803,
+          0.089,
+          0.1089,
+          0.1391,
+          0.178,
+          0.1997,
+          0.2043,
+          0.2049,
+          0.2046,
+          0.1768
+        ],
+        "Dimmit": [
+          0.0577,
+          0.0816,
+          0.0737,
+          0.081,
+          0.0989,
+          0.1217,
+          0.1552,
+          0.1809,
+          0.1884,
+          0.189,
+          0.1859,
+          0.1538
+        ],
+        "Frio": [
+          0.0601,
+          0.0864,
+          0.0786,
+          0.0864,
+          0.1049,
+          0.1306,
+          0.1695,
+          0.1985,
+          0.2067,
+          0.2073,
+          0.2043,
+          0.1709
+        ],
+        "Kinney": [
+          0.0597,
+          0.0834,
+          0.0751,
+          0.0833,
+          0.1044,
+          0.128,
+          0.1626,
+          0.1991,
+          0.213,
+          0.214,
+          0.2054,
+          0.1634
+        ],
+        "Maverick": [
+          0.0538,
+          0.0757,
+          0.0686,
+          0.0776,
+          0.0976,
+          0.1196,
+          0.1534,
+          0.1825,
+          0.1917,
+          0.1924,
+          0.1889,
+          0.1538
+        ],
+        "Medina": [
+          0.0548,
+          0.0788,
+          0.0717,
+          0.079,
+          0.0961,
+          0.1158,
+          0.1488,
+          0.1842,
+          0.1976,
+          0.1986,
+          0.192,
+          0.1566
+        ],
+        "Uvalde": [
+          0.0541,
+          0.0769,
+          0.0688,
+          0.0753,
+          0.0936,
+          0.1153,
+          0.1472,
+          0.1864,
+          0.2061,
+          0.2092,
+          0.1945,
+          0.1526
+        ]
+      },
+      "group_last_round": {
+        "run": "all_start_clean",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.3755,
+        "group_free_upper_bound": 0.854,
+        "group_free_if_independent_not_linked": 0.4019
+      },
+      "group_lowest": {
+        "run": "all_start_clean",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Kinney",
+        "group_free_if_independent": 0.249,
+        "group_free_upper_bound": 0.8104,
+        "group_free_if_independent_not_linked": 0.2795
+      }
+    },
+    "detections_index_halved": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 23.6
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.009863334838664639,
+          "seconds": 41.2
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 0.0007639151549908574,
+          "seconds": 25.0
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 6.092144919567222e-05,
+          "seconds": 22.6
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.9179,
+        "Dimmit": 0.9299,
+        "Frio": 0.9223,
+        "Kinney": 0.9279,
+        "Maverick": 0.9309,
+        "Medina": 0.9291,
+        "Uvalde": 0.9319
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.9235,
+        "Dimmit": 0.9338,
+        "Frio": 0.9266,
+        "Kinney": 0.9328,
+        "Maverick": 0.9351,
+        "Medina": 0.9346,
+        "Uvalde": 0.9378
+      },
+      "lowest_p_free": {
+        "Zavala": 0.8958,
+        "Dimmit": 0.903,
+        "Frio": 0.8948,
+        "Kinney": 0.8918,
+        "Maverick": 0.9014,
+        "Medina": 0.8985,
+        "Uvalde": 0.8936
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.4405,
+          0.0661,
+          0.0425,
+          0.0469,
+          0.0581,
+          0.0751,
+          0.097,
+          0.1092,
+          0.1118,
+          0.1121,
+          0.112,
+          0.0963
+        ],
+        "Dimmit": [
+          0.0352,
+          0.0462,
+          0.0389,
+          0.0427,
+          0.0529,
+          0.0658,
+          0.0848,
+          0.0993,
+          0.1036,
+          0.1039,
+          0.1022,
+          0.084
+        ],
+        "Frio": [
+          0.0366,
+          0.0486,
+          0.0412,
+          0.0453,
+          0.0557,
+          0.0701,
+          0.0919,
+          0.1082,
+          0.1128,
+          0.1132,
+          0.1115,
+          0.0927
+        ],
+        "Kinney": [
+          0.0365,
+          0.047,
+          0.0392,
+          0.0435,
+          0.0552,
+          0.0685,
+          0.0879,
+          0.1083,
+          0.1161,
+          0.1166,
+          0.1118,
+          0.0883
+        ],
+        "Maverick": [
+          0.0326,
+          0.0425,
+          0.0359,
+          0.0407,
+          0.0521,
+          0.0645,
+          0.0836,
+          0.1001,
+          0.1053,
+          0.1057,
+          0.1037,
+          0.0838
+        ],
+        "Medina": [
+          0.4383,
+          0.0618,
+          0.0379,
+          0.0415,
+          0.0511,
+          0.0623,
+          0.0809,
+          0.1009,
+          0.1085,
+          0.109,
+          0.1053,
+          0.0853
+        ],
+        "Uvalde": [
+          0.4384,
+          0.061,
+          0.0361,
+          0.0391,
+          0.0494,
+          0.0616,
+          0.0796,
+          0.1016,
+          0.1127,
+          0.1144,
+          0.1061,
+          0.0826
+        ]
+      },
+      "group_last_round": {
+        "run": "detections_index_halved",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.5887,
+        "group_free_upper_bound": 0.9179,
+        "group_free_if_independent_not_linked": 0.6109
+      },
+      "group_lowest": {
+        "run": "detections_index_halved",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Kinney",
+        "group_free_if_independent": 0.4671,
+        "group_free_upper_bound": 0.8918,
+        "group_free_if_independent_not_linked": 0.4976
+      }
+    },
+    "detections_index_doubled": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 23.3
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.026143164421244425,
+          "seconds": 16.8
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 0.002000018306447804,
+          "seconds": 19.1
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 0.00015977359107066658,
+          "seconds": 21.6
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.7391,
+        "Dimmit": 0.7741,
+        "Frio": 0.75,
+        "Kinney": 0.7645,
+        "Maverick": 0.7763,
+        "Medina": 0.7708,
+        "Uvalde": 0.7772
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.7552,
+        "Dimmit": 0.7856,
+        "Frio": 0.7625,
+        "Kinney": 0.779,
+        "Maverick": 0.7887,
+        "Medina": 0.787,
+        "Uvalde": 0.7946
+      },
+      "lowest_p_free": {
+        "Zavala": 0.6813,
+        "Dimmit": 0.7027,
+        "Frio": 0.6779,
+        "Kinney": 0.6691,
+        "Maverick": 0.6981,
+        "Medina": 0.6899,
+        "Uvalde": 0.6757
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.5251,
+          0.1905,
+          0.1574,
+          0.1733,
+          0.2105,
+          0.2672,
+          0.3402,
+          0.3809,
+          0.3896,
+          0.3907,
+          0.3902,
+          0.3381
+        ],
+        "Dimmit": [
+          0.1158,
+          0.1616,
+          0.1442,
+          0.1575,
+          0.191,
+          0.2335,
+          0.2961,
+          0.3441,
+          0.3581,
+          0.3592,
+          0.3536,
+          0.2936
+        ],
+        "Frio": [
+          0.1214,
+          0.1718,
+          0.1544,
+          0.1686,
+          0.2035,
+          0.2517,
+          0.3247,
+          0.3791,
+          0.3946,
+          0.3959,
+          0.3903,
+          0.3275
+        ],
+        "Kinney": [
+          0.1209,
+          0.1665,
+          0.1481,
+          0.1632,
+          0.2027,
+          0.2472,
+          0.3123,
+          0.381,
+          0.4073,
+          0.4091,
+          0.3929,
+          0.3139
+        ],
+        "Maverick": [
+          0.1083,
+          0.1504,
+          0.1347,
+          0.1514,
+          0.1888,
+          0.2298,
+          0.293,
+          0.3474,
+          0.3647,
+          0.366,
+          0.3595,
+          0.2939
+        ],
+        "Medina": [
+          0.5153,
+          0.1739,
+          0.141,
+          0.1542,
+          0.1862,
+          0.2231,
+          0.2848,
+          0.351,
+          0.3761,
+          0.3779,
+          0.3657,
+          0.2994
+        ],
+        "Uvalde": [
+          0.5151,
+          0.1713,
+          0.1361,
+          0.1477,
+          0.182,
+          0.2227,
+          0.2825,
+          0.3561,
+          0.3931,
+          0.3989,
+          0.3713,
+          0.2928
+        ]
+      },
+      "group_last_round": {
+        "run": "detections_index_doubled",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.1526,
+        "group_free_upper_bound": 0.7391,
+        "group_free_if_independent_not_linked": 0.1738
+      },
+      "group_lowest": {
+        "run": "detections_index_doubled",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Kinney",
+        "group_free_if_independent": 0.0707,
+        "group_free_upper_bound": 0.6691,
+        "group_free_if_independent_not_linked": 0.0881
+      }
+    },
+    "link_times_3": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 43.6
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.048373159954574696,
+          "seconds": 37.9
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 0.010904790211424653,
+          "seconds": 21.4
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 0.0025913669278617713,
+          "seconds": 20.7
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.83,
+        "Dimmit": 0.8578,
+        "Frio": 0.8422,
+        "Kinney": 0.8485,
+        "Maverick": 0.8581,
+        "Medina": 0.8495,
+        "Uvalde": 0.8521
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.8637,
+        "Dimmit": 0.8815,
+        "Frio": 0.8683,
+        "Kinney": 0.8785,
+        "Maverick": 0.8835,
+        "Medina": 0.8825,
+        "Uvalde": 0.8874
+      },
+      "lowest_p_free": {
+        "Zavala": 0.7817,
+        "Dimmit": 0.8034,
+        "Frio": 0.7863,
+        "Kinney": 0.7745,
+        "Maverick": 0.7981,
+        "Medina": 0.7847,
+        "Uvalde": 0.7712
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.4796,
+          0.1196,
+          0.0881,
+          0.0965,
+          0.1195,
+          0.1559,
+          0.2054,
+          0.2376,
+          0.2481,
+          0.2505,
+          0.2496,
+          0.2115
+        ],
+        "Dimmit": [
+          0.0739,
+          0.096,
+          0.0795,
+          0.0863,
+          0.1066,
+          0.1334,
+          0.1744,
+          0.2086,
+          0.2208,
+          0.2227,
+          0.2188,
+          0.1783
+        ],
+        "Frio": [
+          0.0777,
+          0.1019,
+          0.0848,
+          0.0922,
+          0.1132,
+          0.1433,
+          0.1906,
+          0.229,
+          0.2425,
+          0.2446,
+          0.2407,
+          0.1982
+        ],
+        "Kinney": [
+          0.0786,
+          0.1004,
+          0.0823,
+          0.0902,
+          0.1144,
+          0.1431,
+          0.1874,
+          0.2362,
+          0.2572,
+          0.2599,
+          0.2491,
+          0.195
+        ],
+        "Maverick": [
+          0.0691,
+          0.0895,
+          0.0744,
+          0.0833,
+          0.1059,
+          0.1321,
+          0.1741,
+          0.2128,
+          0.2273,
+          0.2295,
+          0.225,
+          0.1803
+        ],
+        "Medina": [
+          0.4761,
+          0.112,
+          0.0796,
+          0.0865,
+          0.1066,
+          0.1315,
+          0.1746,
+          0.2231,
+          0.2438,
+          0.2466,
+          0.2381,
+          0.1907
+        ],
+        "Uvalde": [
+          0.4778,
+          0.112,
+          0.0773,
+          0.0831,
+          0.1049,
+          0.1325,
+          0.1753,
+          0.2296,
+          0.2586,
+          0.2642,
+          0.2454,
+          0.1891
+        ]
+      },
+      "group_last_round": {
+        "run": "link_times_3",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.3161,
+        "group_free_upper_bound": 0.83,
+        "group_free_if_independent_not_linked": 0.4019
+      },
+      "group_lowest": {
+        "run": "link_times_3",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Uvalde",
+        "group_free_if_independent": 0.1847,
+        "group_free_upper_bound": 0.7712,
+        "group_free_if_independent_not_linked": 0.2795
+      }
+    },
+    "index_scaled_to_counted_events": {
+      "passes": [
+        {
+          "n": 0,
+          "max_change_p_free": null,
+          "seconds": 22.1
+        },
+        {
+          "n": 1,
+          "max_change_p_free": 0.002647284177235476,
+          "seconds": 19.2
+        },
+        {
+          "n": 2,
+          "max_change_p_free": 6.071702382726141e-05,
+          "seconds": 54.2
+        },
+        {
+          "n": 3,
+          "max_change_p_free": 1.5836847695460676e-06,
+          "seconds": 36.1
+        }
+      ],
+      "p_free_last_round": {
+        "Zavala": 0.9439,
+        "Dimmit": 0.9517,
+        "Frio": 0.9467,
+        "Kinney": 0.9512,
+        "Maverick": 0.9526,
+        "Medina": 0.952,
+        "Uvalde": 0.9545
+      },
+      "p_free_last_round_not_linked": {
+        "Zavala": 0.9452,
+        "Dimmit": 0.9525,
+        "Frio": 0.9476,
+        "Kinney": 0.9524,
+        "Maverick": 0.9536,
+        "Medina": 0.9532,
+        "Uvalde": 0.9559
+      },
+      "lowest_p_free": {
+        "Zavala": 0.9153,
+        "Dimmit": 0.9326,
+        "Frio": 0.9274,
+        "Kinney": 0.9261,
+        "Maverick": 0.9319,
+        "Medina": 0.9179,
+        "Uvalde": 0.9183
+      },
+      "expected_premises_by_segment": {
+        "Zavala": [
+          0.4282,
+          0.0495,
+          0.0284,
+          0.0315,
+          0.0393,
+          0.0511,
+          0.066,
+          0.0738,
+          0.0752,
+          0.0753,
+          0.0752,
+          0.0648
+        ],
+        "Dimmit": [
+          0.0227,
+          0.0303,
+          0.026,
+          0.0289,
+          0.0361,
+          0.0452,
+          0.0584,
+          0.0682,
+          0.0709,
+          0.071,
+          0.0699,
+          0.0573
+        ],
+        "Frio": [
+          0.0233,
+          0.0316,
+          0.0274,
+          0.0304,
+          0.0377,
+          0.0478,
+          0.0628,
+          0.0737,
+          0.0766,
+          0.0768,
+          0.0756,
+          0.0629
+        ],
+        "Kinney": [
+          0.023,
+          0.0302,
+          0.0258,
+          0.0289,
+          0.0371,
+          0.0462,
+          0.0593,
+          0.0729,
+          0.078,
+          0.0782,
+          0.0749,
+          0.059
+        ],
+        "Maverick": [
+          0.0209,
+          0.0276,
+          0.0238,
+          0.0274,
+          0.0354,
+          0.0441,
+          0.0573,
+          0.0684,
+          0.0717,
+          0.0719,
+          0.0705,
+          0.0569
+        ],
+        "Medina": [
+          0.4264,
+          0.0463,
+          0.0251,
+          0.0277,
+          0.0344,
+          0.042,
+          0.0546,
+          0.0679,
+          0.0728,
+          0.073,
+          0.0705,
+          0.0571
+        ],
+        "Uvalde": [
+          0.426,
+          0.0453,
+          0.0236,
+          0.0258,
+          0.0329,
+          0.0412,
+          0.0531,
+          0.0677,
+          0.0749,
+          0.0759,
+          0.0703,
+          0.0546
+        ]
+      },
+      "group_last_round": {
+        "run": "index_scaled_to_counted_events",
+        "round": 12,
+        "day": 360,
+        "date": "2027-11-12",
+        "lowest_county": "Zavala",
+        "group_free_if_independent": 0.7002,
+        "group_free_upper_bound": 0.9439,
+        "group_free_if_independent_not_linked": 0.706
+      },
+      "group_lowest": {
+        "run": "index_scaled_to_counted_events",
+        "round": 10,
+        "day": 300,
+        "date": "2027-09-13",
+        "lowest_county": "Kinney",
+        "group_free_if_independent": 0.5989,
+        "group_free_upper_bound": 0.9261,
+        "group_free_if_independent_not_linked": 0.6073
+      }
+    }
+  }
+}

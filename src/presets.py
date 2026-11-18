@@ -34,9 +34,14 @@ exit has its own oracle check (19).
 """
 from __future__ import annotations
 
+import csv
+import json
 import math
+from pathlib import Path
 
 from intro_module import schedule as _intro_schedule
+
+_DATA = Path(__file__).resolve().parent / "data"     # copies of result files; see data/README.md
 
 # APHIS freedom marks (E6: shown, never tuned to). 24-d life cycle at about 22 C. Since 2026-11-17 the
 # app no longer draws them (policy dates, not model results); the scenario-check figures still use them.
@@ -100,6 +105,93 @@ COUNTY = dict(
     monthly_tmax=[19.3, 22.3, 26.1, 30.1, 32.8, 35.8, 36.3, 37.3, 33.8, 29.4, 23.4, 19.8],
     monthly_tmin=[6.6, 9.2, 12.8, 16.6, 20.9, 23.7, 24.2, 24.3, 21.9, 17.6, 11.8, 7.3],
 )
+
+
+# ---- options added 2026-11-19. None of them is a key of a scenario pack: a pack without them runs
+# exactly as before, and the app's scenario loader resets them to OPTION_DEFAULTS. ----
+OPTION_DEFAULTS = dict(
+    nearby_source="hand",      # "hand": the nearby_pressure slider; "index": nearby_index.py
+    kernel_km=150.0,           # index dial: distance scale, km (thin data; 30 to 300)
+    south_weight=2.0,          # index dial: weight on counties to the south (thin data; 1 to 5)
+    intro_ref="record",        # "record": intro_rate as entered; "adjacency": times INTRO_REF_FACTOR
+    weather_source="normals",  # "normals": COUNTY temperatures; "observed": COUNTY_OBSERVED where held
+)
+
+
+def _read_intro_ref():
+    """Factor on the reference introduction rate when the counties at risk are counted from the
+    adjacency file, and the days per introduction it implies. Read from the linked-counties result
+    (`event_scale` and `days_per_event_counted` in changes/2026-11-19-linked-counties/results/
+    index_reference.json, copied to data/): nine counted first detections in 3,576 county-days is one
+    per 397 days, against the 130 days on record. None if the file is not there."""
+    try:
+        with open(_DATA / "index_reference.json") as f:
+            ref = json.load(f)
+        return float(ref["event_scale"]), float(ref["days_per_event_counted"])
+    except (OSError, KeyError, ValueError):
+        return None, None
+
+
+INTRO_REF_FACTOR, INTRO_REF_DAYS = _read_intro_ref()
+
+
+def _read_observed():
+    """This year's monthly temperatures for the county (changes/2026-11-19-observed-weather/data/
+    county_temperature_this_year.csv, copied to data/): twelve rows, January first. Months with
+    observed days hold the 2026 values, adjusted from a station 21.5 km away; the rest hold the
+    normals. None if the file is not there."""
+    try:
+        with open(_DATA / "county_temperature_this_year.csv", newline="") as f:
+            rows = sorted(csv.DictReader(f), key=lambda r: int(r["month"]))
+        if len(rows) != 12:
+            return None
+        return dict(
+            year=2026,
+            monthly_tmax=[float(r["tmax_c"]) for r in rows],
+            monthly_tmin=[float(r["tmin_c"]) for r in rows],
+            months=[int(r["month"]) for r in rows if int(r["days_observed"]) > 0],
+            part_months=[int(r["month"]) for r in rows
+                         if int(r["days_observed"]) > 0 and r["full_month"] != "yes"],
+        )
+    except (OSError, KeyError, ValueError):
+        return None
+
+
+COUNTY_OBSERVED = _read_observed()
+
+
+def intro_ref_factor(pack: dict) -> float:
+    """Multiplier on the reference introduction rate: 1 unless the pack asks for the adjacency count."""
+    if pack.get("intro_ref", "record") == "adjacency" and INTRO_REF_FACTOR is not None:
+        return INTRO_REF_FACTOR
+    return 1.0
+
+
+def module_schedule(pack: dict, horizon: float) -> dict:
+    """The introduction module's schedule for a pack: what preset_to_params passes to the model and
+    what the app draws, so the two cannot drift.
+
+    With `weather_source="observed"` the segments that fall in an observed month of the observed
+    year use this year's temperatures; every other segment keeps the normals. The run is taken to
+    start in the observed year (the county's last detection was in June 2026), so a run longer than
+    12 months returns to the normals in its second year. Each row carries `observed` (True or False)."""
+    m = dict(pack, monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"])
+    sc = _intro_schedule(m, horizon)
+    for row in sc["rows"]:
+        row["observed"] = False
+    if pack.get("weather_source", "normals") != "observed" or COUNTY_OBSERVED is None:
+        return sc
+    mo = dict(pack, monthly_tmax=COUNTY_OBSERVED["monthly_tmax"],
+              monthly_tmin=COUNTY_OBSERVED["monthly_tmin"])
+    so = _intro_schedule(mo, horizon)
+    start = int(pack["start_month"]) - 1
+    for j in range(len(sc["schedule_times"])):
+        k = start + j                               # months since January of the observed year
+        if k < 12 and (k + 1) in COUNTY_OBSERVED["months"]:
+            sc["intro_multiplier"][j] = so["intro_multiplier"][j]
+            sc["spread_multiplier"][j] = so["spread_multiplier"][j]
+            sc["rows"][j] = dict(so["rows"][j], observed=True)
+    return sc
 
 
 def _s(**over):
@@ -249,12 +341,11 @@ def preset_to_params(pack: dict, dt: float) -> dict:
     # 2026-10-24: a pack without the new keys (any pack written before them) keeps both switches off
     course_end = bool(pack.get("course_end_on", False))
     release = (float(pack["release_mean"]) if pack.get("release_on", False) else None)
-    rate = float(pack["intro_rate"])
+    rate = float(pack["intro_rate"]) * intro_ref_factor(pack)    # factor 1 unless the option is on
     intro_interval = math.inf if rate <= 0.0 else 1.0 / rate
     sched = {}
     if pack.get("module_on", False) and horizon > 0.0:
-        m = dict(pack, monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"])
-        sc = _intro_schedule(m, horizon)
+        sc = module_schedule(pack, horizon)       # the normals, unless the weather option is on
         sched = dict(schedule_times=sc["schedule_times"], intro_multiplier=sc["intro_multiplier"],
                      spread_multiplier=sc["spread_multiplier"])
     return dict(

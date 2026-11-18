@@ -146,6 +146,195 @@ DOUBLING_WARN_BELOW = 3.0     # days; see doubling_caption
 DEFAULT_SCENARIO = "county_12mo" if PLAIN else "six_months"
 _BASE = SCENARIOS[DEFAULT_SCENARIO]
 
+# --------------------------------------------------------------------------------------
+# Options and precomputed tables added 2026-11-19 (changes/2026-11-19-linked-counties,
+# changes/2026-11-19-observed-weather). Every data file is a copy under data/ (data/README.md), so
+# the browser build, which ships this folder only, can read them. All options default to off.
+# --------------------------------------------------------------------------------------
+import csv  # noqa: E402
+import json  # noqa: E402
+from datetime import date  # noqa: E402
+
+import nearby_index  # noqa: E402
+from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
+                     intro_ref_factor, module_schedule)
+
+_DATA = _HERE / "data"
+INDEX_COUNTY = ("Texas", "Zavala")          # the worked-example county (presets.COUNTY)
+INDEX_PULLED = date(2026, 11, 17)           # export pull date: changes/2026-11-18-county-tailoring/data/README.md
+PRECOMPUTED_ON = date(2026, 11, 18)         # date of the linked-counties and 2026-check result files
+# Official declaration rules count three or four 21-day life cycles after the last detection;
+# older practice used six and twelve months. Policy dates, shown lightly, never tuned to.
+RULE_DATES = [(63.0, "3 cycles"), (84.0, "4 cycles"), (180.0, "6 months"), (360.0, "12 months")]
+OBSERVED_CAVEAT = ("The in-county station stopped reporting in 2008. The 2026 values come from a "
+                   "station 21.5 km away, adjusted.")
+
+
+def _day(d: date) -> str:
+    return f"{d.day} {d:%B %Y}"
+
+
+def _read_csv(name: str) -> list:
+    with open(_DATA / name, newline="") as f:
+        return list(csv.DictReader(f))
+
+
+try:
+    _CASES = nearby_index.load_cases(_DATA / "detections_official.csv")
+    _CENTROIDS = nearby_index.load_centroids(_DATA / "county_centroids_all.csv")
+    _ADJACENCY = nearby_index.load_adjacency(_DATA / "county_adjacency.csv",
+                                             _DATA / "county_centroids_all.csv")
+    INDEX_DATE = max(when for when, _ in _CASES)       # latest confirmation in the export
+    INDEX_OK = True
+except (OSError, KeyError, ValueError):
+    _CASES, _CENTROIDS, _ADJACENCY, INDEX_DATE, INDEX_OK = [], {}, {}, None, False
+
+
+@functools.lru_cache(maxsize=256)
+def county_index(kernel_km: float, south_weight: float) -> dict:
+    """The nearby-pressure index for the county on the data date, with its three largest source
+    counties. The reference level is recomputed with the same two dials (nearby_index.py)."""
+    dials = dict(kernel_km=float(kernel_km), south_weight=float(south_weight))
+    ref = nearby_index.reference_level(_CASES, _CENTROIDS, _ADJACENCY, **dials)["level"]
+    rows = nearby_index.index_breakdown(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
+    value = nearby_index.nearby_index(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
+    return dict(value=value, top=rows[:3], n_sources=len(rows))
+
+
+def _load_tables() -> dict | None:
+    """The precomputed linked-counties run and the check against 2026, or None if a file is missing."""
+    try:
+        with open(_DATA / "linked_summary.json") as f:
+            summary = json.load(f)
+        with open(_DATA / "backcheck_texas.json") as f:
+            texas = json.load(f)
+        with open(_DATA / "index_reference.json") as f:
+            reference = json.load(f)
+        return dict(
+            summary=summary, texas=texas, reference=reference,
+            counties=[r for r in _read_csv("linked_counties.csv") if r["run"] == "main"],
+            group=[r for r in _read_csv("linked_group.csv") if r["run"] == "main"],
+            backcheck=_read_csv("backcheck_group.csv"),
+        )
+    except (OSError, KeyError, ValueError):
+        return None
+
+
+TABLES = _load_tables()
+_MISSING = "The data files for this view were not found in the app's data folder."
+
+
+def calibration_2026_results():
+    """Folder holding the held-out calibration against 2026, or None when there is none: a copy
+    under data/calibration_2026/ (the browser build ships data/ only), else the results folder of
+    changes/2026-11-19-calibration-2026."""
+    for d in (_DATA / "calibration_2026", _EXAMPLE / "changes" / "2026-11-19-calibration-2026" / "results"):
+        try:
+            if d.is_dir() and any(d.iterdir()):
+                return d
+        except OSError:
+            pass
+    return None
+
+
+def calibration_2026_block():
+    """PLACEHOLDER for the held-out calibration on the "Check against 2026" tab.
+
+    Returns None, so the tab shows nothing more. With no results on file that is the final answer.
+    With results on file the display is still to be built: a later step reads them from `folder`
+    and returns a table or figure here."""
+    folder = calibration_2026_results()
+    if folder is None:
+        return None
+    return None        # TO BUILD: the calibration's own summary, read from `folder`
+
+
+def _table(header: list, rows: list, bold_last: bool = False):
+    """A small plain table."""
+    body = []
+    for i, row in enumerate(rows):
+        style = "font-weight:600; border-top:2px solid #999;" if bold_last and i == len(rows) - 1 else ""
+        body.append(ui.tags.tr(*[ui.tags.td(c) for c in row], style=style))
+    return ui.tags.div(
+        ui.tags.table(ui.tags.thead(ui.tags.tr(*[ui.tags.th(h) for h in header])),
+                      ui.tags.tbody(*body), class_="table table-sm",
+                      style="font-size:0.9rem; width:auto;"),
+        style="overflow-x:auto;")
+
+
+def _intro_ref_inputs():
+    """The reference-rate option (both layouts): which count of counties at risk the rate rests on."""
+    alt = (f"Counties at risk counted from the adjacency file (about one introduction per "
+           f"{round(INTRO_REF_DAYS, -1):.0f} days)" if INTRO_REF_DAYS else "Adjacency count (data file missing)")
+    return [
+        ui.input_radio_buttons(
+            "intro_ref", "Counties at risk behind this rate",
+            {"record": "Current value (about one introduction per 130 days)",
+             "adjacency": alt},
+            selected=OPTION_DEFAULTS["intro_ref"]),
+        ui.help_text("The check against 2026 suggests the current value is about three times too "
+                     "high. The choice is open. The second option multiplies the rate entered above."),
+    ]
+
+
+def _nearby_source_inputs(*hand):
+    """The source of nearby pressure (both layouts): the choice, the hand slider passed in as `hand`,
+    the readout, and the index's two dials in a fold."""
+    lo_k, hi_k = nearby_index.RANGES["kernel_km"]
+    lo_s, hi_s = nearby_index.RANGES["south_weight"]
+    return [
+        ui.input_radio_buttons(
+            "nearby_source", "Detections in nearby counties: source",
+            {"hand": "Set by hand", "index": "From official detections (index)"},
+            selected=OPTION_DEFAULTS["nearby_source"]),
+        *hand,
+        ui.output_ui("index_readout"),
+        ui.accordion(
+            ui.accordion_panel(
+                "Assumptions with little data (index only)",
+                ui.input_slider("kernel_km", "Distance scale (km)", lo_k, hi_k,
+                                OPTION_DEFAULTS["kernel_km"], step=10),
+                ui.input_slider("south_weight", "Weight on counties to the south (1 = none)", lo_s, hi_s,
+                                OPTION_DEFAULTS["south_weight"], step=0.5),
+                ui.help_text("Both rest on thin data. The distance scale follows the speed of the "
+                             "historical seasonal front, which is not a measured dispersal distance. "
+                             "The size of the southern weight is assumed."),
+                value="index_dials_panel",
+            ),
+            id="index_dials", open=False,
+        ),
+    ]
+
+
+def _weather_inputs():
+    """The weather option (both layouts)."""
+    return [
+        ui.input_radio_buttons(
+            "weather_source", "Monthly temperatures",
+            {"normals": "30-year normals", "observed": "2026 observed where available"},
+            selected=OPTION_DEFAULTS["weather_source"]),
+        ui.help_text(OBSERVED_CAVEAT + " June to November 2026 are observed. November is a part "
+                     "month. The other months keep the normals."),
+    ]
+
+
+def _neighbours_panel():
+    return ui.nav_panel(
+        "Neighbouring counties",
+        ui.output_ui("neighbours_intro"),
+        ui.output_ui("neighbours_table"),
+        ui.output_plot("neighbours_plot", height="420px"),
+        ui.output_ui("neighbours_note"),
+    )
+
+
+def _check_panel():
+    return ui.nav_panel(
+        "Check against 2026",
+        ui.output_ui("check_2026"),
+        ui.output_ui("calibration_2026"),
+    )
+
 # Slider ranges, shared by both layouts so the two modes cannot drift: id -> (min, max, step).
 # Defaults always come from presets._BASE.
 RANGES = dict(
@@ -281,7 +470,9 @@ def _review_sidebar():
                 _sl("start_month", "Start month"), _sl("temp_shift", "Temperature shift (deg C)"),
                 _sl("share_fly", "Share: flies"), _sl("share_move", "Share: moved animals"),
                 _sl("release_coverage", "Sterile-fly coverage"), _sl("release_coverage_ref", "Coverage (reference)"),
-                _sl("release_kappa", "kappa"), _sl("nearby_pressure", "Nearby pressure"),
+                _sl("release_kappa", "kappa"),
+                *_nearby_source_inputs(_sl("nearby_pressure", "Nearby pressure (set by hand)")),
+                *_intro_ref_inputs(), *_weather_inputs(),
                 _sl("wound_factor", "Wound factor"), _sl("treat_share", "Treated share"),
                 _sl("treat_effect", "Treatment effect"), _sl("move_check_effect", "Movement-check effect"),
                 _sl("spread_move_share", "Moved-animal share of spread"),
@@ -345,9 +536,11 @@ def _plain_sidebar():
                              "reference conditions: a warm month, half the sterile-fly target met, "
                              "nearby detections as in summer 2026."),
                 ui.output_ui("intro_caption"),
+                *_intro_ref_inputs(),
                 _sl("release_coverage", "Share of the sterile-fly release target being met"),
-                _sl("nearby_pressure", "Detections in nearby counties, relative to summer 2026 (1 = the same)"),
-                ui.help_text("Counties to the south count most. 0 = no active zones nearby."),
+                *_nearby_source_inputs(
+                    _sl("nearby_pressure", "Detections in nearby counties, relative to summer 2026 (1 = the same)"),
+                    ui.help_text("Counties to the south count most. 0 = no active zones nearby.")),
                 _sub("Where introductions come from (shares in a warm month)"),
                 _sl("share_fly", "Flies arriving"),
                 _sl("share_move", "Moved animals"),
@@ -360,6 +553,7 @@ def _plain_sidebar():
                 _sl("start_month", "Month of the last detection (1 = January)"),
                 _sl("temp_shift", "Warmer or cooler than normal (deg C)"),
                 ui.help_text(f"Monthly temperatures: {COUNTY['station']}."),
+                *_weather_inputs(),
             ),
             ui.accordion_panel(
                 "Mitigations",
@@ -483,6 +677,7 @@ if PLAIN:
                 ui.output_ui("release_readout"),
                 ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
+                ui.output_ui("rule_table"),
                 ui.output_ui("scorecard"),
                 ui.div(ui.markdown(BY_HAND), style=_CAPTION_STYLE),
             ),
@@ -498,6 +693,8 @@ if PLAIN:
                 "What would have to be true",
                 ui.output_ui("must_be_true"),
             ),
+            _neighbours_panel(),
+            _check_panel(),
             ui.nav_panel(
                 "Inside one premises",
                 ui.p("How an infested premises looks, and how likely it is to be found, as the "
@@ -527,6 +724,7 @@ else:
                 ui.output_ui("release_readout"),
                 ui.output_ui("scorecard"),
                 ui.output_plot("pfree_plot", height="400px"),
+                ui.output_ui("rule_table"),
                 ui.markdown(
                     "*`P_free(t)` is the **running estimate**: the probability the zone has no infested premises "
                     "given every inspection round through `t` came back clean and no owner report was confirmed. "
@@ -544,6 +742,8 @@ else:
                     "(K, D) mixture including the post-detection response branch.*"
                 ),
             ),
+            _neighbours_panel(),
+            _check_panel(),
         ),
         title="Zone freedom from New World screwworm: review app (what-if, placeholder priors)",
         fillable=False,
@@ -700,15 +900,39 @@ def _dense_times(p: dict):
             pts.add(pre)
         pts.add(tr)
         prev = tr
+    pts.update(_rule_times(p).values())               # the rule dates, so their table reads exact days
     ts = sorted(x for x in pts if 0.0 <= x <= horizon + 1e-9)
     return ts, rounds
+
+
+def _rule_times(p: dict) -> dict:
+    """Rule date -> the evaluated time that stands for it (snapped to dt), for the dates inside the run."""
+    dt = float(p["dt"])
+    horizon = float(p["horizon"])
+    return {t: round(round(t / dt) * dt, 6) for t, _ in RULE_DATES if t <= horizon + 1e-9}
 
 
 def server(input, output, session):
 
     @reactive.calc
+    def index_now():
+        """The index at the two dials, or None when the data files are missing."""
+        if not INDEX_OK:
+            return None
+        return county_index(float(input.kernel_km()), float(input.south_weight()))
+
+    @reactive.calc
+    def nearby_value() -> float:
+        """Nearby pressure as the model receives it: the hand slider, or the index when selected."""
+        if input.nearby_source() == "index" and INDEX_OK:
+            return float(index_now()["value"])
+        return input.nearby_pressure()
+
+    @reactive.calc
     def pack() -> dict:
         return dict(
+            # options added 2026-11-19 (presets.OPTION_DEFAULTS); the defaults change nothing
+            intro_ref=input.intro_ref(), weather_source=input.weather_source(),
             mean_latent_time=input.mean_latent_time(), doubling_time_within=input.doubling_time_within(),
             recovery_within_on=input.recovery_within_on(),
             mean_recovery_time_within=input.mean_recovery_time_within(),
@@ -722,7 +946,7 @@ def server(input, output, session):
             module_on=input.module_on(), season_on=input.season_on(), start_month=input.start_month(),
             temp_shift=input.temp_shift(), share_fly=input.share_fly(), share_move=input.share_move(),
             release_coverage=input.release_coverage(), release_coverage_ref=input.release_coverage_ref(),
-            release_kappa=input.release_kappa(), nearby_pressure=input.nearby_pressure(),
+            release_kappa=input.release_kappa(), nearby_pressure=nearby_value(),
             wound_factor=input.wound_factor(), treat_share=input.treat_share(),
             treat_effect=input.treat_effect(), move_check_effect=input.move_check_effect(),
             spread_move_share=input.spread_move_share(),
@@ -907,6 +1131,16 @@ def server(input, output, session):
                     ax.text(30.0 * j + 15.0, 1.03, row["month"], ha="center", va="bottom",
                             fontsize=6 if narrow else 7.5, color="0.35")
             ax.fill_between([], [], [], color="#6baed6", alpha=0.3, label="Cold months: low fly activity")
+        # Official rule dates (2026-11-19): light dotted marks with one legend entry. Policy dates,
+        # not model results; the table under the plot gives the model's value on each.
+        marks = [(t, name) for t, name in RULE_DATES if t <= ts[-1] + 1e-9]
+        for t, name in marks:
+            ax.axvline(t, color="0.5", lw=0.8, ls=":", alpha=0.8, zorder=1)
+            ax.annotate(name, xy=(t, 0.03), xytext=(-2, 0), textcoords="offset points", rotation=90,
+                        ha="right", va="bottom", fontsize=6 if narrow else 7.5, color="0.4")
+        if marks:
+            ax.plot([], [], color="0.5", lw=0.8, ls=":",
+                    label="Official rule dates (policy dates, not model results)")
         ax.axhline(thr, color="#2ca02c", lw=1.0, ls="--", alpha=0.7)
         ax.text(0.5, thr + 0.01, lab_thr, color="#2ca02c", fontsize=6 if narrow else 8)
         ax.set_xlabel(xlab)
@@ -1083,11 +1317,14 @@ def server(input, output, session):
 
     @render.ui
     def intro_caption():
-        r = float(input.intro_rate())
+        factor = intro_ref_factor(dict(intro_ref=input.intro_ref()))
+        r = float(input.intro_rate()) * factor
         k0 = float(input.k0_mean())
         if PLAIN:
             if r > 0.0:
                 text = f"About **{1.0 / r:.0f} days** between introductions."
+                if factor != 1.0:
+                    text += f" The rate above is multiplied by {factor:.3g} (the option below)."
             elif k0 <= 0.0:
                 text = "No introductions: the zone stays free."
             else:
@@ -1112,8 +1349,7 @@ def server(input, output, session):
         pk = pack()
         if not pk["module_on"]:
             return None
-        m = dict(pk, monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"])
-        return intro_schedule(m, float(params()["horizon"]))["rows"]
+        return module_schedule(pk, float(params()["horizon"]))["rows"]   # as preset_to_params builds it
 
     @render.plot
     def module_plot():
@@ -1123,7 +1359,7 @@ def server(input, output, session):
             ax.text(0.5, 0.5, "The introduction module is off in this scenario:\nthe introduction rate is constant.",
                     ha="center", va="center"); ax.axis("off")
             return fig
-        base = float(input.intro_rate()) * 30.0
+        base = float(input.intro_rate()) * intro_ref_factor(pack()) * 30.0
         x = list(range(len(rows)))
         fly = [r["fly"] * base for r in rows]; mv = [r["move"] * base for r in rows]
         wl = [r["wild"] * base for r in rows]
@@ -1149,6 +1385,10 @@ def server(input, output, session):
                 f"(fly activity {100 * lo['activity']:.0f}%). Highest: **{hi['month']}**, "
                 f"{100 * hi['intro']:.0f}%. Fly activity comes from monthly temperatures for "
                 f"{COUNTY['name']}. Rain, wind and terrain are not modelled.")
+        if any(r.get("observed") for r in rows):
+            seen = [r["month"] for r in rows if r.get("observed")]
+            text += (f" {seen[0]} to {seen[-1]} use 2026 observed temperatures. " + OBSERVED_CAVEAT
+                     if len(seen) > 1 else f" {seen[0]} uses 2026 observed temperatures. " + OBSERVED_CAVEAT)
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
 
     @render.ui
@@ -1163,6 +1403,9 @@ def server(input, output, session):
         delay = (1.0 / float(pk["rho_r"]) if float(pk["rho_r"]) > 0 else float("inf"))
         rows = module_rows()
         warm = (sum(1 for x in rows if x["activity"] >= 0.9) if rows is not None else None)
+        rate = float(pk["intro_rate"]) * intro_ref_factor(pk)
+        nearby_how = ("the index from official detections" if input.nearby_source() == "index" and INDEX_OK
+                      else "set by hand")
         season = (f"The run covers **{warm}** warm month{'' if warm == 1 else 's'} (fly activity at "
                   f"90% or more). A clean cold month counts for little."
                   if warm is not None else
@@ -1180,10 +1423,11 @@ the following are true.
   report, and no positive fly trap.
 
 **The pressure from outside is as entered**
-- About one new infested premises every {1.0 / float(pk['intro_rate']) if float(pk['intro_rate']) > 0 else float('inf'):.0f}
+- About one new infested premises every {1.0 / rate if rate > 0 else float('inf'):.0f}
   days in a warm month, under the reference conditions.
 - Sterile-fly release meets {100 * float(pk['release_coverage']):.0f}% of its target.
-- Detections in nearby counties are at {float(pk['nearby_pressure']):g} times their summer 2026 level.
+- Detections in nearby counties are at {round(float(pk['nearby_pressure']), 2):g} times their summer 2026 level
+  ({nearby_how}).
 - {season}
 
 **Conditions the model does not cover are confirmed by hand**
@@ -1229,6 +1473,195 @@ between them.
             text = f"Average delay about **{1.0 / r:.0f} days** from noticing to reporting."
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
 
+    # ---------------------------------------------------------------- options added 2026-11-19
+    @render.ui
+    def index_readout():
+        """What the model is given for nearby pressure, and where the index comes from."""
+        if not INDEX_OK:
+            return ui.div("The detection files for the index were not found. The hand-set value is used.",
+                          style=_CAPTION_STYLE)
+        ix = index_now()
+        if input.nearby_source() != "index":
+            text = (f"Using the hand-set value, **{float(input.nearby_pressure()):g}**. The index from "
+                    f"official detections would give {ix['value']:.2f}.")
+            return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+        top = "; ".join(f"{r['county']} {r['contribution']:.2f} ({r['cases']} case"
+                        f"{'' if r['cases'] == 1 else 's'}, {r['km']:.0f} km)" for r in ix["top"])
+        text = (f"Using the index: **{ix['value']:.2f}** for {INDEX_COUNTY[1]} County. The slider above is "
+                f"not used. Data: confirmed animal cases in other counties in the 30 days to "
+                f"{_day(INDEX_DATE)}, the latest confirmation in the official export pulled "
+                f"{_day(INDEX_PULLED)}. Largest sources: {top}. The value is held for the whole run. "
+                f"That is a scenario, not a forecast.")
+        return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    @render.ui
+    def rule_table():
+        """The model's chance of freedom on the official rule dates, read off the dense curve."""
+        r = zone_outputs()
+        pf = r["out"]["p_free_by_time"]
+        thr = float(r["out"]["release_threshold"])
+        at = _rule_times(params_d())
+        rows = []
+        for t, name in RULE_DATES:
+            if t in at:
+                key = min(pf, key=lambda x: abs(float(x) - at[t]))
+                rows.append([name, f"day {t:g}", _pct(pf[key], thr) if PLAIN else f"{pf[key]:.4f}"])
+            else:
+                rows.append([name, f"day {t:g}", "after the end of this run"])
+        return ui.div(
+            ui.p("Official declaration rules count three or four 21-day fly life cycles after the last "
+                 "detection. Older practice used six and twelve months. The model's value on each date:",
+                 style="font-size:0.9rem; margin:6px 0 2px;"),
+            _table(["Rule date", "Days after the last detection",
+                    "Chance the zone is free, given no detection so far"], rows))
+
+    def _linked_by_county():
+        by = {}
+        for row in TABLES["counties"]:
+            by.setdefault(row["county"], []).append(row)
+        return {c: sorted(v, key=lambda x: int(x["round"])) for c, v in by.items()}
+
+    @render.ui
+    def neighbours_intro():
+        if TABLES is None:
+            return ui.div(_MISSING, style=_CAPTION_STYLE)
+        sm = TABLES["summary"]
+        start = date.fromisoformat(sm["start"])
+        text = (f"**Precomputed on {_day(PRECOMPUTED_ON)}** for the default settings, with one build of "
+                f"the model (the closed form). It does not change with the settings on the left. "
+                f"{sm['group'][0]} County and the {len(sm['group']) - 1} counties that adjoin it, each run "
+                f"for {int(sm['horizon_days'])} days from {_day(start)} with monthly rounds. A county's "
+                f"nearby pressure is the index from detections outside the group plus a link to the "
+                f"model's own result for the other counties. This run starts later than the scenario on "
+                f"the first tab, so its {sm['group'][0]} row is a different run.")
+        return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    @render.ui
+    def neighbours_table():
+        if TABLES is None:
+            return None
+        sm = TABLES["summary"]
+        by = _linked_by_county()
+        last_case = {}
+        for when, src in _CASES:
+            last_case[src] = when
+        month = lambda iso: f"{date.fromisoformat(iso):%b %Y}"
+        rows = []
+        for c in sm["group"]:
+            rr = by[c]
+            low = min(rr, key=lambda x: float(x["p_free"]))
+            links = [float(x["link_from_group"]) for x in rr]
+            seen = last_case.get((INDEX_COUNTY[0], c))
+            rows.append([c, f"{int(sm['premises'][c]):,}", _day(seen) if seen else "none",
+                         sm["start_state"][c].split(":")[0],
+                         f"{float(sm['index_from_detections_outside_group'][c]):.2f}",
+                         f"{min(links):.2f} to {max(links):.2f}",
+                         _pct(float(rr[-1]["p_free"])),
+                         f"{_pct(float(low['p_free']))} ({month(low['date'])})"])
+        g = TABLES["group"]
+        g_last = max(g, key=lambda x: int(x["round"]))
+        g_low = min(g, key=lambda x: float(x["group_free_if_independent"]))
+        span = lambda x: (f"{_pct(float(x['group_free_if_independent']))} to "
+                          f"{_pct(float(x['group_free_upper_bound']))}")
+        rows.append([f"All {len(sm['group'])} counties free", "", "", "", "", "", span(g_last),
+                     f"{span(g_low)} ({month(g_low['date'])})"])
+        return _table(["County", "Premises", "Last detection", "Start", "Index from detections",
+                       "Link from the group (lowest to highest month)",
+                       f"Chance free at the last round ({month(g_last['date'])})",
+                       "Lowest chance free (month)"], rows, bold_last=True)
+
+    @render.plot
+    def neighbours_plot():
+        fig, ax = plt.subplots(figsize=(9, 4.2))
+        if TABLES is None:
+            ax.text(0.5, 0.5, _MISSING, ha="center", va="center"); ax.axis("off")
+            return fig
+        by = _linked_by_county()
+        g = sorted(TABLES["group"], key=lambda x: int(x["round"]))
+        x = [int(r["round"]) for r in g]
+        ax.fill_between(x, [float(r["group_free_if_independent"]) for r in g],
+                        [float(r["group_free_upper_bound"]) for r in g], color="0.6", alpha=0.25, lw=0,
+                        label="All counties free: between independent counties and the lowest county")
+        for c in TABLES["summary"]["group"]:
+            lead = c == TABLES["summary"]["group"][0]
+            ax.plot([int(r["round"]) for r in by[c]], [float(r["p_free"]) for r in by[c]],
+                    lw=2.4 if lead else 1.2, marker="o", ms=3, label=c, zorder=3 if lead else 2)
+        ax.set_xticks(x)
+        ax.set_xticklabels([f"{date.fromisoformat(r['date']):%b}\n{date.fromisoformat(r['date']):%Y}"
+                            if i in (0, len(g) - 1) or r["date"][5:7] == "01"
+                            else f"{date.fromisoformat(r['date']):%b}" for i, r in enumerate(g)])
+        ax.set_ylim(0, 1.02)
+        ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
+        ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
+        ax.set_ylabel("Chance free, given no detection there so far")
+        ax.set_xlabel("Inspection round (month)")
+        ax.set_title("Chance each county is free, and all of them together")
+        ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=4, fontsize=8, frameon=False)
+        ax.grid(axis="y", alpha=0.25)
+        fig.tight_layout()
+        return fig
+
+    @render.ui
+    def neighbours_note():
+        if TABLES is None:
+            return None
+        text = ("**Reading the group row.** The lower end is the product of the county values, which "
+                "would hold if the counties were independent. They share weather and outside pressure, "
+                "so the true value is higher. It cannot be above the lowest county, which is the upper "
+                "end. Each county value assumes no detection in that county so far. The results of "
+                "inspections in the neighbours are not used. After the data date the outside pressure "
+                "is held at its last value, which is a scenario and not a forecast. The link between "
+                "counties rests on assumptions with little data.")
+        return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    @render.ui
+    def check_2026():
+        if TABLES is None:
+            return ui.div(_MISSING, style=_CAPTION_STYLE)
+        tx = TABLES["texas"]
+        allc = tx["variants"]["main"]["all"]
+        ref = TABLES["reference"]
+        end = date.fromisoformat(tx["data_end"])
+        head = (f"Over {int(allc['counties'])} Texas counties the model expected about "
+                f"**{float(allc['expected']):.0f}** counties with a new confirmed detection by {_day(end)}. "
+                f"**{int(allc['observed'])}** had one."
+                + (" Giving every county the same base rate scores better than the model."
+                   if float(allc["brier"]) > float(allc["brier_of_constant_base_rate"]) else ""))
+        rows, expected = [], 0.0
+        for r in TABLES["backcheck"]:
+            expected += float(r["p_new_detection_main"])
+            rows.append([r["county"], _day(date.fromisoformat(r["clock_start"])), r["start_state"],
+                         r["days_to_16_nov"], f"{float(r['index_mean']):.2f}",
+                         _pct(float(r["p_new_detection_main"])),
+                         "none" if r["new_detection"] == "no" else r["first_new_detection"]])
+        seen = sum(1 for r in TABLES["backcheck"] if r["new_detection"] != "no")
+        causes = (f"**Two causes are visible.** The leftovers assumed at the last detection (one expected "
+                  f"undetected premises) supply most of the predicted chance in counties that had cases. "
+                  f"The reference introduction rate looks about three times too high: the adjacency file "
+                  f"gives {int(ref['at_risk_counties_min'])} to {int(ref['at_risk_counties_max'])} counties "
+                  f"at risk in summer 2026, not the 12 to 20 assumed when the rate was set.")
+        return ui.TagList(
+            ui.div(ui.markdown(head), style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
+                                             "border-left:4px solid #b45f06; background:#fdf3e7; "
+                                             "border-radius:4px;")),
+            ui.p(f"{INDEX_COUNTY[1]} County and its neighbours. Each clock starts at the county's last "
+                 f"confirmation in the first wave, or on 1 June 2026 if it had none.",
+                 style="margin:8px 0 2px;"),
+            _table(["County", "Clock start", "Start", f"Days to {_day(end)}", "Mean index",
+                    "Model: chance of a new detection", "New detection"], rows),
+            ui.markdown(f"The model's chances for these {len(rows)} counties add up to {expected:.1f} "
+                        f"expected. {seen if seen else 'None'} of them had a new detection."),
+            ui.markdown(causes),
+            ui.markdown(f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with one build "
+                        f"of the model. One season and {int(allc['observed'])} events in counties that are "
+                        f"not independent: a check, not a calibration. The introduction-rate option on "
+                        f"the left applies the lower rate."),
+        )
+
+    @render.ui
+    def calibration_2026():
+        return calibration_2026_block()       # None until the calibration change has results
+
     # ---- scenario loader: writes EVERY input ----
     # It iterates the preset's own keys, so the v0.6 ids `k0_mean` and `age0_scale` are written
     # like any other slider: they are keys of every pack in presets.py and neither is a checkbox
@@ -1247,6 +1680,11 @@ between them.
                 ui.update_numeric(k, value=v)
             else:
                 ui.update_slider(k, value=v)
+        # the options added 2026-11-19 are not pack keys: a scenario always loads with them off
+        for k in ("nearby_source", "intro_ref", "weather_source"):
+            ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
+        for k in ("kernel_km", "south_weight"):
+            ui.update_slider(k, value=OPTION_DEFAULTS[k])
 
 
 app = App(app_ui, server)
