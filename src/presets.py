@@ -124,8 +124,12 @@ _RANCH = dict(owner_contact_interval=7.0)
 # The county presets: real premises count, the introduction module on, the clock starting in the
 # month of the county's last detection. N_herd is set in _COUNTY_HERD (see intro_design.md).
 _COUNTY_HERD = 100
+# nearby_pressure 1.5: confirmed animal cases within 400 km of the county in the 30 days to
+# 16 November 2026 (23) against the summer rate (47 in 92 days), from the official dashboard
+# pulled 2026-11-17 (changes/2026-11-18-county-tailoring/data/nearby_level.py). Within 300 km the
+# ratio is 1.2; over every county in the export it is 5.6, most of that far to the west.
 _ZAVALA = dict(M=COUNTY["M"], N_herd=_COUNTY_HERD, n_farms_per_round=23, module_on=True,
-               start_month=COUNTY["start_month"])
+               start_month=COUNTY["start_month"], nearby_pressure=1.5)
 
 SCENARIOS = {
     # ---- county presets (issue #50) ----

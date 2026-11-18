@@ -140,6 +140,7 @@ def _env_on(name: str) -> bool:
 
 REVIEW = _env_on("NWS_REVIEW") and not _env_on("NWS_DEMO")
 PLAIN = not REVIEW
+DOUBLING_WARN_BELOW = 3.0     # days; see doubling_caption
 # Default scenario: the county worked example in the plain layout; the generic six-month zone in the
 # reviewer layout (its checks are written against it).
 DEFAULT_SCENARIO = "county_12mo" if PLAIN else "six_months"
@@ -236,6 +237,7 @@ def _review_sidebar():
                 ui.help_text("Fly immigration + infested-animal movement + wildlife, one zone rate."),
                 _cb("spread_on", "Between-premises spread (else none)"),
                 _sl("doubling_time", "Between-premises doubling time (d)"),
+                ui.output_ui("doubling_caption"),
                 ui.help_text("Unchecked = spread OFF exactly. Below 0.25 d the lane floors the doubling time."),
                 _cb("clearance_on", "Zone clearance: a treated premises leaves the count (else never)"),
                 _sl("clearance_mean", "Mean time to clear a premises (d)"),
@@ -405,6 +407,7 @@ def _plain_sidebar():
                 _sl("clearance_mean", "Average time to clear (days)"),
                 _cb("spread_on", "Spread between premises"),
                 _sl("doubling_time", "Doubling time of spread between premises (days)"),
+                ui.output_ui("doubling_caption"),
                 _cb("course_end_on", "A premises recovers when its infestation runs its course"),
                 _cb("release_on", "Premises are released on a set clock after a detection"),
                 _sl("release_mean", "Average time to release after a detection (days)"),
@@ -1065,6 +1068,17 @@ def server(input, output, session):
             f"({int(cb['n_insp'])} animal inspections) · rounds {money(cb['round_cost'])} ({cb['n_rounds']} rounds)."
         )
         return ui.TagList(boxes, breakdown)
+
+    @render.ui
+    def doubling_caption():
+        # The two builds differ by up to 0.03 when spread between premises is very fast
+        # (model_design.md, Open items), so say so where the slider reaches that range.
+        if not input.spread_on() or float(input.doubling_time()) >= DOUBLING_WARN_BELOW:
+            return None
+        return ui.div(ui.markdown(
+            f"**Less reliable here.** Below {DOUBLING_WARN_BELOW:g} days the two independent builds "
+            "of the model differ by up to 0.03 in the chance of freedom. Read results at this "
+            "setting as approximate."), style="color:#8a4b00; font-size:0.9em;")
 
     @render.ui
     def intro_caption():

@@ -197,7 +197,7 @@ declares it (<a href="#limits" data-open="limits">the APHIS criterion</a>).</p>
 <p>The model has five components: introductions, season, one farm, the zone, and how infested
 farms are found. <a href="#glance" data-open="glance">The model at a glance</a>, the next card, shows them with one
 picture each. The worked example is one county, <a href="#county" data-open="county">Zavala County, Texas</a>.</p>
-<p class="headline">Chance the zone is free at the last inspection round (day 360, May), model estimate (draft): <strong>89 percent</strong>. Over the run it moves between <strong>89 percent</strong> (July) and <strong>96 percent</strong> (January). The rise in the cold months comes from fewer flies arriving, not from stronger evidence, and it falls back when the weather warms. Read the warm-season value. It does not stay at or above the 95 percent reference line (for illustration) to the end of the run.</p>
+<p class="headline">Chance the zone is free at the last inspection round (day 360, May), model estimate (draft): <strong>85 percent</strong>. Over the run it moves between <strong>85 percent</strong> (July) and <strong>94 percent</strong> (January). The rise in the cold months comes from fewer flies arriving, not from stronger evidence, and it falls back when the weather warms. Read the warm-season value. It does not stay at or above the 95 percent reference line (for illustration) to the end of the run.</p>
 <p class="small"><strong>Changed 2026-11-18: the model now has an introduction module and a season, and its worked example is one Texas county. Each parameter card opens with one line. Every change is listed in <a href="#changed" data-open="changed">what changed in this version</a>.</strong></p>
 <p><a href="../" target="_blank" rel="noopener">The interactive app</a> shows the estimate
 for any setting of the inputs.</p>
@@ -207,20 +207,19 @@ for any setting of the inputs.</p>
 <li><a href="#changed" data-open="changed">What changed in this version</a>: each change, the issue it answers and the public data it uses.</li>
 <li><a href="#intro" data-open="intro">Introductions</a>: where new infested farms come from.</li>
 <li><a href="#season" data-open="season">Season</a>: fly activity by month.</li>
-<li><a href="#county" data-open="county">The county</a>: Zavala County, Texas, the worked example.</li>
+<li><a href="#county" data-open="county">The county</a>: Zavala County, Texas, the worked example, with its census and detection data.</li>
 <li><a href="#detection" data-open="detection">How infested farms are found</a>: owner reports, inspection rounds,
 confirmation and what follows a detection.</li>
 <li><a href="#farm" data-open="farm">One farm</a>: the farm picture and spread inside a farm.</li>
 <li><a href="#zone" data-open="zone">The zone</a>: the zone picture, introductions, spread between farms
 and release.</li>
 <li><a href="#table" data-open="table">The parameter table</a>: value, range and what each rests on, in four groups.</li>
-<li><a href="#scenario" data-open="scenario">The six-month scenario</a>: the fixed inputs and the surveillance streams.</li>
+<li><a href="#scenario" data-open="scenario">The county scenario</a>: the fixed inputs of the run, the surveillance streams and the headline results.</li>
 <li><a href="#limits" data-open="limits">What the model leaves out</a>.</li>
 <li><a href="#conditions" data-open="conditions">Zone-release conditions and what the model covers</a>: the field conditions for releasing a zone, and what to confirm by hand.</li>
 <li><a href="#equations" data-open="equations">The model's equations</a>: every symbol defined.</li>
 <li><a href="#whatif" data-open="whatif">Do two independent builds agree?</a>: the agreement check.</li>
-<li><a href="#matter" data-open="matter">Which parameters matter</a>: ranked by effect on the six-month estimate.</li>
-<li><a href="#biases" data-open="biases">Known biases</a>: which way each pushes the estimate.</li>
+<li><a href="#matter" data-open="matter">Which parameters matter</a>: ranked by effect on the county estimate, with the earlier six-month ranking below it.</li>
 </ul>
 <p class="small">Parameters: <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a>, <a href="#p-rho_r" data-open="p-rho_r">owner reporting delay</a>, <a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">zone clearance time</a>, <a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">within-premises recovery time</a>, <a href="#p-rho_a" data-open="p-rho_a">chance the owner notices a wound</a>, <a href="#p-doubling_time_within" data-open="p-doubling_time_within">within-premises doubling time</a>, <a href="#p-f_clinical_max" data-open="p-f_clinical_max">share of wounds visible</a>, <a href="#p-mean_latent_time" data-open="p-mean_latent_time">mean latent time</a>, <a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">mean clinical onset time</a>, <a href="#p-beta_lockdown_multiplier" data-open="p-beta_lockdown_multiplier">lockdown spread multiplier</a>, <a href="#p-doubling_time" data-open="p-doubling_time">zone doubling time</a>, <a href="#p-Se_animal" data-open="p-Se_animal">inspection sensitivity</a>, <a href="#p-owner_contact_interval" data-open="p-owner_contact_interval">days between the owner&#x27;s close looks at the animals</a>, <a href="#p-share_fly" data-open="p-share_fly">share of introductions from flies arriving</a>, <a href="#p-share_move" data-open="p-share_move">share of introductions from moved animals</a>, <a href="#p-release_coverage" data-open="p-release_coverage">share of the sterile-fly release target being met</a>, <a href="#p-release_kappa" data-open="p-release_kappa">strength of the sterile-fly effect</a>, <a href="#p-nearby_pressure" data-open="p-nearby_pressure">detections in nearby counties, relative to summer 2026</a>, <a href="#p-wound_factor" data-open="p-wound_factor">open wounds on animals, relative to usual</a>, <a href="#p-treat_share" data-open="p-treat_share">share of animals given preventive treatment</a>, <a href="#p-treat_effect" data-open="p-treat_effect">how well preventive treatment protects an animal</a>, <a href="#p-move_check_effect" data-open="p-move_check_effect">share of infested moved animals stopped by movement checks</a>, <a href="#p-spread_move_share" data-open="p-spread_move_share">share of spread between farms carried by moved animals</a>, <a href="#p-temp_shift" data-open="p-temp_shift">warmer or cooler than normal</a>, <a href="#p-start_month" data-open="p-start_month">month of the last detection</a>.</p>
 <details><summary>How the parameter values were reached, and what has been checked</summary>
@@ -437,18 +436,18 @@ follows after a random delay that averages the owner reporting delay.</li>
 <p>So owner reporting strengthens as more animals carry visible wounds, but is capped by how
 quickly a noticed wound becomes a confirmed detection.</p>
 <h3>How much rests on owner reports</h3>
-<p>On <a href="#county" data-open="county">the county scenario</a> the model estimate of the chance the zone is free
-at the last round (day 360, draft) is 89 percent. It is
-53 percent if owners never report, which leaves the inspection rounds
+<p>On <a href="#scenario" data-open="scenario">the county scenario</a> the model estimate of the chance the zone is free
+at the last round (day 360, draft) is 85 percent. It is
+40 percent if owners never report, which leaves the inspection rounds
 alone. The app shows the second number beside the first.</p>
-<p>On <a href="#scenario" data-open="scenario">the six-month scenario</a>, which has 100 farms and constant rates, the
+<p>On the earlier six-month scenario, which has 100 farms and constant rates, the
 estimate at day 180 is 89 percent with close looks every 7 days and
 36 percent if owners never report. With close looks every day, as the
 model assumed before this version, it was 93 percent. All these numbers were
 computed with the analytic (closed-form) build of this version.</p>
 <h3>What the app shows about detection</h3>
 <p>Under a "Planning" heading, apart from the freedom result, the app shows the box "Chance of no
-detection by day 360 (before any results)". It is about 5 percent on the
+detection by day 360 (before any results)". It is about 2 percent on the
 county scenario, and about 10 percent by day 180 on the six-month scenario. It
 is a projection made at the start, before any inspection result, and it is not part of the
 freedom estimate. Three different numbers are easy to confuse. Each is named here once, with its
@@ -470,7 +469,7 @@ visited farm examines a set number of animals (the whole herd if it is smaller).
 animal examined is found with a set chance (inspection sensitivity), and a visited farm is found
 if any of its examined animals is. An infested farm a round visits but does not find is drawn as
 "Missed" on the zone picture. The round dates, the farms per round and the animals per farm are
-fixed in <a href="#scenario" data-open="scenario">the six-month scenario</a>.</p>
+fixed in <a href="#scenario" data-open="scenario">the county scenario</a>.</p>
 <h3>Fly traps</h3>
 <p>Drawn as "Outside the model: fly traps" on the detection picture. The rule is: a positive fly trap counts as a confirmed detection, and the freedom estimate no longer applies once a trap is positive. Empty traps give no credit toward freedom, because traps can catch nothing in an area that has cases. A trap channel is not built in this version.</p>
 <h3>What counts as a detection</h3>
@@ -576,7 +575,7 @@ zone.</li>
 <p class="small">The two ways the farm is found, "Finds the farm", are described in
 <a href="#detection" data-open="detection">how infested farms are found</a>. Spread to "Other farms in the zone" is on
 <a href="#zone" data-open="zone">the zone card</a>.</p>
-<p><strong>In this version:</strong> the season does not act inside a farm. Eggs and larvae are on the host at body temperature, so the course inside a farm is the same in every month. The slowing of fly generations on a farm in winter is left out. In <a href="#county" data-open="county">the county scenario</a> every farm has 100 animals, although the herds of the county differ widely in size.</p>
+<p><strong>In this version:</strong> the season does not act inside a farm. Eggs and larvae are on the host at body temperature, so the course inside a farm is the same in every month. The slowing of fly generations on a farm in winter is left out. In <a href="#scenario" data-open="scenario">the county scenario</a> every farm has 100 animals, although the herds of the county differ widely in size.</p>
 <h3>Parameters for spread inside a farm</h3>
 <ul>
 <li><a href="#p-doubling_time_within" data-open="p-doubling_time_within">Within-premises doubling time</a>: the Susceptible to Latent step on the farm picture, driven by the &quot;their flies lay eggs on more animals&quot; loop from Infested</li>
@@ -710,7 +709,7 @@ outcomes, so lockdown lowers them; projected from the start, with placeholder co
 <p class="small">"Finds them", "Missed", "Found" and "Initiate lockdown" are described in
 <a href="#detection" data-open="detection">how infested farms are found</a>. What happens inside one infested farm is on
 <a href="#farm" data-open="farm">the farm card</a>.</p>
-<p><strong>In this version:</strong> "New arrivals from outside" and "Spread between farms" no longer run at constant rates. Every 30 days of the run each is multiplied by a factor from <a href="#intro" data-open="intro">the introduction module</a>. Introductions follow the season, sterile-fly coverage, nearby detections and mitigations. Spread between farms follows fly activity, sterile-fly coverage, preventive treatment and, on the share carried by moved animals, movement checks. The lockdown cut after a detection still applies on top. In <a href="#county" data-open="county">the county scenario</a> the zone is the 114 farms of the county.</p>
+<p><strong>In this version:</strong> "New arrivals from outside" and "Spread between farms" no longer run at constant rates. Every 30 days of the run each is multiplied by a factor from <a href="#intro" data-open="intro">the introduction module</a>. Introductions follow the season, sterile-fly coverage, nearby detections and mitigations. Spread between farms follows fly activity, sterile-fly coverage, preventive treatment and, on the share carried by moved animals, movement checks. The lockdown cut after a detection still applies on top. In <a href="#scenario" data-open="scenario">the county scenario</a> the zone is the 114 farms of the county.</p>
 <h3>Parameters for introductions, spread between farms and release</h3>
 <ul>
 <li><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a>: &quot;New arrivals from outside&quot; on the zone picture</li>
@@ -723,46 +722,88 @@ outcomes, so lockdown lowers them; projected from the start, with placeholder co
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
 </article>
-<article class="card " id="scenario" data-title="The six-month scenario" tabindex="-1" aria-labelledby="scenario-h">
-<header class="bar"><h2 id="scenario-h">The six-month scenario</h2>
-<button class="x" type="button" data-close="scenario" aria-label="Close The six-month scenario">&times;</button></header>
+<article class="card " id="scenario" data-title="The county scenario: fixed inputs and results" tabindex="-1" aria-labelledby="scenario-h">
+<header class="bar"><h2 id="scenario-h">The county scenario: fixed inputs and results</h2>
+<button class="x" type="button" data-close="scenario" aria-label="Close The county scenario: fixed inputs and results">&times;</button></header>
 <div class="body">
-<p class="small"><strong>In this version</strong> the app opens on <a href="#county" data-open="county">the county scenario</a>: 114 farms, rates that change by month, 12 months. The six-month scenario below, with 100 farms and constant rates, is kept. The earlier ranking, agreement check and known biases were computed on it.</p>
-<p>Every number on this page is for this scenario unless the card says
-otherwise.</p>
+<p>This is the scenario the app opens on. A number on this page is for it where the
+card says "the county scenario". A card marked "computed before this version" uses the earlier
+six-month scenario, described at the end of this card. Why this county, and its census and
+detection data, are on <a href="#county" data-open="county">the county</a>.</p>
+<h3>Fixed inputs</h3>
 <div class="scroll"><table>
 <tbody>
-<tr><th scope='row'>Zone</th><td>100 farms, each with 100 animals. Holdings under 10 animals are outside the model.</td></tr>
+<tr><th scope='row'>Zone</th><td>114 farms, the operations with cattle of Zavala County, Texas, each taken as one farm of 100 animals (<a href="#county" data-open="county">the county</a>).</td></tr>
 <tr><th scope='row'>Freedom</th><td>Absolute: zero infested farms, not a prevalence below a threshold.</td></tr>
-<tr><th scope='row'>Surveillance</th><td>6 inspection rounds, one every 30 days; 20 farms visited per round; 30 animals examined on each visited farm. Owner reporting runs all the time, with the owner looking closely at the animals every 7 days. Streams the model does not use are listed below the table.</td></tr>
+<tr><th scope='row'>Period</th><td>360 days, which is 12 months in steps of 30 days, from the last detection in the county. The clock starts in June.</td></tr>
+<tr><th scope='row'>Surveillance</th><td>12 inspection rounds, one every 30 days; 23 farms visited per round; 30 animals examined on each visited farm. Owner reporting runs all the time, with the owner looking closely at the animals every 7 days. Streams the model does not use are listed below.</td></tr>
 <tr><th scope='row'>Start (day 0, the last detection)</th><td>The number of infested farms nobody has found is drawn with mean 1 (Poisson), so the zone starts free with chance 0.37; their infestations are about 14 days old (exponential, mean 14 days). Both are guesses: no source estimates the undetected remainder.</td></tr>
-<tr><th scope='row'>Controls in force at day 0</th><td>None is modelled. Quarantine, movement controls and sterile-fly releases are not states of the model. Spread between farms runs at its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season). The lockdown cut, which stands for tighter movement controls and more sterile flies, switches on only at a new confirmed detection. In practice a zone stays under controls after its last detection; the model does not represent that.</td></tr>
-<tr><th scope='row'>Introductions</th><td>One new infested farm about every 130 days for the zone as a whole. The rate was counted for a free county next to an active quarantine zone during the 2026 response, and the scenario assumes that pressure, with an active zone next door, lasts all six months. It was counted per county and is applied unchanged to the 100-farm zone; no conversion from a county to 100 farms is made. For a free county far from active zones the model&#x27;s settings use about 1,000 days instead.</td></tr>
-<tr><th scope='row'>Parameters</th><td>The twelve earlier parameters and the days between close looks at their central values (the parameter table). The introduction module is off, so its inputs play no part. The earlier ranking draws parameters across their ranges, and it was run before the days between close looks was added.</td></tr>
-<tr><th scope='row'>Horizon</th><td>180 days.</td></tr>
+<tr><th scope='row'>Controls in force at day 0</th><td>Quarantine and movement controls are not states of the model. Spread between farms starts from its uncontrolled rate (zone doubling time 24 days, a figure for no control in the warm season) and is scaled each month by fly activity. Sterile-fly coverage, movement checks and preventive treatment are inputs, at the values in the second table. The lockdown cut switches on only at a new confirmed detection.</td></tr>
+<tr><th scope='row'>Introductions</th><td>The <a href="#intro" data-open="intro">introduction module</a> is on. The reference rate is one new infested farm about every 130 days. It was counted per county, for a free county next to an active quarantine zone in summer 2026, and the zone here is one county. The module scales it month by month. With nearby detections at 1.5, the rate in a warm month is 1.425 times the reference, about one new infested farm every 91 days. In January it is 0.574 times the reference (<a href="#season" data-open="season">season</a>).</td></tr>
+<tr><th scope='row'>Parameters</th><td>The twelve earlier parameters and the days between close looks at their central values (<a href="#table" data-open="table">the parameter table</a>). The inputs of the introduction module are in the second table.</td></tr>
 </tbody>
 </table>
 </div>
+<h3>The introduction module at its defaults</h3>
+<div class="scroll"><table>
+<thead><tr><th>Input</th><th class="num">Value</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#p-share_fly" data-open="p-share_fly">Share of introductions from flies arriving</a></td><td class='num'>0.6</td></tr>
+<tr><td><a href="#p-share_move" data-open="p-share_move">Share of introductions from moved animals</a></td><td class='num'>0.25</td></tr>
+<tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td class='num'>0.5</td></tr>
+<tr><td><a href="#p-release_kappa" data-open="p-release_kappa">Strength of the sterile-fly effect</a></td><td class='num'>0.75</td></tr>
+<tr><td><a href="#p-nearby_pressure" data-open="p-nearby_pressure">Detections in nearby counties, relative to summer 2026</a></td><td class='num'>1.5</td></tr>
+<tr><td><a href="#p-wound_factor" data-open="p-wound_factor">Open wounds on animals, relative to usual</a></td><td class='num'>1</td></tr>
+<tr><td><a href="#p-treat_share" data-open="p-treat_share">Share of animals given preventive treatment</a></td><td class='num'>0</td></tr>
+<tr><td><a href="#p-treat_effect" data-open="p-treat_effect">How well preventive treatment protects an animal</a></td><td class='num'>0.3</td></tr>
+<tr><td><a href="#p-move_check_effect" data-open="p-move_check_effect">Share of infested moved animals stopped by movement checks</a></td><td class='num'>0</td></tr>
+<tr><td><a href="#p-spread_move_share" data-open="p-spread_move_share">Share of spread between farms carried by moved animals</a></td><td class='num'>0.3</td></tr>
+<tr><td><a href="#p-temp_shift" data-open="p-temp_shift">Warmer or cooler than normal</a></td><td class='num'>0</td></tr>
+</tbody>
+</table>
+</div>
+<p class="small">Wildlife takes the remaining share of introductions, 0.15. A value of 1 for
+detections in nearby counties is the level of summer 2026. The default of
+1.5 follows a count of recent cases near the county and is set by hand
+(<a href="#p-nearby_pressure" data-open="p-nearby_pressure">the basis and its limits</a>).</p>
+<h3>Headline results</h3>
+<p class="headline">Chance the zone is free at the last inspection round (day 360, May), model estimate (draft): <strong>85 percent</strong>. Over the run it moves between <strong>85 percent</strong> (July) and <strong>94 percent</strong> (January). The rise in the cold months comes from fewer flies arriving, not from stronger evidence, and it falls back when the weather warms. Read the warm-season value. It does not stay at or above the 95 percent reference line (for illustration) to the end of the run.</p>
+<ul>
+<li><strong>If owners never report:</strong> the estimate at the last round is
+40 percent. That leaves the inspection rounds alone.</li>
+<li><strong>Chance of no detection by day 360, before any results:</strong> about
+2 percent. It is a projection made at the start, not part of the freedom
+estimate.</li>
+<li><strong>Herd size:</strong> every farm has 100 animals, and the result changes with
+that number (<a href="#county" data-open="county">the county</a>).</li>
+</ul>
+<p class="small">These numbers were computed with the analytic (closed-form) build of this
+version.</p>
 <h3>Surveillance streams: which the model uses</h3>
 <p><strong>In the model:</strong></p>
 <ul>
-<li><strong>Owner reports:</strong> run all the time: an owner notices a visible wound and the case becomes a confirmed detection after the reporting delay, which also covers the veterinarian&#x27;s visit and the laboratory.</li>
-<li><strong>Inspection rounds:</strong> every 30 days, 20 of the 100 farms, 30 animals examined on each; an animal carrying larvae is found with the inspection sensitivity.</li>
+<li><strong>Owner reports:</strong> run all the time: an owner notices a visible wound at a close look, every 7 days, and the case becomes a confirmed detection after the reporting delay, which also covers the veterinarian&#x27;s visit and the laboratory.</li>
+<li><strong>Inspection rounds:</strong> every 30 days, 23 of the 114 farms, 30 animals examined on each; an animal carrying larvae is found with the inspection sensitivity.</li>
 </ul>
 <p><strong>Not in the model:</strong></p>
 <ul>
 <li><strong>Fly trapping:</strong> a positive fly trap counts as a confirmed detection, and the freedom estimate no longer applies once a trap is positive. Empty traps give no credit toward freedom, because traps can catch nothing in an area that has cases. A trap channel is not built in this version.</li>
-<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as part of the introduction rate; the model has no wildlife surveillance stream, so wildlife reports add no evidence in the model, although they happen in practice.</li>
-<li><strong>Movement checks (pre-movement inspection and treatment at checkpoints and markets):</strong> not modelled; moved animals enter only as part of the introduction rate.</li>
+<li><strong>Wildlife surveillance (deer, feral swine, hunter reports):</strong> wildlife enters only as a source of introductions; the model has no wildlife surveillance stream, so wildlife reports add no evidence in the model, although they happen in practice.</li>
+<li><strong>Movement checks (pre-movement inspection and treatment at checkpoints and markets):</strong> not a surveillance stream. The share of infested moved animals that checks stop is an input the user sets, with no data behind it.</li>
 <li><strong>Slaughter inspection:</strong> not in the model&#x27;s design.</li>
-<li><strong>Pets, holdings under 10 animals and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
+<li><strong>Pets and human cases:</strong> not surveyed; outside the model&#x27;s farms.</li>
 </ul>
-<p><strong>Not in the sensitivity ranking:</strong> the starting state, the farm design and the
-surveillance design above are fixed in every draw, so <a href="#matter" data-open="matter">which parameters matter</a>
-says nothing about them. Their effect can be large: in a separate model run with only herd size
-changed (six-month scenario, other values at their centrals), herds of 30 animals instead of 100
-lowered the six-month estimate from about 0.93 to about 0.88. That run was made before this version, with close looks every day.</p>
-<p class="small">Season is not in this scenario (it is in the county scenario), and fly trapping enters only as the rule above: see
+<p><strong>What the ranking does not cover:</strong> In <a href="#matter" data-open="matter">the ranking for this version</a> the starting state and the surveillance design are fixed in every draw, so the ranking says nothing about them. Herd size is drawn.</p>
+<h3>The earlier six-month scenario</h3>
+<p>The scenario of the page before this version is still in the app: 100 farms of
+100 animals, 6 inspection rounds, one every
+30 days, with 20 farms visited per round,
+180 days, constant rates and the introduction module off. Its estimate at day
+180 is 89 percent. The earlier ranking was computed on it, and the
+earlier two-build agreement check included a set of settings around it. Both are shown below the
+results for this version on their cards.</p>
+<p class="small">Rain, wind events and terrain are not in the model: see
 <a href="#limits" data-open="limits">what the model leaves out</a>.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
@@ -928,7 +969,7 @@ the lockdown multiplier and the release clock on for the rest of the horizon.</p
 it is multiplied by L<sub>r</sub>(K) and rescaled to sum to 1 (Bayes' rule); between rounds the
 same update runs continuously for "no owner report". At the start, K(0) is drawn from a Poisson
 distribution and each starting farm's age from an exponential distribution (see
-<a href="#scenario" data-open="scenario">the six-month scenario</a>).</p>
+<a href="#scenario" data-open="scenario">the county scenario</a>).</p>
 <p class="small">Two implementations compute these same equations: an analytic calculation and a
 simulator of random histories (<a href="#whatif" data-open="whatif">the agreement check</a>).</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
@@ -996,7 +1037,7 @@ Within a group, rows are ordered by average effect on the six-month estimate.</p
 <tr><td><a href="#p-share_move" data-open="p-share_move">Share of introductions from moved animals</a></td><td>0.25</td><td>0 to 1</td><td class="num">-0.005 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td>0.5</td><td>0 to 1.5</td><td class="num">+0.035 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-release_kappa" data-open="p-release_kappa">Strength of the sterile-fly effect</a></td><td>0.75</td><td>0.4 to 3</td><td class="num">-0.011 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
-<tr><td><a href="#p-nearby_pressure" data-open="p-nearby_pressure">Detections in nearby counties, relative to summer 2026</a></td><td>1</td><td>0 to 5</td><td class="num">-0.163 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
+<tr><td><a href="#p-nearby_pressure" data-open="p-nearby_pressure">Detections in nearby counties, relative to summer 2026</a></td><td>1.5</td><td>0 to 5</td><td class="num">-0.163 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-wound_factor" data-open="p-wound_factor">Open wounds on animals, relative to usual</a></td><td>1</td><td>0.25 to 3</td><td class="num">-0.101 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-treat_share" data-open="p-treat_share">Share of animals given preventive treatment</a></td><td>0</td><td>0 to 1</td><td class="num">+0.048 (county ranking)</td><td><span class="chip basis b-set">operating setting</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-treat_effect" data-open="p-treat_effect">How well preventive treatment protects an animal</a></td><td>0.3</td><td>0 to 1</td><td class="num">+0.019 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
@@ -1071,7 +1112,7 @@ is confirmed by <a href="#s-C-2-7b" data-open="s-C-2-7b">C-2.7b</a>) and <a href
 <button class="x" type="button" data-close="matter" aria-label="Close Which parameters matter">&times;</button></header>
 <div class="body">
 <h3>The ranking on the county scenario (this version)</h3>
-<p>800 draws of all inputs together on <a href="#county" data-open="county">the county scenario</a>, the new
+<p>800 draws of all inputs together on <a href="#scenario" data-open="scenario">the county scenario</a>, the new
 inputs included. The effect is on the model estimate of the chance the zone is free at the last
 round (day 360, a warm month). The ten inputs with the largest effect are
 shown.</p>
@@ -1251,7 +1292,7 @@ scenario.</figcaption></figure>
 </table>
 </div>
 <h3>The earlier ranking, on the six-month scenario</h3>
-<p class="small"><strong>Computed before this version:</strong> the ranking below was computed on the six-month scenario, with constant rates and the owner looking closely at the animals every day (six-month estimate 0.93). They do not cover the introduction module, the season or <a href="#county" data-open="county">the county scenario</a>, and they have not been redone.</p>
+<p class="small"><strong>Computed before this version:</strong> the ranking below was computed on the six-month scenario, with constant rates and the owner looking closely at the animals every day (six-month estimate 0.93). They do not cover the introduction module, the season or <a href="#scenario" data-open="scenario">the county scenario</a>, and they have not been redone.</p>
 <p><strong>How the bars are made:</strong> the average six-month freedom in the
 top third of a parameter's draws minus the bottom third, with every other parameter drawn from
 its range at the same time.</p>
@@ -1360,43 +1401,6 @@ set, and most ranges are judgement.</li>
 surveillance design are fixed (see the six-month scenario), so the ranking says nothing about them;
 herds of 30 animals instead of 100 lower the six-month estimate from about 0.93 to about 0.88.</li>
 </ul>
-<p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
-</div>
-</article>
-<article class="card " id="biases" data-title="Known biases: which way each pushes the model estimate" tabindex="-1" aria-labelledby="biases-h">
-<header class="bar"><h2 id="biases-h">Known biases: which way each pushes the model estimate</h2>
-<button class="x" type="button" data-close="biases" aria-label="Close Known biases: which way each pushes the model estimate">&times;</button></header>
-<div class="body">
-<p class="small"><strong>Computed before this version:</strong> the numbers on this card were computed on the six-month scenario, with constant rates and the owner looking closely at the animals every day (six-month estimate 0.93). They do not cover the introduction module, the season or <a href="#county" data-open="county">the county scenario</a>, and they have not been redone.</p>
-<p>For each top parameter, the known biases and which way each pushes the six-month
-model estimate of the chance the zone is free (draft): "up" means that, as the model stands, the bias makes freedom look higher than it would
-be without it; "down", lower. Only what the cards and the model's design
-already say is used; where no file states the direction, the row says "open question". Sizes
-appear only where the page or a separate model run computed them.</p>
-<div class="scroll"><table class="stack">
-<thead><tr><th>Parameter</th><th>Known bias</th><th>Pushes the model estimate</th><th>Why</th>
-<th>Basis</th></tr>
-</thead>
-<tbody>
-<tr><td data-l='Parameter'><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a> (top four)</td><td data-l='Known bias'>The neighbouring zone is assumed active for all six months</td><td data-l='Pushes the model estimate'><strong>down</strong></td><td data-l='Why'>The rate was counted next to an active quarantine zone and is applied for the whole horizon. If the neighbours are released, arrivals are rarer (the model&#x27;s settings use about 1,000 days far from active zones), and a longer interval raises freedom.</td><td data-l='Basis' class='small'>stated on the scenario card</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a> (top four)</td><td data-l='Known bias'>Which window the count covers</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>Over the 57 days the dates span, the same arithmetic gives 76 to 127 days (shorter, so freedom lower); the literal neighbour rule gives 128 to 213 days (longer, so freedom higher). Which reading is right is not settled.</td><td data-l='Basis' class='small'>stated on the card; direction from the sign</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a> (top four)</td><td data-l='Known bias'>A county&#x27;s rate applied to a 100-farm zone</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The card says a larger zone means a shorter interval. Whether the 100-farm zone is larger or smaller than a county is not stated, so the direction is not known.</td><td data-l='Basis' class='small'>open question</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">Introduction interval</a> (top four)</td><td data-l='Known bias'>First cases dated by laboratory confirmation, not arrival</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>Stated as a mismatch on the card; its direction is not stated.</td><td data-l='Basis' class='small'>open question</td></tr>
-<tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Two of the three timed cases leave out the owner&#x27;s own wait</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>They understate the delay, so their 1.5 to 2 days is a floor; the 3 days was set above it by judgement, and how far above is not known. A shorter delay raises freedom.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
-<tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>A delay from areas on alert, applied after release</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>Alertness may fall after release; the naive-area alternative (a mean of about 14 days) is not used.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
-<tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Veterinarian visit and laboratory not built up</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The delay lumps the owner&#x27;s wait, the sampling visit and the laboratory (&quot;several days&quot;, no written source); the parts are not built up into the 3 days.</td><td data-l='Basis' class='small'>open question</td></tr>
-<tr><td data-l='Parameter'><a href="#p-rho_r" data-open="p-rho_r">Owner reporting delay</a> (top four)</td><td data-l='Known bias'>Every farm has the same reporting behaviour; every owner reports in the end</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>The reporting-delay sources suggest about 15 percent of owners may never report. In a separate model run with a 15 percent never-report share (six-month scenario, other values at their centrals; inspection still finds those farms), the six-month estimate fell from about 0.93 to about 0.81, larger than the effect of any single parameter in the sensitivity ranking.</td><td data-l='Basis' class='small'>reporting-delay sources; size from a separate model run</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_recovery_time" data-open="p-mean_recovery_time">Zone clearance time</a></td><td data-l='Known bias'>A release clock timed from paperwork, not biology</td><td data-l='Pushes the model estimate'><strong>none on freedom</strong></td><td data-l='Why'>The 21 days comes from the release rule and news snapshots of active case lists. The clock acts only after a new confirmed detection, and every freedom number here is computed given no detection, so it does not move them.</td><td data-l='Basis' class='small'>stated in the model&#x27;s design (equations card)</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a> (top four)</td><td data-l='Known bias'>An unfound farm leaves the count when fewer than half an animal is expected still infested</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The half-animal end is a modelling choice; where nothing finds a farm it matters, and a later end lowers freedom.</td><td data-l='Basis' class='small'>stated in the model&#x27;s design (equations card)</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a> (top four)</td><td data-l='Known bias'>Every farm&#x27;s infestation runs the same course and ends on the same day</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>A farm is fully counted until its course ends, then gone; real herds would vary. Its direction is not stated.</td><td data-l='Basis' class='small'>open question</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_recovery_time_within" data-open="p-mean_recovery_time_within">Within-premises recovery time</a> (top four)</td><td data-l='Known bias'>The 7 days mixes treated and untreated animals</td><td data-l='Pushes the model estimate'><strong>down, against the alternative</strong></td><td data-l='Why'>The mix is a modelling choice. If the model already removes reported animals by treatment, the AI literature review recommends 10 days for the undetected course; a longer recovery raises freedom on average.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
-<tr><td data-l='Parameter'><a href="#p-mean_clinical_onset_time" data-open="p-mean_clinical_onset_time">Mean clinical onset time</a></td><td data-l='Known bias'>The visible-wound clock starts at infestation, not at larvae</td><td data-l='Pushes the model estimate'><strong>up</strong></td><td data-l='Why'>Wounds become obvious about the 2-day latent time sooner than intended, so owner detection looks faster.</td><td data-l='Basis' class='small'>stated on the card</td></tr>
-<tr><td data-l='Parameter'><a href="#p-doubling_time_within" data-open="p-doubling_time_within">Within-premises doubling time</a></td><td data-l='Known bias'>No fly generation lag inside a farm</td><td data-l='Pushes the model estimate'><strong>open question</strong></td><td data-l='Why'>The card says early growth runs fast; its effect on freedom is not stated.</td><td data-l='Basis' class='small'>open question</td></tr>
-<tr><td data-l='Parameter'>All parameters</td><td data-l='Known bias'>Season: summer rates held constant</td><td data-l='Pushes the model estimate'><strong>up, for a winter period</strong></td><td data-l='Why'>A clean winter says less than the model&#x27;s constant rates imply.</td><td data-l='Basis' class='small'>listed under what the model leaves out</td></tr>
-</tbody>
-</table>
-</div>
-<p class="small">Nothing here has been sized jointly.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
 </article>
@@ -1515,7 +1519,8 @@ movement checks. Wildlife follows fly activity. Open wounds and preventive treat
 total.</p>
 <p><strong>The calibration rule:</strong> under the reference conditions the result is exactly
 the reference rate. The reference conditions are a warm month, sterile-fly coverage at its
-reference, nearby detections as in summer 2026 and no added mitigation.</p>
+reference, nearby detections as in summer 2026 and no added mitigation. The county scenario
+departs from them in one input: nearby detections are at 1.5.</p>
 <p><strong>What is assumed:</strong> the shares of the three sources, the wound factor and the
 effect of movement checks have no data behind them, and nearby detections are set by hand.
 Wildlife is a source of introductions only, not evidence.</p>
@@ -1555,16 +1560,20 @@ wildlife is the remainder (0.6, 0.25 and 0.15)</td></tr>
 </tbody>
 </table>
 </div>
-<p>Under the reference conditions the bracket is 1. In January, at the values of the county
-scenario, the rate is 39 percent of the warm-month rate.</p>
+<p>Under the reference conditions the bracket is 1. At the values of
+<a href="#scenario" data-open="scenario">the county scenario</a>, where nearby detections are at 1.5,
+the bracket is 1.425 in a warm month and
+0.574 in January.</p>
 <p><strong>The sterile-fly rule:</strong> with the share x of the release target met, the fertile
 share of matings is 1 / (1 + &kappa; x). This is the ratio rule of Knipling, as reported by
 Krafsur (1994), with the competitiveness of sterile males folded into &kappa;. The module uses the
 fertile share relative to the reference coverage of 0.5, so S = (1 +
 &kappa; &times; 0.5) / (1 + &kappa; x). No release records are used.
 The lag of one fly generation between a release and its effect is left out.</p>
-<p><strong>Nearby detections:</strong> a multiplier the user sets by hand. No formula from counts
-by distance and direction is built.</p>
+<p><strong>Nearby detections:</strong> a multiplier the user sets by hand. A value of 1 is the
+level of summer 2026. The county scenario uses 1.5, from a count of recent
+cases near the county (<a href="#p-nearby_pressure" data-open="p-nearby_pressure">the basis and its limits</a>). No formula from
+counts by distance and direction is built.</p>
 <p><strong>Spread between farms</strong> is carried by flies and by moved animals, so it has its
 own multiplier: m<sub>k</sub> = A<sub>k</sub> S (1 &minus; p<sub>T</sub> e<sub>T</sub>) (1
 &minus; &phi; e<sub>M</sub>), where &phi; is the
@@ -1692,9 +1701,9 @@ loading="lazy"><figcaption>Season: fly activity by month in the county, from its
 <h3>How to read the result</h3>
 <p>A cold month has fewer introductions, so the chance that the zone is free rises in winter and
 falls back when the weather warms. That rise is lower pressure, not stronger evidence. Read the
-warm-season value. On <a href="#county" data-open="county">the county scenario</a> the model estimate (draft) is
-89 percent in July, rises to 96 percent in
-January and is 89 percent at the last round in
+warm-season value. On <a href="#scenario" data-open="scenario">the county scenario</a> the model estimate (draft) is
+85 percent in July, rises to 94 percent in
+January and is 85 percent at the last round in
 May.</p>
 <h3>The twelve monthly values</h3>
 <div class="scroll"><table class="montht">
@@ -1702,25 +1711,27 @@ May.</p>
 <th>Activity</th><th>Introductions</th></tr>
 </thead>
 <tbody>
-<tr><td>January</td><td>19.3</td><td>6.6</td><td>0.19</td><td>39</td></tr>
-<tr><td>February</td><td>22.3</td><td>9.2</td><td>0.31</td><td>48</td></tr>
-<tr><td>March</td><td>26.1</td><td>12.8</td><td>0.46</td><td>59</td></tr>
-<tr><td>April</td><td>30.1</td><td>16.6</td><td>0.69</td><td>77</td></tr>
-<tr><td>May</td><td>32.8</td><td>20.9</td><td>0.96</td><td>97</td></tr>
-<tr><td>June</td><td>35.8</td><td>23.7</td><td>1.00</td><td>100</td></tr>
-<tr><td>July</td><td>36.3</td><td>24.2</td><td>1.00</td><td>100</td></tr>
-<tr><td>August</td><td>37.3</td><td>24.3</td><td>1.00</td><td>100</td></tr>
-<tr><td>September</td><td>33.8</td><td>21.9</td><td>1.00</td><td>100</td></tr>
-<tr><td>October</td><td>29.4</td><td>17.6</td><td>0.71</td><td>78</td></tr>
-<tr><td>November</td><td>23.4</td><td>11.8</td><td>0.35</td><td>51</td></tr>
-<tr><td>December</td><td>19.8</td><td>7.3</td><td>0.21</td><td>41</td></tr>
+<tr><td>January</td><td>19.3</td><td>6.6</td><td>0.19</td><td>57</td></tr>
+<tr><td>February</td><td>22.3</td><td>9.2</td><td>0.31</td><td>70</td></tr>
+<tr><td>March</td><td>26.1</td><td>12.8</td><td>0.46</td><td>85</td></tr>
+<tr><td>April</td><td>30.1</td><td>16.6</td><td>0.69</td><td>110</td></tr>
+<tr><td>May</td><td>32.8</td><td>20.9</td><td>0.96</td><td>138</td></tr>
+<tr><td>June</td><td>35.8</td><td>23.7</td><td>1.00</td><td>143</td></tr>
+<tr><td>July</td><td>36.3</td><td>24.2</td><td>1.00</td><td>143</td></tr>
+<tr><td>August</td><td>37.3</td><td>24.3</td><td>1.00</td><td>143</td></tr>
+<tr><td>September</td><td>33.8</td><td>21.9</td><td>1.00</td><td>143</td></tr>
+<tr><td>October</td><td>29.4</td><td>17.6</td><td>0.71</td><td>112</td></tr>
+<tr><td>November</td><td>23.4</td><td>11.8</td><td>0.35</td><td>74</td></tr>
+<tr><td>December</td><td>19.8</td><td>7.3</td><td>0.21</td><td>59</td></tr>
 </tbody>
 </table>
 </div>
 <p class="small">Daily high and low: the mean daily maximum and minimum temperature of the
 month in degrees C (Crystal City (USC00412160), 1991 to 2020 normals, inside the county). Activity: fly activity, from 0 to 1.
-Introductions: the rate of new infested farms as a percent of the warm-month rate, at the values
-of the county scenario. Fly activity is below one half in January, February, March, November and December.</p>
+Introductions: the rate of new infested farms as a percent of the reference rate, at the values
+of the county scenario. It is above 100 in the warm months because nearby detections are set at
+1.5 times the summer 2026 level. Fly activity is below one half in
+January, February, March, November and December.</p>
 <details class="more"><summary>How to read the season picture</summary>
 <ul>
 <li><strong>The orange bars</strong> are "Fly activity, 0 to 1 (1 = a warm month)", one bar for
@@ -1770,10 +1781,12 @@ figures are complete, and a weather station with temperature normals sits inside
 <p><strong>Farms and herd sizes:</strong> the zone is the county's 114 operations with cattle
 (2022 Census of Agriculture), each taken as one farm of 100 animals. The real herds
 differ widely: the mean is 335 head and the median size class is
-20 to 49 head. At the last round the result is 0.84 at 35 animals, 0.89 at 100 animals and 0.93 at 335 animals, so the single herd size is a
+20 to 49 head. At the last round the result is 0.77 at 35 animals, 0.85 at 100 animals and 0.91 at 335 animals, so the single herd size is a
 limitation.</p>
-<p class="headline">Chance the zone is free at the last inspection round (day 360, May), model estimate (draft): <strong>89 percent</strong>. Over the run it moves between <strong>89 percent</strong> (July) and <strong>96 percent</strong> (January). The rise in the cold months comes from fewer flies arriving, not from stronger evidence, and it falls back when the weather warms. Read the warm-season value. It does not stay at or above the 95 percent reference line (for illustration) to the end of the run.</p>
-<details class="more"><summary>The detection timeline, the scenario and the limits of the
+<p><strong>The run and its results:</strong> the fixed inputs of the run on this county, the
+surveillance streams and the headline results are on
+<a href="#scenario" data-open="scenario">the county scenario</a>.</p>
+<details class="more"><summary>The detection timeline, the herd sizes and the limits of the
 data</summary>
 <h3>The detection timeline</h3>
 <ul>
@@ -1788,15 +1801,6 @@ with no new case in the county in the official record.</li>
 <p>38,198 cattle on 114 operations. The mean is far above the median size class
 because 12 operations with 500 or more head hold 30,556 of the cattle. The model uses one herd
 size for every farm, and 100 lies between the two.</p>
-<h3>The county scenario</h3>
-<p>12 inspection rounds, one every 30 days;
-23 farms visited per round; 30 animals examined on
-each. Owners look closely at the animals every 7 days. The
-introduction module is on, at the values in <a href="#table" data-open="table">the parameter table</a>.</p>
-<p>If owners never report, the estimate at the last round is
-53 percent. The chance of no detection by day 360,
-before any results, is about 5 percent. These numbers were computed with the
-analytic (closed-form) build of this version.</p>
 <h3>Limits of the county data</h3>
 <ul>
 <li>An operation in the census is not the same as a premises. Wildlife, feral swine and pets are
@@ -1859,7 +1863,7 @@ uses.</p>
 <tbody>
 <tr><td data-l='Change'>Each parameter card opens with one line: the value, how good the evidence is and what is assumed. Where there is little or no data the card says so and stops. Detail and sources are folded below. See <a href="#table" data-open="table">the parameter table</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/52" target="_blank" rel="noopener">#52</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>A new input, the days between the owner&#x27;s close looks at the animals, slows owner reporting on large ranches. The freedom result is also given for the case where owners never report. See <a href="#p-owner_contact_interval" data-open="p-owner_contact_interval">days between the owner&#x27;s close looks at the animals</a>, <a href="#detection" data-open="detection">how infested farms are found</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/48" target="_blank" rel="noopener">#48</a></td><td data-l='Public data used'>None. The value is assumed.</td></tr>
-<tr><td data-l='Change'>The rule for fly traps is stated. A positive trap counts as a confirmed detection. Empty traps give no credit toward freedom. A trap channel is not built in this version. See <a href="#scenario" data-open="scenario">the six-month scenario</a>, <a href="#limits" data-open="limits">what the model leaves out</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/49" target="_blank" rel="noopener">#49</a></td><td data-l='Public data used'>None.</td></tr>
+<tr><td data-l='Change'>The rule for fly traps is stated. A positive trap counts as a confirmed detection. Empty traps give no credit toward freedom. A trap channel is not built in this version. See <a href="#scenario" data-open="scenario">the county scenario</a>, <a href="#limits" data-open="limits">what the model leaves out</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/49" target="_blank" rel="noopener">#49</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>A new card lists the field conditions for releasing a zone and marks which the model covers. See <a href="#conditions" data-open="conditions">zone-release conditions and what the model covers</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/54" target="_blank" rel="noopener">#54</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>The description of the app&#x27;s detection box follows the app: the chance of no detection, under a Planning heading. Three numbers that are easy to confuse are each named once. See <a href="#detection" data-open="detection">how infested farms are found</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/53" target="_blank" rel="noopener">#53</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>The first card states that &quot;free&quot; means no infested premises in the zone, and not the absence of flies in the environment. See <a href="#about" data-open="about">the first card</a>.</td><td data-l='Issue'>none</td><td data-l='Public data used'>None.</td></tr>
@@ -1870,6 +1874,7 @@ uses.</p>
 <tr><td data-l='Change'>The share of the sterile-fly release target being met scales the flies arriving. No release records are used. See <a href="#p-release_coverage" data-open="p-release_coverage">share of the sterile-fly release target being met</a>, <a href="#p-release_kappa" data-open="p-release_kappa">strength of the sterile-fly effect</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/57" target="_blank" rel="noopener">#57</a></td><td data-l='Public data used'>None. The response rule is from the published literature.</td></tr>
 <tr><td data-l='Change'>Preventive treatment and movement checks are inputs that scale both introductions and spread between farms. See <a href="#p-treat_share" data-open="p-treat_share">share of animals given preventive treatment</a>, <a href="#p-treat_effect" data-open="p-treat_effect">how well preventive treatment protects an animal</a>, <a href="#p-move_check_effect" data-open="p-move_check_effect">share of infested moved animals stopped by movement checks</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/58" target="_blank" rel="noopener">#58</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>The first card is followed by the model at a glance, with one picture for each of five components. This card is new. See <a href="#glance" data-open="glance">the model at a glance</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/60" target="_blank" rel="noopener">#60</a></td><td data-l='Public data used'>None.</td></tr>
+<tr><td data-l='Change'>The default for detections in nearby counties on the county scenarios is 1.5, raised from 1. A value of 1 still means the level of summer 2026. The official record of confirmed detections, pulled on 17 November 2026, lists 23 confirmed animal cases within 400 km of the county in the 30 days to 16 November 2026. In the summer, from 1 June to 31 August 2026, it lists 47 there, which is 15.3 per 30 days. The ratio is 1.5. Within 300 km the ratio is 1.2. Over every county in the record it is 5.6, and most of those cases are far to the west, in New Mexico, Arizona and far west Texas. The choice of 400 km is judgement. The data are thin, and the value is still a multiplier set by hand. The agreement check for this version was run before this change, with the default at 1 and with the input at 0 and at 5. See <a href="#p-nearby_pressure" data-open="p-nearby_pressure">detections in nearby counties, relative to summer 2026</a>, <a href="#scenario" data-open="scenario">the county scenario</a>.</td><td data-l='Issue'>none</td><td data-l='Public data used'>Official record of confirmed detections, pulled on 17 November 2026. County positions from the 2024 county gazetteer.</td></tr>
 </tbody>
 </table>
 </div>
@@ -1878,7 +1883,8 @@ uses.</p>
 <thead><tr><th>Source</th><th>Date pulled</th><th>Used for</th></tr>
 </thead>
 <tbody>
-<tr><td data-l='Source'>USDA APHIS, Confirmed Detections of New World Screwworm (public dashboard)</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The detection timeline of the county, the month the run starts, and the check of detections by county.</td></tr>
+<tr><td data-l='Source'>USDA APHIS, Confirmed Detections of New World Screwworm (public dashboard)</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The detection timeline of the county, the month the run starts, the check of detections by county, and the count of detections near the county.</td></tr>
+<tr><td data-l='Source'>U.S. Census Bureau, 2024 Gazetteer Files, counties</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The position of each county, for its distance from the worked example county.</td></tr>
 <tr><td data-l='Source'>Texas Animal Health Commission, New World Screwworms page</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The dates on which the county&#x27;s zone was set up and released.</td></tr>
 <tr><td data-l='Source'>USDA NASS Quick Stats, 2022 Census of Agriculture</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The number of farms (operations with cattle) and the herd sizes of the county.</td></tr>
 <tr><td data-l='Source'>NOAA NCEI, U.S. Climate Normals 1991 to 2020, monthly</td><td data-l='Date pulled'>2026-11-17</td><td data-l='Used for'>The monthly temperatures behind fly activity.</td></tr>
@@ -1886,7 +1892,7 @@ uses.</p>
 </tbody>
 </table>
 </div>
-<p class="small">On this page the earlier sensitivity ranking, the earlier agreement check and the known biases were computed before this version, on the six-month scenario. A ranking and an agreement check for this version are shown beside the earlier ones.</p>
+<p class="small">On this page the earlier sensitivity ranking and the earlier agreement check were computed before this version, on the six-month scenario. A ranking and an agreement check for this version are shown beside the earlier ones.</p>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
 </article>
@@ -2476,19 +2482,19 @@ counts as primary for what the rule says)</li>
 <header class="bar"><h2 id="p-nearby_pressure-h">Detections in nearby counties, relative to summer 2026</h2>
 <button class="x" type="button" data-close="p-nearby_pressure" aria-label="Close Detections in nearby counties, relative to summer 2026">&times;</button></header>
 <div class="body">
-<p class="opening"><strong>Value:</strong> 1, meaning detections in nearby counties as when the reference rate was counted. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Introductions by flies and by moved animals rise and fall in proportion to detections nearby.</p>
-<p>There is no data for this value. The model assumes 1; the range explored is 0 to 5.</p>
+<p class="opening"><strong>Value:</strong> 1.5 times the detections in nearby counties at the time the reference rate was counted. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Introductions by flies and by moved animals rise and fall in proportion to detections nearby, and the distance that counts as nearby is judgement.</p>
+<p>There is little good data for this value. The model assumes 1.5; the range explored is 0 to 5.</p>
 <details class="more"><summary>Detail and sources</summary>
-<p><strong>What this is:</strong> A multiplier on the flies arriving and the moved animals. A value of 1 stands for the detections in nearby counties in summer 2026, when the reference rate was counted. The user sets it by hand. Counties to the south should weigh most, because seasonal spread runs northward. In the pictures: the two &quot;Nearby detections&quot; dials, on &quot;Flies arriving&quot; and on &quot;Moved animals&quot;, on the introductions picture.</p>
-<p><strong>Value:</strong> 1, range 0 to 5 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
-<p><strong>What the value rests on:</strong> <span class="chip basis b-gue">guessed</span> <span class="small">No formula in the literature. The rate is assumed proportional to the multiplier, which the user sets by hand.</span></p>
+<p><strong>What this is:</strong> A multiplier on the flies arriving and the moved animals. A value of 1 stands for the detections in nearby counties in summer 2026, when the reference rate was counted. The county scenario uses 1.5, and the earlier six-month scenario does not use this input. The user sets it by hand. Counties to the south should weigh most, because seasonal spread runs northward. In the pictures: the two &quot;Nearby detections&quot; dials, on &quot;Flies arriving&quot; and on &quot;Moved animals&quot;, on the introductions picture.</p>
+<p><strong>Value:</strong> 1.5, range 0 to 5 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
+<p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">The default follows a ratio of case counts in the official record, and the distance that counts as nearby is judgement. The rate is assumed proportional to the multiplier, which is set by hand.</span></p>
 <p class="small"><a href="#intro" data-open="intro">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
-<p>No formula in the literature turns detections nearby into an introduction rate, so the rate is assumed proportional to this multiplier. The official record shows that pressure has not been constant: 4 confirmed cases in August 2026, 34 in October and 57 in the first 16 days of November. A formula from counts by distance and direction is not built in this version.</p>
+<p>No formula in the literature turns detections nearby into an introduction rate, so the rate is assumed proportional to this multiplier. The official record shows that pressure has not been constant: 4 confirmed cases in August 2026, 34 in October and 57 in the first 16 days of November. The default of the county scenario was raised from 1 to 1.5 to follow that record. The official record of confirmed detections, pulled on 17 November 2026, lists 23 confirmed animal cases within 400 km of the county in the 30 days to 16 November 2026. In the summer, from 1 June to 31 August 2026, it lists 47 there, which is 15.3 per 30 days. The ratio is 1.5. Within 300 km the ratio is 1.2. Over every county in the record it is 5.6, and most of those cases are far to the west, in New Mexico, Arizona and far west Texas. The choice of 400 km is judgement. The data are thin: one 30-day count, and the ratio depends strongly on the distance chosen. The value is still a multiplier set by hand. It does not weigh counties to the south more, and a formula from counts by distance and direction is not built in this version.</p>
 <h3>What the sources do not tell us</h3>
 <p>No source relates the number, distance and direction of nearby detections to the rate of introductions.</p>
 <h3>Sources (0)</h3>
-<p>No source informs this value.</p>
+<p>No source card. The official record and the script that counts the cases are in the data folder kept with this version.</p>
 </details>
 <p class="draftfoot"><span class="chip draft">DRAFT</span> Draft model output under assumed rates; not evidence of freedom or absence.</p>
 </div>
