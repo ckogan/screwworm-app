@@ -118,6 +118,11 @@ OPTION_DEFAULTS = dict(
     intro_ref="record",        # "record": intro_rate as entered; "adjacency": times INTRO_REF_FACTOR
     weather_source="normals",  # "normals": COUNTY temperatures; "observed": COUNTY_OBSERVED where held
     renewed_chance=0.0,        # what-if: chance per 30 days of a renewed infestation (0 = off)
+    # 2026-11-20 (issue #68): the season term of the introduction module. "curve": the development-
+    # rate curve at the month's own temperature, as before; "degree_days": generation time and
+    # survival from degree days, with a lag of one generation (intro_module.py). A pack without the
+    # key runs the curve, so every preset gives the numbers it gave before.
+    season_model="curve",
 )
 
 

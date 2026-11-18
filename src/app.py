@@ -68,7 +68,7 @@ from shiny import App, reactive, render, ui
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-from intro_module import MONTH_NAMES, schedule as intro_schedule  # noqa: E402
+from intro_module import MONTH_NAMES, schedule as intro_schedule, season_summary  # noqa: E402
 from presets import (COUNTY, CHECKBOXES, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
                      preset_to_params, rounds_in)
 import streams_illustration as streams  # noqa: E402  (illustration tab only; not the model)
@@ -570,6 +570,18 @@ def _nearby_source_inputs(*hand):
     ]
 
 
+def _season_model_inputs():
+    """The season model (both layouts; issue #68): the present curve or the degree-day option."""
+    return [
+        ui.input_radio_buttons(
+            "season_model", "How the season acts on flies",
+            {"curve": "Activity from this month's temperature (current)",
+             "degree_days": "Fly generations from degree days, with a lag of one generation"},
+            selected=OPTION_DEFAULTS["season_model"]),
+        ui.output_ui("season_model_caption"),
+    ]
+
+
 def _weather_inputs():
     """The weather option (both layouts)."""
     return [
@@ -820,7 +832,7 @@ def _review_sidebar():
                 _sl("release_coverage", "Sterile-fly coverage"), _sl("release_coverage_ref", "Coverage (reference)"),
                 _sl("release_kappa", "kappa"),
                 *_nearby_source_inputs(_sl("nearby_pressure", "Nearby pressure (set by hand)")),
-                *_intro_ref_inputs(), *_weather_inputs(),
+                *_intro_ref_inputs(), *_season_model_inputs(), *_weather_inputs(),
                 _sl("wound_factor", "Wound factor"), _sl("treat_share", "Treated share"),
                 _sl("treat_effect", "Treatment effect"), _sl("move_check_effect", "Movement-check effect"),
                 _sl("spread_move_share", "Moved-animal share of spread"),
@@ -901,6 +913,7 @@ def _plain_sidebar():
                 _sl("start_month", "Month of the last detection (1 = January)"),
                 _sl("temp_shift", "Warmer or cooler than normal (deg C)"),
                 ui.help_text(f"Monthly temperatures: {COUNTY['station']}."),
+                *_season_model_inputs(),
                 *_weather_inputs(),
             ),
             ui.accordion_panel(
@@ -1286,6 +1299,7 @@ def server(input, output, session):
         return dict(
             # options added 2026-11-19 (presets.OPTION_DEFAULTS); the defaults change nothing
             intro_ref=input.intro_ref(), weather_source=input.weather_source(),
+            season_model=input.season_model(),          # "curve" (default) or "degree_days" (issue #68)
             renewed_chance=input.renewed_chance(),      # what-if term, 0 = off (presets.renewed_rate)
             mean_latent_time=input.mean_latent_time(), doubling_time_within=input.doubling_time_within(),
             recovery_within_on=input.recovery_within_on(),
@@ -1842,6 +1856,39 @@ between them.
         return ui.markdown(text)
 
     @render.ui
+    def season_model_caption():
+        """Generations per year and the 3- and 4-cycle dates for the county (issue #68). Shown under
+        both season models; the figures come from the 30-year normals plus the temperature shift."""
+        m = dict(monthly_tmax=COUNTY["monthly_tmax"], monthly_tmin=COUNTY["monthly_tmin"],
+                 start_month=input.start_month(), temp_shift=input.temp_shift())
+        sm = season_summary(m)
+        month = ("January", "February", "March", "April", "May", "June", "July", "August", "September",
+                 "October", "November", "December")[int(input.start_month()) - 1]
+        if sm["cycles_3"] is None or sm["cycles_4"] is None:
+            cycles = (f"From the first day of {month}, three fly generations do not complete within a "
+                      f"year at these temperatures.")
+        else:
+            cycles = (f"From the first day of {month}, three fly generations take about "
+                      f"**{sm['cycles_3']:.0f} days** and four about **{sm['cycles_4']:.0f} days**.")
+        tests = ("On the 1962 records of 41 south Texas counties the two choices cannot be told apart "
+                 "overall, and the second fits the cool months of 1962 better, on one year. On the 2026 "
+                 "cases the comparison mostly reflects where the autumn cases were. With the summer-case "
+                 "counties held fixed, the second is not lower in September or October, only in "
+                 "November. The second choice remains an option under test.")
+        used = ("The second choice is in use: winter counts as a slow generation with daily losses, "
+                "not as a pause, and each month reflects the weather during the generation before it. "
+                "A higher winter value is lower assumed pressure, not evidence of freedom. " + tests
+                if input.season_model() == "degree_days" else
+                "The first choice is in use. " + tests)
+        shift = float(input.temp_shift())
+        basis = ("At the 30-year normals" if shift == 0.0 else
+                 f"At the 30-year normals with {shift:+g} C")
+        text = (f"{basis} the county allows about **{sm['generations_per_year']:.0f} fly "
+                f"generations a year**. {cycles} {used} Assumed: 6 days on the animal and 156 degree "
+                f"days above 14.5 C off it (Gutierrez and Ponti 2014).")
+        return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    @render.ui
     def share_caption():
         w = max(0.0, 1.0 - float(input.share_fly()) - float(input.share_move()))
         return ui.div(ui.markdown(f"Wildlife: the remaining **{100 * w:.0f}%**. Assumed shares; little data."),
@@ -2154,7 +2201,7 @@ between them.
             else:
                 ui.update_slider(k, value=v)
         # the options added 2026-11-19 are not pack keys: a scenario always loads with them off
-        for k in ("nearby_source", "intro_ref", "weather_source"):
+        for k in ("nearby_source", "intro_ref", "weather_source", "season_model"):
             ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
         for k in ("kernel_km", "south_weight", "renewed_chance"):
             ui.update_slider(k, value=OPTION_DEFAULTS[k])
