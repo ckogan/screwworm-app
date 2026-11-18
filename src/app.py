@@ -156,7 +156,7 @@ RANGES = dict(
     Se_animal=(0.0, 1.0, 0.01), n_animals_per_round=(0, 100, 1),
     rho_a=(0.0, 1.0, 0.01), rho_r=(0.0, 1.0, 0.001), owner_contact_interval=(0.0, 30.0, 0.5),
     M=(20, 500, 10), design_prevalence=(0.0, 0.05, 0.005), intro_rate=(0.0, 0.2, 0.0001),
-    doubling_time=(0.01, 150.0, 0.01), clearance_mean=(1, 365, 1), release_mean=(1, 365, 1),
+    doubling_time=(0.25, 150.0, 0.05), clearance_mean=(1, 365, 1), release_mean=(1, 365, 1),
     beta_lockdown_multiplier=(0.0, 1.0, 0.05),
     period_days=(1, 1080, 1), round_interval=(1, 60, 1), n_farms_per_round=(0, 100, 1),
     k0_mean=(0.0, 20.0, 0.1), age0_scale=(0, 180, 1),
@@ -238,7 +238,7 @@ def _review_sidebar():
                 _cb("spread_on", "Between-premises spread (else none)"),
                 _sl("doubling_time", "Between-premises doubling time (d)"),
                 ui.output_ui("doubling_caption"),
-                ui.help_text("Unchecked = spread OFF exactly. Below 0.25 d the lane floors the doubling time."),
+                ui.help_text("Unchecked = spread OFF exactly. The slider stops at 0.25 d, where the lane floors the doubling time."),
                 _cb("clearance_on", "Zone clearance: a treated premises leaves the count (else never)"),
                 _sl("clearance_mean", "Mean time to clear a premises (d)"),
                 ui.help_text("OFF by default since 2026-10-23: before a detection every counted premises is "
@@ -1071,14 +1071,15 @@ def server(input, output, session):
 
     @render.ui
     def doubling_caption():
-        # The two builds differ by up to 0.03 when spread between premises is very fast
-        # (model_design.md, Open items), so say so where the slider reaches that range.
+        # The closed form overstates freedom when spread between premises is very fast (the
+        # shared-age closure; changes/2026-11-18-county-tailoring/divergence/README.md).
         if not input.spread_on() or float(input.doubling_time()) >= DOUBLING_WARN_BELOW:
             return None
         return ui.div(ui.markdown(
-            f"**Less reliable here.** Below {DOUBLING_WARN_BELOW:g} days the two independent builds "
-            "of the model differ by up to 0.03 in the chance of freedom. Read results at this "
-            "setting as approximate."), style="color:#8a4b00; font-size:0.9em;")
+            f"**Approximate here.** Below {DOUBLING_WARN_BELOW:g} days this build of the model "
+            "reads the chance of freedom too high after the first rounds, by 0.002 to 0.02. The "
+            "simulator build of the model is the reference in this range."),
+            style="color:#8a4b00; font-size:0.9em;")
 
     @render.ui
     def intro_caption():
