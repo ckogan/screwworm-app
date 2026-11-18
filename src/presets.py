@@ -87,7 +87,9 @@ _BASE = dict(
     # preset keeps constant rates and its earlier numbers. The county presets switch it on.
     module_on=False, season_on=True, start_month=6, temp_shift=0.0,
     share_fly=0.60, share_move=0.25,                 # wildlife share = 1 - both (assumed shares)
-    release_coverage=0.5, release_coverage_ref=0.5, release_kappa=0.75,
+    # coverage 0.3: public production figures against a planned production level (about 140 of 500 million a
+    # week, pages read 2026-11-18); actual release numbers are not public. Reference moves with it.
+    release_coverage=0.3, release_coverage_ref=0.3, release_kappa=0.75,
     nearby_pressure=1.0, wound_factor=1.0,
     treat_share=0.0, treat_effect=0.3, move_check_effect=0.0, spread_move_share=0.3,
 )

@@ -763,7 +763,7 @@ detection data, are on <a href="#county" data-open="county">the county</a>.</p>
 <tbody>
 <tr><td><a href="#p-share_fly" data-open="p-share_fly">Share of introductions from flies arriving</a></td><td class='num'>0.6</td></tr>
 <tr><td><a href="#p-share_move" data-open="p-share_move">Share of introductions from moved animals</a></td><td class='num'>0.25</td></tr>
-<tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td class='num'>0.5</td></tr>
+<tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td class='num'>0.3</td></tr>
 <tr><td><a href="#p-release_kappa" data-open="p-release_kappa">Strength of the sterile-fly effect</a></td><td class='num'>0.75</td></tr>
 <tr><td><a href="#p-nearby_pressure" data-open="p-nearby_pressure">Detections in nearby counties, relative to summer 2026</a></td><td class='num'>1.5</td></tr>
 <tr><td><a href="#p-wound_factor" data-open="p-wound_factor">Open wounds on animals, relative to usual</a></td><td class='num'>1</td></tr>
@@ -948,7 +948,7 @@ from flies arriving, moved animals and wildlife (the remainder)</td></tr>
 T<sub>max</sub> and T<sub>min</sub> are the month's mean daily maximum and minimum
 temperature</td></tr>
 <tr><td class='eqs'>x, x<sub>ref</sub>, &kappa;</td><td>share of the sterile-fly release target
-being met, its reference (0.5), and the strength of the
+being met, its reference (0.3), and the strength of the
 sterile-fly effect</td></tr>
 <tr><td class='eqs'>N</td><td>detections in nearby counties relative to summer 2026</td></tr>
 <tr><td class='eqs'>w</td><td>open wounds on animals relative to usual</td></tr>
@@ -1076,7 +1076,7 @@ Within a group, rows are ordered by average effect on the six-month estimate.</p
 <tr class="grp"><th colspan="7" scope="colgroup"><span class="grph"><a href="#intro" data-open="intro">Introductions and season: the sources and dials on the introductions picture, and the season picture</a></span></th></tr>
 <tr><td><a href="#p-share_fly" data-open="p-share_fly">Share of introductions from flies arriving</a></td><td>0.60</td><td>0 to 1</td><td class="num">-0.028 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-share_move" data-open="p-share_move">Share of introductions from moved animals</a></td><td>0.25</td><td>0 to 1</td><td class="num">-0.001 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
-<tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td>0.5</td><td>0 to 1.5</td><td class="num">+0.023 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
+<tr><td><a href="#p-release_coverage" data-open="p-release_coverage">Share of the sterile-fly release target being met</a></td><td>0.3</td><td>0 to 1.5</td><td class="num">+0.023 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-release_kappa" data-open="p-release_kappa">Strength of the sterile-fly effect</a></td><td>0.75</td><td>0.4 to 3</td><td class="num">-0.004 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-nearby_pressure" data-open="p-nearby_pressure">Detections in nearby counties, relative to summer 2026</a></td><td>1.5</td><td>0 to 5</td><td class="num">-0.169 (county ranking)</td><td><span class="chip basis b-judg">judgement within data</span></td><td class="num">0 of 0</td><td></td></tr>
 <tr><td><a href="#p-wound_factor" data-open="p-wound_factor">Open wounds on animals, relative to usual</a></td><td>1</td><td>0.25 to 3</td><td class="num">-0.099 (county ranking)</td><td><span class="chip basis b-gue">guessed</span></td><td class="num">0 of 0</td><td></td></tr>
@@ -1581,7 +1581,7 @@ draws is 0.935, against 0.870 over all draws.</p>
 </tbody>
 </table>
 </div>
-<p><strong>Two limits:</strong></p>
+<p><strong>Three limits:</strong></p>
 <ul>
 <li>The earlier prior on the reference introduction interval (50 to 399
 days) was replaced by a multiplier on the rate on record, which gives 130 to
@@ -1590,6 +1590,10 @@ does not show their effect. The ranking above does.</li>
 <li>The draws are not the same points as in the ranking above, because the number of inputs
 drawn changed. Differences between the two rankings of the size of the noise band carry no
 meaning.</li>
+<li>Both rankings were run with one half as the reference share of the sterile-fly release
+target. The reference is now 0.3. The range drawn for the share is the same, and the runs were
+not repeated. With the lower reference, the sterile-fly factor is about 11 percent lower in every
+draw, so the chance of freedom would be higher in every draw. By how much was not computed.</li>
 </ul>
 <hr>
 <h3>The earlier ranking, on the six-month scenario</h3>
@@ -1868,8 +1872,10 @@ the bracket is 1.425 in a warm month and
 <p><strong>The sterile-fly rule:</strong> with the share x of the release target met, the fertile
 share of matings is 1 / (1 + &kappa; x). This is the ratio rule of Knipling, as reported by
 Krafsur (1994), with the competitiveness of sterile males folded into &kappa;. The module uses the
-fertile share relative to the reference coverage of 0.5, so S = (1 +
-&kappa; &times; 0.5) / (1 + &kappa; x). No release records are used.
+fertile share relative to the reference coverage of 0.3, so S = (1 +
+&kappa; &times; 0.3) / (1 + &kappa; x). The share rests on public
+production figures against a planned production level, used here as the target; no release
+records are used.
 The lag of one fly generation between a release and its effect is left out.</p>
 <p><strong>Nearby detections:</strong> a multiplier the user sets by hand. A value of 1 is the
 level of summer 2026. The county scenario uses 1.5, from a count of recent
@@ -2174,7 +2180,7 @@ uses.</p>
 <tr><td data-l='Change'>The detections by county were checked against the official record. Through 31 August 2026 the totals agree, and five differences were found. Edwards County has 5 cases in the official record and 6 in the table used before. Crockett County has 12 and 11. The first Starr County case is dated 18 July, not 17 July. The Uvalde County case is in cattle, not sheep. The Jim Hogg County case is dated 26 June, not 25 to 26 June. The introduction interval is not recounted in this version. See <a href="#p-mean_intro_interval" data-open="p-mean_intro_interval">introduction interval</a>, <a href="#county" data-open="county">the county</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/51" target="_blank" rel="noopener">#51</a></td><td data-l='Public data used'>Official record of confirmed detections. The public online encyclopedia table is kept for comparison only.</td></tr>
 <tr><td data-l='Change'>The introduction rate is now its own module. It adds three sources: flies arriving, moved animals and wildlife. A wound factor scales the total. Under the reference conditions the pieces add back to the earlier rate. See <a href="#intro" data-open="intro">introductions: where new infested farms come from</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/55" target="_blank" rel="noopener">#55</a></td><td data-l='Public data used'>None. The shares are assumed.</td></tr>
 <tr><td data-l='Change'>Rates change by month with the temperature of the county. A cold month has fewer introductions, so the result rises in winter. That rise is lower pressure, not stronger evidence. See <a href="#season" data-open="season">season: fly activity by month</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/56" target="_blank" rel="noopener">#56</a></td><td data-l='Public data used'>Monthly climate normals, 1991 to 2020.</td></tr>
-<tr><td data-l='Change'>The share of the sterile-fly release target being met scales the flies arriving. No release records are used. See <a href="#p-release_coverage" data-open="p-release_coverage">share of the sterile-fly release target being met</a>, <a href="#p-release_kappa" data-open="p-release_kappa">strength of the sterile-fly effect</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/57" target="_blank" rel="noopener">#57</a></td><td data-l='Public data used'>None. The response rule is from the published literature.</td></tr>
+<tr><td data-l='Change'>The share of the sterile-fly release target being met scales the flies arriving. The share is 0.3, the same for every county: public production figures give about 140 million sterile flies a week against a planned production level of about 500 million, used here as the target. The 40 million for the plant in Mexico comes from a news report. It was one half, assumed, before. The result for the county does not move, because the same share is used as the reference. Actual release numbers are not public. See <a href="#p-release_coverage" data-open="p-release_coverage">share of the sterile-fly release target being met</a>, <a href="#p-release_kappa" data-open="p-release_kappa">strength of the sterile-fly effect</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/57" target="_blank" rel="noopener">#57</a></td><td data-l='Public data used'>Production figures on two public pages of the animal health agency and in one news report, read on 18 November 2026. The response rule is from the published literature.</td></tr>
 <tr><td data-l='Change'>Preventive treatment and movement checks are inputs that scale both introductions and spread between farms. See <a href="#p-treat_share" data-open="p-treat_share">share of animals given preventive treatment</a>, <a href="#p-treat_effect" data-open="p-treat_effect">how well preventive treatment protects an animal</a>, <a href="#p-move_check_effect" data-open="p-move_check_effect">share of infested moved animals stopped by movement checks</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/58" target="_blank" rel="noopener">#58</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>The first card is followed by the model at a glance, with one picture for each of five components. This card is new. See <a href="#glance" data-open="glance">the model at a glance</a>.</td><td data-l='Issue'><a href="https://github.com/ckogan/model-cycle/issues/60" target="_blank" rel="noopener">#60</a></td><td data-l='Public data used'>None.</td></tr>
 <tr><td data-l='Change'>The default for detections in nearby counties on the county scenarios is 1.5, raised from 1. A value of 1 still means the level of summer 2026. The official record of confirmed detections, pulled on 17 November 2026, lists 23 confirmed animal cases within 400 km of the county in the 30 days to 16 November 2026. In the summer, from 1 June to 31 August 2026, it lists 47 there, which is 15.3 per 30 days. The ratio is 1.5. Within 300 km the ratio is 1.2. Over every county in the record it is 5.6, and most of those cases are far to the west, in New Mexico, Arizona and far west Texas. The choice of 400 km is judgement. The data are thin, and the value is still a multiplier set by hand. The agreement check for this version was run before this change, with the default at 1 and with the input at 0 and at 5. See <a href="#p-nearby_pressure" data-open="p-nearby_pressure">detections in nearby counties, relative to summer 2026</a>, <a href="#scenario" data-open="scenario">the county scenario</a>.</td><td data-l='Issue'>none</td><td data-l='Public data used'>Official record of confirmed detections, pulled on 17 November 2026. County positions from the 2024 county gazetteer.</td></tr>
@@ -3916,18 +3922,18 @@ counts as primary for what the rule says)</li>
 <header class="bar"><h2 id="p-release_coverage-h">Share of the sterile-fly release target being met</h2>
 <button class="x" type="button" data-close="p-release_coverage" aria-label="Close Share of the sterile-fly release target being met">&times;</button></header>
 <div class="body">
-<p class="opening"><strong>Value:</strong> 0.5, so half of the sterile-fly release target is met. <strong>Evidence:</strong> no data: assumed. <strong>Assumed:</strong> Release numbers are not public, and the same share held when the introduction rate was counted.</p>
-<p>There is no data for this value. The model assumes 0.5; the range explored is 0 to 1.5.</p>
+<p class="opening"><strong>Value:</strong> 0.3 of the sterile-fly release target is met. <strong>Evidence:</strong> little data. <strong>Assumed:</strong> Production against the planned level stands in for release over the county, and the same share held when the introduction rate was counted.</p>
+<p>There is little good data for this value. The model assumes 0.3; the range explored is 0 to 1.5.</p>
 <details class="more"><summary>Detail and sources</summary>
-<p><strong>What this is:</strong> How much of the sterile-fly release target is being met, as a share. The reference is one half, the share assumed for the period in which the introduction rate was counted. At one half the sterile-fly factor is 1. Above one half fewer flies arriving are fertile, and below it more are. In the pictures: the &quot;Sterile-fly coverage&quot; dial on &quot;Flies arriving&quot; on the introductions picture.</p>
-<p><strong>Where it enters the model:</strong> With x this share and &kappa; the strength of the sterile-fly effect, the fertile share of matings is 1 / (1 + &kappa; x), and the sterile-fly factor is S = (1 + &kappa; / 2) / (1 + &kappa; x). The formula is on <a href="#intro" data-open="intro">the introductions card</a> and in <a href="#equations" data-open="equations">the model's equations</a>.</p>
-<p><strong>Value:</strong> 0.5, range 0 to 1.5 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
-<p><strong>What the value rests on:</strong> <span class="chip basis b-gue">guessed</span> <span class="small">No release records are used. One half is assumed.</span></p>
+<p><strong>What this is:</strong> How much of the sterile-fly release target is being met, as a share, the same for every county. The reference is 0.3, the share assumed for the period in which the introduction rate was counted. At 0.3 the sterile-fly factor is 1. Above 0.3 fewer flies arriving are fertile, and below it more are. In the pictures: the &quot;Sterile-fly coverage&quot; dial on &quot;Flies arriving&quot; on the introductions picture.</p>
+<p><strong>Where it enters the model:</strong> With x this share and &kappa; the strength of the sterile-fly effect, the fertile share of matings is 1 / (1 + &kappa; x), and the sterile-fly factor is S = (1 + 0.3 &kappa;) / (1 + &kappa; x). The formula is on <a href="#intro" data-open="intro">the introductions card</a> and in <a href="#equations" data-open="equations">the model's equations</a>.</p>
+<p><strong>Value:</strong> 0.3, range 0 to 1.5 (range to explore); its effect on the county scenario is in the ranking for this version.</p>
+<p><strong>What the value rests on:</strong> <span class="chip basis b-judg">judgement within data</span> <span class="small">Public production figures against a planned level of about 500 million a week, used here as the target, give about 0.3. Release records are not public.</span></p>
 <p class="small"><a href="#intro" data-open="intro">See where it enters the model</a></p>
 <h3>How the value was reached</h3>
-<p>No release records are used, because actual release numbers are not public. One half is assumed, both for the scenario and as the reference. The response to coverage follows the ratio rule of Knipling, as reported by Krafsur (1994).</p>
+<p>The value rests on public production figures set against a planned production level, used here as the target. The plant in Panama produces about 100 million sterile flies a week (APHIS sterile-fly production and dispersal page, modified 21 October 2026). A news report of 10 November 2026, citing a television station, puts the plant in southern Mexico at about 40 million a week; this figure is weaker. The programme says production will approach about 500 million a week once its investments are complete (APHIS screwworm page, modified 10 November 2026). That gives 140 of 500, or 28 percent, rounded to 0.3. All three pages were read on 18 November 2026. Production is not release over a given county: actual release numbers by area are not public, so the range stays wide. The same value is used as the reference. This assumes the shortfall was the same while the 2026 cases were counted, which is not known. The response to coverage follows the ratio rule of Knipling, as reported by Krafsur (1994).</p>
 <h3>What the sources do not tell us</h3>
-<p>No public record gives the number of sterile flies released against the target, by area and month.</p>
+<p>No public record gives the number of sterile flies released against the target, by area and month. The figure for the plant in Mexico comes from a news report.</p>
 <h3>Sources (0)</h3>
 <p>No source card. The sources named above are listed in the literature notes kept with this version.</p>
 </details>

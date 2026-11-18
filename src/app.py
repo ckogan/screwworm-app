@@ -881,7 +881,7 @@ def _plain_sidebar():
                 "Introductions",
                 _sl("intro_rate", "Introductions into the zone in a warm month (per day)"),
                 ui.help_text("An introduction is a newly infected premises. This is the rate under the "
-                             "reference conditions: a warm month, half the sterile-fly target met, "
+                             "reference conditions: a warm month, 0.3 of the sterile-fly release target met, "
                              "nearby detections as in summer 2026."),
                 ui.output_ui("intro_caption"),
                 *_intro_ref_inputs(),
