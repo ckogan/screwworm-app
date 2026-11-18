@@ -115,7 +115,24 @@ OPTION_DEFAULTS = dict(
     south_weight=2.0,          # index dial: weight on counties to the south (thin data; 1 to 5)
     intro_ref="record",        # "record": intro_rate as entered; "adjacency": times INTRO_REF_FACTOR
     weather_source="normals",  # "normals": COUNTY temperatures; "observed": COUNTY_OBSERVED where held
+    renewed_chance=0.0,        # what-if: chance per 30 days of a renewed infestation (0 = off)
 )
+
+
+def renewed_rate(pack: dict) -> float:
+    """Added introduction rate per day for the what-if term on renewed infestations.
+
+    The check against 2026 found more renewed detections in counties with an earlier case than the
+    model gives, and the model has no term for it. The cause is not known. This what-if enters a
+    chance p per 30 days as a constant rate h = -ln(1 - p) / 30 per day. It is not scaled by the
+    season, sterile-fly coverage, nearby pressure or mitigations. A renewed infestation is entered
+    as a new infested premises, so the chance of a renewed detection that the model then gives is
+    lower than p in the first month or two (owners and inspection rounds must still find it), then about equal. The value cannot be tested until new months of data
+    arrive. 0 when the option is off."""
+    p = float(pack.get("renewed_chance", 0.0) or 0.0)
+    if p <= 0.0:
+        return 0.0
+    return -math.log(1.0 - min(p, 0.999999)) / 30.0
 
 
 def _read_intro_ref():
@@ -348,6 +365,20 @@ def preset_to_params(pack: dict, dt: float) -> dict:
         sc = module_schedule(pack, horizon)       # the normals, unless the weather option is on
         sched = dict(schedule_times=sc["schedule_times"], intro_multiplier=sc["intro_multiplier"],
                      spread_multiplier=sc["spread_multiplier"])
+    # What-if term for renewed infestations (renewed_rate above). Nothing runs at 0, so every
+    # parameter set is unchanged when the option is off. The schedule multiplies the reference rate,
+    # so the constant rate h goes in as h / reference rate on every segment. With a reference rate
+    # of zero the reference becomes h and the multipliers 1. With the module off, h is added to the
+    # rate itself.
+    h = renewed_rate(pack)
+    if h > 0.0:
+        if sched and rate > 0.0:
+            sched["intro_multiplier"] = [a + h / rate for a in sched["intro_multiplier"]]
+        elif sched:
+            sched["intro_multiplier"] = [1.0 for _ in sched["intro_multiplier"]]
+            intro_interval = 1.0 / h
+        else:
+            intro_interval = 1.0 / (rate + h)
     return dict(
         **sched,
         mean_latent_time=float(pack["mean_latent_time"]),

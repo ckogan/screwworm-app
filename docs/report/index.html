@@ -2269,9 +2269,11 @@ premises (23 of 114).</li>
 <li><strong>Reference rate:</strong> the reference introduction rate is kept, although
 <a href="#check2026" data-open="check2026">the check against 2026</a> suggests it is too high.</li>
 </ul>
-<p><strong>One build:</strong> every number on this card is from the analytic (closed-form) build.
-The simulator build was not run on the linked group, and the expected number of infested premises
-was not compared with a simulated count.</p>
+<p><strong>Two builds:</strong> every number on this card is from the analytic (closed-form) build.
+A follow-up ran the simulator build on the seven county runs, each with its final schedule. It
+agrees at every round within the agreement rule (84 comparisons, 1 beyond 3 standard errors, 1
+allowed), and the group figures move by less than 0.01. The link between counties itself was
+computed from the analytic build only, and no joint simulation of the seven counties was built.</p>
 <p class="small">Not modelled: premises locations (every distance is between county internal
 points), detections in Mexico, animal movement records, and any dependence between counties beyond
 the mean link. Sources and pull dates: <a href="#overnight" data-open="overnight">what changed overnight</a>.</p>
@@ -2508,7 +2510,12 @@ events came where the index was somewhat above average. In
 <a href="#p-nearby_pressure" data-open="p-nearby_pressure">detections in nearby counties</a> stays the value set by hand,
 1.5. This page does not change it.</p>
 <p class="small">Not in the index: detections in Mexico, so a county on the border misses its
-southern neighbour; premises locations; terrain, wind and animal movements. Checks made: a
+southern neighbour. A first look at public sources (18 November 2026) found the Mexican
+animal-health agency's cumulative counts by state at nine irregular dates, the last on 15 July
+2026, with none between 28 February and 15 July 2026. Over that gap the cumulative count for
+Tamaulipas, a Mexican state on the Texas border, went from 38 to 1,162. No public
+table by state and month was found, so Mexican cases are a known gap here, not an input. Also not
+in the index: premises locations; terrain, wind and animal movements. Checks made: a
 county's own cases do not enter its index, removing every case after a date leaves the index on
 that date unchanged, and the index averages 1 over the reference county-days. Sources and pull
 dates: <a href="#overnight" data-open="overnight">what changed overnight</a>.</p>

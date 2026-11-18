@@ -224,29 +224,101 @@ TABLES = _load_tables()
 _MISSING = "The data files for this view were not found in the app's data folder."
 
 
-def calibration_2026_results():
-    """Folder holding the held-out calibration against 2026, or None when there is none: a copy
-    under data/calibration_2026/ (the browser build ships data/ only), else the results folder of
-    changes/2026-11-19-calibration-2026."""
-    for d in (_DATA / "calibration_2026", _EXAMPLE / "changes" / "2026-11-19-calibration-2026" / "results"):
-        try:
-            if d.is_dir() and any(d.iterdir()):
-                return d
-        except OSError:
-            pass
-    return None
+def _load_calibration() -> dict | None:
+    """The summary of the held-out calibration against 2026 (data/calibration_2026_summary.json, a
+    few values copied from the results of changes/2026-11-19-calibration-2026), or None if the file
+    is missing or incomplete."""
+    try:
+        with open(_DATA / "calibration_2026_summary.json") as f:
+            cal = json.load(f)
+        for key in ("test_rows", "differences", "fitted_interval_days", "fitted_interval_profile_95",
+                    "timing", "earlier_case", "no_earlier_case"):
+            cal[key]
+        return cal
+    except (OSError, KeyError, ValueError):
+        return None
+
+
+CALIBRATION = _load_calibration()
+RENEWED_RANGE = (0.0, 0.30, 0.01)       # the what-if input: chance per 30 days, off at 0
+_CAL_LABELS = {
+    "unfitted": "Model as built, nothing fitted",
+    "fitted_A_off": "Model fitted on June to August",
+    "base_rate_A": "One base rate for every county",
+    "adjacency_rate_A": "Base rate by whether the county adjoins a county with cases",
+}
+
+
+def _renewed_help() -> str:
+    """Help text of the what-if input. The two counts are read from the calibration summary."""
+    seen = ""
+    if CALIBRATION is not None:
+        ec = CALIBRATION["earlier_case"]
+        seen = (f"In 2026, Texas counties with an earlier case had a renewed detection in "
+                f"{int(ec['observed'])} of {int(ec['county_periods'])} county-periods of 30 days. "
+                f"The model expected about {float(ec['expected']):.0f} of those, even after its "
+                f"introduction rate was fitted to the summer data. ")
+    return ("Off at 0. " + seen +
+            "The cause is not known: persistence the model does not capture, undetected "
+            "infestations, wildlife, or re-introduction. The value is added as a constant rate of new "
+            "infested premises. Season, sterile flies, nearby detections and mitigations do not change "
+            "it. Owners and rounds must still find a renewed infestation, so the chance of a renewed "
+            "detection the model gives is lower than the value set here in the first month or two, then about equal. The value cannot "
+            "be tested until new months of data arrive.")
 
 
 def calibration_2026_block():
-    """PLACEHOLDER for the held-out calibration on the "Check against 2026" tab.
-
-    Returns None, so the tab shows nothing more. With no results on file that is the final answer.
-    With results on file the display is still to be built: a later step reads them from `folder`
-    and returns a table or figure here."""
-    folder = calibration_2026_results()
-    if folder is None:
+    """The held-out calibration on the "Check against 2026" tab: verdict first, then the scores, the
+    fitted introduction interval and the two findings. Every number is read from the summary file.
+    Returns None, so the tab shows nothing more, when the file is missing."""
+    cal = CALIBRATION
+    if cal is None:
         return None
-    return None        # TO BUILD: the calibration's own summary, read from `folder`
+    lo_b, hi_b = cal["differences"]["base_rate_A"]["boot_95"]          # fitted minus base rate, Brier
+    lo_a, hi_a = cal["differences"]["adjacency_rate_A"]["boot_95"]
+    if lo_b <= 0.0 <= hi_b and lo_a > 0.0:
+        verdict = ("**A calibration fitted on June to August and tested on September to mid November "
+                   "does not beat the base rates.** It ties one base rate for every county and is "
+                   "worse than a base rate that knows only whether the county adjoins a county with "
+                   "cases.")
+    else:
+        verdict = ("**A calibration was fitted on June to August and tested on September to mid "
+                   "November.** The scores are in the table below.")
+    rows = [[_CAL_LABELS.get(r["key"], r["key"]), f"{float(r['expected']):.1f}", f"{int(r['observed'])}",
+             f"{float(r['brier']):.5f}"] for r in cal["test_rows"]]
+    n = int(cal["test_rows"][0]["county_periods"])
+    tw = cal.get("test_window")
+    window = (f" from {_day(date.fromisoformat(tw['start']))} to {_day(date.fromisoformat(tw['end']))}"
+              if tw else "")
+    lo, hi = cal["fitted_interval_profile_95"]
+    interval = (f"**Fitted introduction interval:** about {float(cal['fitted_interval_days']):.0f} days "
+                f"between introductions ({float(lo):.0f} to {float(hi):.0f}). This value and its range "
+                f"were fitted after seeing the 2026 data. The app does not use them.")
+    t = cal["timing"]
+    timing = ("**Timing runs the wrong way.** Over the test periods the fitted model expected "
+              + ", then ".join(f"{float(r['expected']):.1f}" for r in t)
+              + " county-periods with a detection. The counts seen were "
+              + ", then ".join(f"{int(r['observed'])}" for r in t) + ".")
+    ec, nc = cal["earlier_case"], cal["no_earlier_case"]
+    earlier = (f"**Counties with an earlier case are under-predicted.** {int(ec['observed'])} of "
+               f"{int(ec['county_periods'])} such county-periods had a renewed detection "
+               f"({_pct(ec['observed'] / ec['county_periods'])}). The fitted model expected "
+               f"{float(ec['expected']):.1f}. Where there had been no case the share was "
+               f"{100.0 * nc['observed'] / nc['county_periods']:.1f}%. The model has no term for this. "
+               f"The what-if input under Introductions adds one.")
+    return ui.TagList(
+        ui.tags.h5("Calibration, tested on later months", style="margin:18px 0 4px;"),
+        ui.div(ui.markdown(verdict), style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
+                                            "border-left:4px solid #b45f06; background:#fdf3e7; "
+                                            "border-radius:4px;")),
+        ui.p(f"Test window{window}: {n} county-periods of up to 30 days in Texas. Expected and seen "
+             f"count county-periods with a new confirmed detection. A lower Brier score is better.",
+             style="margin:8px 0 2px;"),
+        _table(["Predictor", "Expected", "Seen", "Brier score"], rows),
+        ui.markdown(interval),
+        ui.markdown(timing),
+        ui.markdown(earlier),
+    )
 
 
 def _table(header: list, rows: list, bold_last: bool = False):
@@ -291,7 +363,8 @@ def _nearby_source_inputs(*hand):
         ui.output_ui("index_readout"),
         ui.accordion(
             ui.accordion_panel(
-                "Assumptions with little data (index only)",
+                "Assumptions with little data",
+                ui.tags.div("Nearby-pressure index", style="font-weight:600; margin:2px 0 4px;"),
                 ui.input_slider("kernel_km", "Distance scale (km)", lo_k, hi_k,
                                 OPTION_DEFAULTS["kernel_km"], step=10),
                 ui.input_slider("south_weight", "Weight on counties to the south (1 = none)", lo_s, hi_s,
@@ -299,6 +372,12 @@ def _nearby_source_inputs(*hand):
                 ui.help_text("Both rest on thin data. The distance scale follows the speed of the "
                              "historical seasonal front, which is not a measured dispersal distance. "
                              "The size of the southern weight is assumed."),
+                ui.tags.div("Renewed infestations (what-if)", style="font-weight:600; margin:14px 0 4px;"),
+                ui.input_slider("renewed_chance",
+                                "Chance per 30 days of a renewed infestation from causes the model "
+                                "does not represent (what-if)", RENEWED_RANGE[0], RENEWED_RANGE[1],
+                                OPTION_DEFAULTS["renewed_chance"], step=RENEWED_RANGE[2]),
+                ui.help_text(_renewed_help()),
                 value="index_dials_panel",
             ),
             id="index_dials", open=False,
@@ -933,6 +1012,7 @@ def server(input, output, session):
         return dict(
             # options added 2026-11-19 (presets.OPTION_DEFAULTS); the defaults change nothing
             intro_ref=input.intro_ref(), weather_source=input.weather_source(),
+            renewed_chance=input.renewed_chance(),      # what-if term, 0 = off (presets.renewed_rate)
             mean_latent_time=input.mean_latent_time(), doubling_time_within=input.doubling_time_within(),
             recovery_within_on=input.recovery_within_on(),
             mean_recovery_time_within=input.mean_recovery_time_within(),
@@ -996,7 +1076,9 @@ def server(input, output, session):
             round_cost=p["c_per_round"] * n_rounds,
             n_insp=n_insp, n_rounds=n_rounds,
         )
-        return dict(out=out, breakdown=breakdown, round_times=sorted(p["round_times"]))
+        with reactive.isolate():        # the what-if value these parameters were built with
+            renewed = float(pack().get("renewed_chance", 0.0) or 0.0)
+        return dict(out=out, breakdown=breakdown, round_times=sorted(p["round_times"]), renewed=renewed)
 
     # ---- dense P_free(t) trajectory: ONE evaluate() call per curve with eval_times (2026-09-15) ----
     # The lane reads the running P(K <= K* | no alarm so far) and P(no alarm so far) off its single
@@ -1173,12 +1255,17 @@ def server(input, output, session):
     def release_readout():
         r = zone_outputs()
         out = r["out"]
+        # one line under the headline whenever the what-if term is on, so that a screenshot
+        # cannot be mistaken for the default
+        whatif = ("" if r["renewed"] <= 0.0 else
+                  f"\n\n**What-if:** this result includes a what-if term for renewed infestations, "
+                  f"set at a chance of {r['renewed']:.2f} per 30 days. It is not part of the default and cannot be tested until new data arrive.")
         if PLAIN:
             rows = module_rows()
             text = (_season_headline(out, r["round_times"], rows)
                     if rows is not None and input.season_on() and r["round_times"]
                     else _plain_headline(out, r["round_times"]))
-            return ui.div(ui.markdown(text),
+            return ui.div(ui.markdown(text + whatif),
                           style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
                                  "border-left:4px solid #2ca02c; background:#f0f8f0; border-radius:4px;"))
         # v0.6: the floor and the crossing are the LANE's own (release_threshold now reaches it
@@ -1218,7 +1305,7 @@ def server(input, output, session):
         text = (f"**Release question.** The curve starts at `P_free(0) = {p_free_0:.4f}` "
                 f"(the leftovers at the last detection). Floor `P_free >= {thr:.3f}`: {first_txt}. "
                 f"{aphis}.")
-        return ui.div(ui.markdown(text),
+        return ui.div(ui.markdown(text + whatif),
                       style=("font-size:1.0rem; padding:6px 10px; margin:4px 0 8px; "
                              "border-left:4px solid #2ca02c; background:#f0f8f0; border-radius:4px;"))
 
@@ -1527,8 +1614,10 @@ between them.
             return ui.div(_MISSING, style=_CAPTION_STYLE)
         sm = TABLES["summary"]
         start = date.fromisoformat(sm["start"])
-        text = (f"**Precomputed on {_day(PRECOMPUTED_ON)}** for the default settings, with one build of "
-                f"the model (the closed form). It does not change with the settings on the left. "
+        text = (f"**Precomputed on {_day(PRECOMPUTED_ON)}** for the default settings, with the analytic build "
+                f"of the model. The simulator build agrees on the seven county runs, given their "
+                f"schedules. The link between counties was computed from the analytic build only. "
+                f"Nothing here changes with the settings on the left. "
                 f"{sm['group'][0]} County and the {len(sm['group']) - 1} counties that adjoin it, each run "
                 f"for {int(sm['horizon_days'])} days from {_day(start)} with monthly rounds. A county's "
                 f"nearby pressure is the index from detections outside the group plus a link to the "
@@ -1652,15 +1741,15 @@ between them.
             ui.markdown(f"The model's chances for these {len(rows)} counties add up to {expected:.1f} "
                         f"expected. {seen if seen else 'None'} of them had a new detection."),
             ui.markdown(causes),
-            ui.markdown(f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with one build "
-                        f"of the model. One season and {int(allc['observed'])} events in counties that are "
+            ui.markdown(f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with the "
+                        f"analytic build of the model. One season and {int(allc['observed'])} events in counties that are "
                         f"not independent: a check, not a calibration. The introduction-rate option on "
                         f"the left applies the lower rate."),
         )
 
     @render.ui
     def calibration_2026():
-        return calibration_2026_block()       # None until the calibration change has results
+        return calibration_2026_block()       # None when the summary file is missing
 
     # ---- scenario loader: writes EVERY input ----
     # It iterates the preset's own keys, so the v0.6 ids `k0_mean` and `age0_scale` are written
@@ -1683,7 +1772,7 @@ between them.
         # the options added 2026-11-19 are not pack keys: a scenario always loads with them off
         for k in ("nearby_source", "intro_ref", "weather_source"):
             ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
-        for k in ("kernel_km", "south_weight"):
+        for k in ("kernel_km", "south_weight", "renewed_chance"):
             ui.update_slider(k, value=OPTION_DEFAULTS[k])
 
 

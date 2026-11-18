@@ -1,0 +1,103 @@
+{
+ "source": "changes/2026-11-19-calibration-2026/results/fit.json and outcomes_summary.json",
+ "fit_window": {
+  "start": "2026-06-01",
+  "end": "2026-08-29"
+ },
+ "test_window": {
+  "start": "2026-08-30",
+  "end": "2026-11-16"
+ },
+ "test_rows": [
+  {
+   "key": "unfitted",
+   "county_periods": 750,
+   "observed": 17,
+   "expected": 33.685332272122736,
+   "brier": 0.023600360852383404
+  },
+  {
+   "key": "fitted_A_off",
+   "county_periods": 750,
+   "observed": 17,
+   "expected": 8.259206469810707,
+   "brier": 0.022122565643568876
+  },
+  {
+   "key": "base_rate_A",
+   "county_periods": 750,
+   "observed": 17,
+   "expected": 15.506041129573084,
+   "brier": 0.022250530533662157
+  },
+  {
+   "key": "adjacency_rate_A",
+   "county_periods": 750,
+   "observed": 17,
+   "expected": 13.971749384023463,
+   "brier": 0.021249228050330134
+  }
+ ],
+ "differences": {
+  "base_rate_A": {
+   "difference": -0.0001279648900932748,
+   "boot_95": [
+    -0.00044178183451608674,
+    0.00014655304219527695
+   ],
+   "share_of_draws_fitted_better": 0.8125
+  },
+  "adjacency_rate_A": {
+   "difference": 0.0008733375932387489,
+   "boot_95": [
+    0.0001608071456630838,
+    0.001732430286030917
+   ],
+   "share_of_draws_fitted_better": 0.0045
+  }
+ },
+ "fitted_interval_days": 437.1170086613543,
+ "fitted_interval_profile_95": [
+  282.77743604457345,
+  731.7334379389454
+ ],
+ "fitted_interval_bootstrap_95": [
+  297.28757622776465,
+  789.2705585730176
+ ],
+ "timing": [
+  {
+   "period": 4,
+   "start": "2026-08-30",
+   "end": "2026-09-28",
+   "expected": 4.666649626231377,
+   "observed": 2
+  },
+  {
+   "period": 5,
+   "start": "2026-09-29",
+   "end": "2026-10-28",
+   "expected": 2.4916383409852827,
+   "observed": 6
+  },
+  {
+   "period": 6,
+   "start": "2026-10-29",
+   "end": "2026-11-16",
+   "expected": 1.1009185025940469,
+   "observed": 9
+  }
+ ],
+ "earlier_case": {
+  "county_periods": 41,
+  "observed": 8,
+  "expected": 1.062603936517228,
+  "brier": 0.18700725431955034
+ },
+ "no_earlier_case": {
+  "county_periods": 709,
+  "observed": 9,
+  "expected": 7.196602533293479,
+  "brier": 0.012587625959908458
+ }
+}
