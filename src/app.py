@@ -906,8 +906,9 @@ def _season_headline(out: dict, rounds: list, rows: list) -> str:
         second = "It is steady over the run."
     else:
         second = (f"Over the run it moves between **{_pct(pf[lo], thr)}** ({month(lo)}) and "
-                  f"**{_pct(pf[hi], thr)}** ({month(hi)}). The rise in the cold months comes from fewer "
-                  f"flies arriving, not from stronger evidence, and it falls back when the weather warms. "
+                  f"**{_pct(pf[hi], thr)}** ({month(hi)}). The rise in the cold months comes from the "
+                  f"assumption that fewer flies arrive then, not from stronger evidence, and it falls "
+                  f"back when the weather warms. "
                   f"Read the warm-season value.")
     held = _held_from(out, rounds)
     line = f"the {_pct(thr)} reference line (for illustration)"
