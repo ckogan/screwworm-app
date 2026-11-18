@@ -90,13 +90,24 @@ from scipy.sparse.linalg import expm_multiply
 # finite cap), NEVER by zeroing the rate. mean=Inf -> rate 0 ("never"); mean=0 -> rate cap
 # ("instantaneous"). Continuity f(0) ~ f(eps) is guaranteed because both the exact-0 input
 # and the near-degenerate twin (e.g. 1e-6) floor to the same MIN_TIMESCALE.
+#
+# SHARED FLOORS (model_design.md "Degenerate limits", "Shared floors", accepted 2026-11-13):
+# the two values below are the spec's, the same in both lanes; this lane may not pick its own.
+#   - a mean duration at or below 1e-3 d is evaluated at 1e-3 d (every mean time-scale that
+#     goes through rate_from_mean);
+#   - a doubling time at or below 0.1 d is evaluated at 0.1 d (both doubling times the model
+#     has: doubling_time, between premises, and doubling_time_within).
+# Until 2026-11-17 this lane floored doubling times at 0.25 d. Inputs of 0.25 d or more are
+# untouched by the change (same arithmetic, bit-identical outputs); inputs between 0.1 and
+# 0.25 d are now evaluated as written; inputs at or below 0.1 d are evaluated at 0.1 d.
 # --------------------------------------------------------------------------------------
-MIN_TIMESCALE = 1e-3      # days; floor for mean durations -> rate cap 1e3 / day
-MIN_DOUBLING = 0.25       # days; floor for doubling times (keeps spread finite/instant-fast)
+MIN_TIMESCALE = 1e-3      # days; shared floor for mean durations -> rate cap 1e3 / day
+MIN_DOUBLING = 0.1        # days; shared floor for doubling times -> rate cap log(2)/0.1 / day
 
 
 def rate_from_mean(mean, min_ts: float = MIN_TIMESCALE) -> float:
-    """1/mean_time. Inf -> 0. 0 or tiny -> floor the *time-scale*, giving a large finite rate."""
+    """1/mean_time. Inf -> 0. At or below MIN_TIMESCALE (1e-3 d) -> evaluated at MIN_TIMESCALE:
+    the *time-scale* is floored, giving a large finite rate, never a zero rate."""
     if mean is None:
         return 0.0
     m = float(mean)
@@ -108,7 +119,7 @@ def rate_from_mean(mean, min_ts: float = MIN_TIMESCALE) -> float:
 
 
 def rate_from_doubling(dt, min_dt: float = MIN_DOUBLING) -> float:
-    """log(2)/doubling_time. Inf -> 0. 0 or tiny -> floor the doubling time."""
+    """log(2)/doubling_time. Inf -> 0. At or below MIN_DOUBLING (0.1 d) -> evaluated at MIN_DOUBLING."""
     if dt is None:
         return 0.0
     d = float(dt)
@@ -827,6 +838,11 @@ ANCHOR_CSV_DEFAULT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "..",
     "changes", "2026-09-07-preseeded-start", "reduction_anchor_cells.csv")
 ANCHOR_TOL = 1e-12                      # closed form at k0_mean = 0: machine precision
+# The anchor file's expected values were recorded on 2026-09-08, when this lane floored doubling
+# times at 0.25 d. Two of the 19 cells have a doubling time below 0.25 d (doubling_time_within = 0.1
+# and doubling_time = 0.2); their expected values were regenerated on 2026-11-19 with this lane at
+# the shared 0.1 d floor (see reduction_anchor_cells.README.md beside the file). The other 17 are
+# the 2026-09-08 values, unchanged.
 ORACLE_TOL = 1e-9                       # closed form vs exp(-k0_mean e^{-g t})
 
 
@@ -1326,7 +1342,9 @@ if __name__ == "__main__":
     # ---- v0.6-nws pre-seeded start ---------------------------------------------------
     # (6) REDUCTION ANCHOR (normative, model_design.md "Degenerate limits"): at k0_mean = 0
     #     the lane must reproduce the 2026-09-08 closed-form smoke run to machine precision.
-    #     19 named cells, each row carrying every parameter and its own 180-d schedule.
+    #     19 named cells, each row carrying every parameter and its own 180-d schedule. The
+    #     two cells with a doubling time under 0.25 d carry expected values regenerated on
+    #     2026-11-19 at the shared 0.1 d floor (the other 17 are the 2026-09-08 values).
     print(f"\n[reduction anchor] k0_mean = 0 vs the 2026-09-08 lane, tol {ANCHOR_TOL:.0e}:")
     worst_anchor = check_reduction_anchors()
     print(f"   max |P_free - expected| over the anchor cells = {worst_anchor:.2e}  (asserted < {ANCHOR_TOL:.0e})")
@@ -1352,6 +1370,22 @@ if __name__ == "__main__":
           f"age0_scale 0 vs 1e-6 at k0_mean=2: max|dP_free|={d_a0:.2e} (expect 0)")
     assert d_k0 < 1e-6, f"k0_mean boundary is not continuous: {d_k0}"
     assert d_a0 < 1e-9, f"age0_scale boundary is not continuous: {d_a0}"
+
+    # (8b) SHARED DOUBLING FLOOR (model_design.md "Shared floors"): a doubling time at or below
+    #      0.1 d is evaluated at 0.1 d, so 0.1, 0.0999, 0.05 and 0 give the same outputs exactly,
+    #      for both doubling times; and 0.2 d is above the floor, so it is evaluated as written
+    #      and differs from 0.1 d.
+    assert MIN_TIMESCALE == 1e-3 and MIN_DOUBLING == 0.1, "the shared floors are 1e-3 d and 0.1 d"
+    for key in ("doubling_time_within", "doubling_time"):
+        at = evaluate({key: MIN_DOUBLING})
+        for below in (0.0999, 0.05, 0.0):
+            lo = evaluate({key: below})
+            assert _identical(at, lo), f"{key} = {below} differs from {key} = {MIN_DOUBLING} (the floor)"
+        above = evaluate({key: 0.2})
+        d_fl = max(abs(at["p_free_by_time"][t] - above["p_free_by_time"][t]) for t in at["p_free_by_time"])
+        assert d_fl > 1e-9, f"{key} = 0.2 d is above the floor but equals the floored run"
+        print(f"[floor] {key}: 0.1, 0.0999, 0.05 and 0 d identical (asserted); "
+              f"0.2 d evaluated as written, max|dP_free| vs 0.1 d = {d_fl:.2e}")
 
     # (9) EVIDENCE-STRENGTH MONOTONICITY with initial premises present (k0_mean = 2,
     #     age0_scale = 14): the same three sweeps as (5) on the pre-seeded start.

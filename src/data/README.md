@@ -10,7 +10,8 @@ Do not edit them here. Rebuild them at the source and copy again.
 | `county_adjacency.csv` | `changes/2026-11-19-linked-counties/data/` | reference level of the index |
 | `index_reference.json` | `changes/2026-11-19-linked-counties/results/` | factor for the introduction-rate option; counts on the 2026 tab |
 | `linked_counties.csv`, `linked_group.csv`, `linked_summary.json` | `changes/2026-11-19-linked-counties/results/` | "Neighbouring counties" tab |
-| `backcheck_group.csv`, `backcheck_texas.json` | `changes/2026-11-19-linked-counties/results/` | "Check against 2026" tab |
+| `backcheck_fair.json`, `backcheck_fair_seven.csv` | `changes/2026-11-19-linked-counties/results/` (`backcheck_fair.json`; the seven in-group rows of `backcheck_fair.csv`) | "Check against 2026" tab and the caution under the county headline: the check on equal windows |
+| `backcheck_group.csv`, `backcheck_texas.json` | `changes/2026-11-19-linked-counties/results/` | not read by the app since 18 November 2026; first version of the check, superseded |
 | `calibration_2026_summary.json` | a few values taken from `fit.json` and `outcomes_summary.json` in `changes/2026-11-19-calibration-2026/results/` | "Check against 2026" tab; help text of the what-if input |
 | `county_temperature_this_year.csv` | `changes/2026-11-19-observed-weather/data/` | "2026 observed" weather option |
 

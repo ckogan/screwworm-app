@@ -45,6 +45,7 @@ from __future__ import annotations
 # Cap BLAS threads BEFORE numpy import: the lane runs many small matrix exponentials, which
 # thrash multi-core BLAS. Single-thread is ~40x faster in wall time here.
 import os
+import re
 
 for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
     os.environ.setdefault(_v, "1")
@@ -70,6 +71,7 @@ sys.path.insert(0, str(_HERE))
 from intro_module import MONTH_NAMES, schedule as intro_schedule  # noqa: E402
 from presets import (COUNTY, CHECKBOXES, NUMERICS, SCENARIO_LABELS, SCENARIOS,  # noqa: E402
                      preset_to_params, rounds_in)
+import streams_illustration as streams  # noqa: E402  (illustration tab only; not the model)
 
 # --------------------------------------------------------------------------------------
 # Load this example's own closed-form lane (forked from regional-freedom 2026-09-09, v0.6).
@@ -202,19 +204,16 @@ def county_index(kernel_km: float, south_weight: float) -> dict:
 
 
 def _load_tables() -> dict | None:
-    """The precomputed linked-counties run and the check against 2026, or None if a file is missing."""
+    """The precomputed linked-counties run and the reference counts, or None if a file is missing."""
     try:
         with open(_DATA / "linked_summary.json") as f:
             summary = json.load(f)
-        with open(_DATA / "backcheck_texas.json") as f:
-            texas = json.load(f)
         with open(_DATA / "index_reference.json") as f:
             reference = json.load(f)
         return dict(
-            summary=summary, texas=texas, reference=reference,
+            summary=summary, reference=reference,
             counties=[r for r in _read_csv("linked_counties.csv") if r["run"] == "main"],
             group=[r for r in _read_csv("linked_group.csv") if r["run"] == "main"],
-            backcheck=_read_csv("backcheck_group.csv"),
         )
     except (OSError, KeyError, ValueError):
         return None
@@ -240,6 +239,42 @@ def _load_calibration() -> dict | None:
 
 
 CALIBRATION = _load_calibration()
+
+
+def _load_fair() -> dict | None:
+    """The check against 2026 on equal windows (data/backcheck_fair.json, a short copy of the
+    corrected numbers of changes/2026-11-19-linked-counties), or None if the file is missing or
+    incomplete. The first version of the check (backcheck_texas.json) is superseded and not read."""
+    try:
+        with open(_DATA / "backcheck_fair.json") as f:
+            fair = json.load(f)
+        for window, groups in (("whole_period", ("june_to_august", "september_to_mid_november")),
+                               ("autumn_window", ("no_case_to_31_aug", "first_wave_case"))):
+            w = fair[window]
+            for key in ("label", "ratio_expected_to_seen", "brier_model", "brier_base_rate",
+                        "base_rate_scores_better", "rank_score"):
+                w[key]
+            for g in (w["total"],) + tuple(w["by_group"][k] for k in groups):
+                float(g["expected"]), int(g["seen"]), int(g["counties"])
+        return fair
+    except (OSError, KeyError, TypeError, ValueError):
+        return None
+
+
+def _load_fair_seven() -> list | None:
+    """The autumn-window rows of the county and its neighbours (data/backcheck_fair_seven.csv, seven
+    rows copied from results/backcheck_fair.csv of the same change), or None if the file is missing."""
+    try:
+        rows = _read_csv("backcheck_fair_seven.csv")
+        for r in rows:
+            float(r["a_p_new_detection_autumn"]), int(r["a_seen"]), r["county"], r["group"]
+        return rows or None
+    except (OSError, KeyError, TypeError, ValueError):
+        return None
+
+
+FAIR = _load_fair()
+FAIR_SEVEN = _load_fair_seven()
 RENEWED_RANGE = (0.0, 0.30, 0.01)       # the what-if input: chance per 30 days, off at 0
 _CAL_LABELS = {
     "unfitted": "Model as built, nothing fitted",
@@ -269,27 +304,127 @@ def _renewed_help() -> str:
 
 def _intro_caution() -> str:
     """Standing caution under the headline of a scenario that uses the introduction module. The
-    counts are read from the two check files and are given only when the files are present and
-    show the stated direction."""
-    new = renewed = ""
-    if TABLES is not None:
-        try:
-            allc = TABLES["texas"]["variants"]["main"]["all"]
-            exp, obs = float(allc["expected"]), int(allc["observed"])
-            if exp > obs:
-                new = f" (about {exp:.0f} Texas counties expected, {obs} seen)"
-        except (KeyError, TypeError, ValueError):
-            pass
-    if CALIBRATION is not None:
-        ec = CALIBRATION["earlier_case"]
-        if float(ec["expected"]) < float(ec["observed"]):
-            renewed = (f" (about {float(ec['expected']):.0f} of {int(ec['county_periods'])} "
-                       f"county-periods of 30 days expected, {int(ec['observed'])} seen)")
+    numbers are read from the check on equal windows and are given only when that file is present
+    and shows the stated direction. Without it the sentence stands without numbers."""
+    times, season, earlier = "more", "", ""
+    if FAIR is not None:
+        tot = FAIR["whole_period"]["total"]
+        if float(tot["expected"]) > int(tot["seen"]):
+            times = f"about {float(FAIR['whole_period']['ratio_expected_to_seen']):.1f} times as many"
+            season = (f" ({float(tot['expected']):.0f} Texas counties expected with a first "
+                      f"detection, {int(tot['seen'])} seen)")
+        fw = FAIR["autumn_window"]["by_group"]["first_wave_case"]
+        if float(fw["expected"]) < int(fw["seen"]):
+            earlier = f" (about {float(fw['expected']):.0f} expected in autumn, {int(fw['seen'])} seen)"
     return ("**Caution:** the introduction side of this model has not been validated against "
-            "outcomes. In a first check against 2026 it expected more new "
-            f"detections than occurred{new}. After its introduction rate was lowered to fit the summer "
-            f"data, it expected far fewer renewed detections than occurred in counties with an "
-            f"earlier case{renewed}. See the \"Check against 2026\" tab.")
+            f"outcomes. In a first check against 2026 it expected {times} new detections "
+            f"{'as' if FAIR is not None and season else 'than'} occurred over the season{season}, "
+            f"and too few in counties that already had a case{earlier}. "
+            "See the \"Check against 2026\" tab.")
+
+
+def _scores_line(w: dict) -> str:
+    """One sentence on the model against one base rate for a window of the check on equal windows.
+    The direction comes from the flag in the file."""
+    m, b = float(w["brier_model"]), float(w["brier_base_rate"])
+    if w["base_rate_scores_better"]:
+        return (f"One base rate for every county scores better than the model here "
+                f"(Brier score {b:.3f} against {m:.3f} for the model; lower is better).")
+    how = "slightly better" if (b - m) < 0.2 * b else "better"
+    return (f"On this window the model scores {how} than one base rate for every county "
+            f"(Brier score {m:.3f} against {b:.3f}; lower is better).")
+
+
+def _too(g: dict) -> str:
+    e, o = float(g["expected"]), int(g["seen"])
+    return "too many" if e > o else "too few" if e < o else "the same"
+
+
+def check_2026_block():
+    """The check on equal windows on the "Check against 2026" tab: the whole period, the autumn
+    window, the county and its neighbours, the correction note. Every number is read from
+    data/backcheck_fair.json and data/backcheck_fair_seven.csv."""
+    if FAIR is None:
+        return ui.div(_MISSING, style=_CAPTION_STYLE)
+    wp, au = FAIR["whole_period"], FAIR["autumn_window"]
+    wt, at = wp["total"], au["total"]
+    ja, sn = wp["by_group"]["june_to_august"], wp["by_group"]["september_to_mid_november"]
+    nc, fw = au["by_group"]["no_case_to_31_aug"], au["by_group"]["first_wave_case"]
+    head = (f"**Over the season the model expected about {float(wp['ratio_expected_to_seen']):.1f} "
+            f"times as many new detections as occurred.** In autumn it expected "
+            f"{float(au['ratio_expected_to_seen']):.1f} times as many overall, and {_too(fw)} in "
+            f"counties that already had a case.")
+    whole = (f"**Whole period, on equal terms.** {wp['label']}. The first confirmed detection in "
+             f"the period is counted. Over {int(wt['counties'])} Texas counties the model expected "
+             f"**{float(wt['expected']):.1f}** counties with a detection. **{int(wt['seen'])}** had "
+             f"one. That is a factor of {float(wp['ratio_expected_to_seen']):.1f}. June to August: "
+             f"{float(ja['expected']):.1f} expected, {int(ja['seen'])} seen. September to mid "
+             f"November: {float(sn['expected']):.1f} expected, {int(sn['seen'])} seen. "
+             + _scores_line(wp))
+    rank = float(au["rank_score"])
+    autumn = (f"**Autumn window.** {au['label']}. The model expected **{float(at['expected']):.1f}** "
+              f"counties with a new confirmed detection. **{int(at['seen'])}** had one. That is a "
+              f"factor of {float(au['ratio_expected_to_seen']):.1f}. In the {int(nc['counties'])} "
+              f"counties with no case to 31 August it expected {float(nc['expected']):.1f} and "
+              f"{int(nc['seen'])} came: {_too(nc)}. In the {int(fw['counties'])} counties with a "
+              f"first-wave case it expected {float(fw['expected']):.1f} and {int(fw['seen'])} came: "
+              f"{_too(fw)}. " + _scores_line(au)
+              + (f" Its ordering of counties is {'fair' if rank >= 0.7 else 'weak'}: in about "
+                 f"{100.0 * rank:.0f} percent of pairs of one county with a detection and one "
+                 f"without, the county with the detection had the higher chance."))
+    adj = au.get("brier_adjacency_base_rate")
+    if adj is not None and float(adj) < float(au["brier_model"]):
+        autumn += (f" A base rate that knows only the county's state on 31 August scores "
+                   f"{float(adj):.3f}, which is better than the model; its rates are taken from "
+                   f"the same outcomes, which favours it.")
+    parts = [
+        ui.div(ui.markdown(head), style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
+                                         "border-left:4px solid #b45f06; background:#fdf3e7; "
+                                         "border-radius:4px;")),
+        ui.markdown(whole),
+        ui.markdown(autumn),
+    ]
+    if FAIR_SEVEN is not None:
+        ps = [float(r["a_p_new_detection_autumn"]) for r in FAIR_SEVEN]
+        seen = sum(int(r["a_seen"]) for r in FAIR_SEVEN)
+        rows = [[r["county"], r["group"], _pct(float(r["a_p_new_detection_autumn"])),
+                 (r.get("a_first_autumn_case") or "yes") if int(r["a_seen"]) else "none"]
+                for r in FAIR_SEVEN]
+        none_chance = math.prod(1.0 - p for p in ps)
+        tail = (f" By the model's own numbers that happens with chance {none_chance:.2f}, so these "
+                f"counties say nothing either way." if seen == 0 else "")
+        parts += [
+            ui.p(f"{INDEX_COUNTY[1]} County and its neighbours, on the autumn window.",
+                 style="margin:8px 0 2px;"),
+            _table(["County", "State on 31 August", "Model: chance of a new detection in autumn",
+                    "New detection in autumn"], rows),
+            ui.markdown(f"The model's chances for these {len(rows)} counties add up to {sum(ps):.2f} "
+                        f"expected. {seen if seen else 'None'} of them had a new detection.{tail}"),
+        ]
+    sup = FAIR.get("superseded") or {}
+    if "expected" in sup and "seen" in sup:
+        when = re.search(r"Corrected on (\d{1,2} [A-Z][a-z]+ \d{4})", str(FAIR.get("correction_note", "")))
+        parts.append(ui.markdown(
+            f"**Correction{', ' + when.group(1) if when else ''}:** the first version of this check "
+            f"compared unequal windows (its expected count included June to August risk for counties "
+            f"selected for having no case in those months) and overstated the over-prediction; it gave "
+            f"{float(sup['expected']):.1f} expected against {int(sup['seen'])} seen. It was corrected "
+            f"after an independent re-run."))
+    if TABLES is not None:
+        ref = TABLES["reference"]
+        parts.append(ui.markdown(
+            f"**What the check points to.** The reference introduction rate looks about three times "
+            f"too high: the adjacency file gives {int(ref['at_risk_counties_min'])} to "
+            f"{int(ref['at_risk_counties_max'])} counties at risk in summer 2026, not the 12 to 20 "
+            f"assumed when the rate was set. The model also has no term for a county's own history, "
+            f"so it expects too few new detections where there was an earlier case. The check does "
+            f"not show the leftovers assumed at the last detection to be too high."))
+    parts.append(ui.markdown(
+        f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with the analytic build of "
+        f"the model. One season, {int(at['seen'])} events in autumn and {int(wt['seen'])} in all, in "
+        f"counties that are not independent: a check, not a calibration. The introduction-rate "
+        f"option on the left applies the lower rate."))
+    return ui.TagList(*parts)
 
 
 def calibration_2026_block():
@@ -439,6 +574,90 @@ def _check_panel():
         ui.output_ui("calibration_2026"),
     )
 
+# --------------------------------------------------------------------------------------
+# "Traps and wildlife (illustration)" tab (2026-11-19). A PROPOSED design, not built: see
+# model_design.md, "Additional evidence streams". The tab has its own inputs (ids start with
+# "st_"), reads no model output and feeds nothing to the model. streams_illustration.py holds the
+# arithmetic and the proposed values and ranges.
+# --------------------------------------------------------------------------------------
+STREAMS_TAB = "Traps and wildlife (illustration)"
+STREAMS_BANNER = ("Illustration of a proposed design. Not part of the model. Nothing on this tab "
+                  "changes the result on the other tabs.")
+_STREAM_COLOURS = {"trap": "#1f77b4", "wild": "#2ca02c", "both": "#222222"}
+
+
+def _stream_inputs(key: str, switch_label: str, coverage_label: str, rate_label: str, delay_label: str):
+    s = streams.STREAMS[key]
+    c, q, d = s["coverage"], s["rate"], s["delay"]
+    return ui.div(
+        ui.input_checkbox(f"st_{key}_on", switch_label, value=False),
+        ui.panel_conditional(
+            f"input.st_{key}_on",
+            ui.input_slider(f"st_{key}_coverage", coverage_label, min=c["low"], max=c["high"],
+                            value=c["value"], step=c["step"]),
+            ui.input_slider(f"st_{key}_rate", rate_label, min=q["low"], max=q["high"],
+                            value=q["value"], step=q["step"]),
+            ui.output_ui(f"st_{key}_week"),
+            ui.input_slider(f"st_{key}_delay", delay_label, min=d["low"], max=d["high"],
+                            value=d["value"], step=d["step"]),
+        ),
+        style="flex:1 1 300px; min-width:260px; padding:8px 12px; border:1px solid #ddd; border-radius:6px;")
+
+
+def _streams_panel():
+    return ui.nav_panel(
+        STREAMS_TAB,
+        ui.div(ui.tags.strong(STREAMS_BANNER),
+               style=("font-size:1rem; color:#7a1f1f; background:#fdecea; border-left:4px solid #c0392b; "
+                      "padding:8px 12px; margin:0 0 10px; border-radius:4px;")),
+        ui.p("The model does not yet use fly traps or wildlife findings as evidence. A positive trap "
+             "means a problem. This tab shows how much empty traps and clean wildlife checks could "
+             "count under a proposed design that is not built. Both are switched off to start with, "
+             "so empty traps and clean wildlife checks earn nothing until you switch them on.",
+             style="margin:4px 0 8px;"),
+        ui.div(
+            _stream_inputs("trap", "Use fly traps",
+                           "Coverage: share of infested premises the traps could ever find",
+                           "Rate per day of a confirmed catch, for a premises within reach",
+                           "Delay in days before an infested premises sends out adult flies"),
+            _stream_inputs("wild", "Use wildlife and companion-animal findings",
+                           "Coverage: share of infested premises with a wildlife or dog case someone could find",
+                           "Rate per day that such a case is found and confirmed",
+                           "Delay in days before such a case can exist and be seen"),
+            ui.div(
+                ui.input_slider("st_hidden", "Expected hidden infested premises at day 0",
+                                min=streams.HIDDEN["low"], max=streams.HIDDEN["high"],
+                                value=streams.HIDDEN["value"], step=streams.HIDDEN["step"]),
+                ui.help_text("Used by the second plot and by the credit rows of the table only. "
+                             "The sliders start at the proposed values and span the proposed ranges."),
+                style="flex:1 1 300px; min-width:260px; padding:8px 12px; border:1px solid #ddd; border-radius:6px;"),
+            style="display:flex; flex-wrap:wrap; gap:10px; margin:0 0 10px;"),
+        ui.tags.h5("Chance that one infested premises would have been found"),
+        ui.output_plot("st_found_plot", height="380px"),
+        ui.div("Empty results earn nothing before the delay, a little after it, and never more than "
+               "the coverage. The dashed lines are the coverage ceilings.", style=_ST_CAPTION),
+        ui.tags.h5("Simplest case: chance the zone is free, given every check so far was negative"),
+        ui.output_plot("st_free_plot", height="380px"),
+        ui.div("The simplest case only: the hidden premises are present from day 0, with no owner "
+               "reporting, no inspection rounds, no new introductions and no premises recovering. "
+               "This is how much empty traps and clean wildlife checks alone could move the answer "
+               "under the proposed design. In the full model owners and inspection rounds already "
+               "find most infestations, so the added credit would be smaller. That combination is "
+               "not built.", style=_ST_CAPTION),
+        ui.tags.h5("The numbers, and the spread across the proposed ranges"),
+        ui.output_ui("st_table"),
+        ui.tags.h5("Thin data, and what the proposed design leaves out"),
+        ui.p("No measured trap sensitivity for this species against a wild population at low density "
+             "is on file, and no rate at which wildlife or dog cases reveal an infested premises. "
+             "Five of the six starting values are guesses."),
+        ui.p("The proposed design leaves out a trap catching a fly that flew in when no premises is "
+             "infested, and wildlife as hosts with their own spread."),
+    )
+
+
+_ST_CAPTION = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 12px; "
+               "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
+
 # Slider ranges, shared by both layouts so the two modes cannot drift: id -> (min, max, step).
 # Defaults always come from presets._BASE.
 RANGES = dict(
@@ -531,7 +750,7 @@ def _review_sidebar():
                 _cb("spread_on", "Between-premises spread (else none)"),
                 _sl("doubling_time", "Between-premises doubling time (d)"),
                 ui.output_ui("doubling_caption"),
-                ui.help_text("Unchecked = spread OFF exactly. The slider stops at 0.25 d, where the lane floors the doubling time."),
+                ui.help_text("Unchecked = spread OFF exactly. The slider stops at 0.25 d; both builds would evaluate a shorter doubling time as written down to their shared floor of 0.1 d."),
                 _cb("clearance_on", "Zone clearance: a treated premises leaves the count (else never)"),
                 _sl("clearance_mean", "Mean time to clear a premises (d)"),
                 ui.help_text("OFF by default since 2026-10-23: before a detection every counted premises is "
@@ -806,6 +1025,7 @@ if PLAIN:
                      "infestation ages.", style="margin:4px 0 6px;"),
                 ui.output_plot("premises_plot", height="640px"),
             ),
+            _streams_panel(),
         ),
         title=f"Zone freedom from New World screwworm: {COUNTY['name']} (worked example)",
         fillable=False,
@@ -850,6 +1070,7 @@ else:
             ),
             _neighbours_panel(),
             _check_panel(),
+            _streams_panel(),
         ),
         title="Zone freedom from New World screwworm: review app (what-if, placeholder priors)",
         fillable=False,
@@ -1763,51 +1984,123 @@ between them.
 
     @render.ui
     def check_2026():
-        if TABLES is None:
-            return ui.div(_MISSING, style=_CAPTION_STYLE)
-        tx = TABLES["texas"]
-        allc = tx["variants"]["main"]["all"]
-        ref = TABLES["reference"]
-        end = date.fromisoformat(tx["data_end"])
-        head = (f"Over {int(allc['counties'])} Texas counties the model expected about "
-                f"**{float(allc['expected']):.0f}** counties with a new confirmed detection by {_day(end)}. "
-                f"**{int(allc['observed'])}** had one."
-                + (" Giving every county the same base rate scores better than the model."
-                   if float(allc["brier"]) > float(allc["brier_of_constant_base_rate"]) else ""))
-        rows, expected = [], 0.0
-        for r in TABLES["backcheck"]:
-            expected += float(r["p_new_detection_main"])
-            rows.append([r["county"], _day(date.fromisoformat(r["clock_start"])), r["start_state"],
-                         r["days_to_16_nov"], f"{float(r['index_mean']):.2f}",
-                         _pct(float(r["p_new_detection_main"])),
-                         "none" if r["new_detection"] == "no" else r["first_new_detection"]])
-        seen = sum(1 for r in TABLES["backcheck"] if r["new_detection"] != "no")
-        causes = (f"**Two causes are visible.** The leftovers assumed at the last detection (one expected "
-                  f"undetected premises) supply most of the predicted chance in counties that had cases. "
-                  f"The reference introduction rate looks about three times too high: the adjacency file "
-                  f"gives {int(ref['at_risk_counties_min'])} to {int(ref['at_risk_counties_max'])} counties "
-                  f"at risk in summer 2026, not the 12 to 20 assumed when the rate was set.")
-        return ui.TagList(
-            ui.div(ui.markdown(head), style=("font-size:1.1rem; padding:8px 12px; margin:4px 0 8px; "
-                                             "border-left:4px solid #b45f06; background:#fdf3e7; "
-                                             "border-radius:4px;")),
-            ui.p(f"{INDEX_COUNTY[1]} County and its neighbours. Each clock starts at the county's last "
-                 f"confirmation in the first wave, or on 1 June 2026 if it had none.",
-                 style="margin:8px 0 2px;"),
-            _table(["County", "Clock start", "Start", f"Days to {_day(end)}", "Mean index",
-                    "Model: chance of a new detection", "New detection"], rows),
-            ui.markdown(f"The model's chances for these {len(rows)} counties add up to {expected:.1f} "
-                        f"expected. {seen if seen else 'None'} of them had a new detection."),
-            ui.markdown(causes),
-            ui.markdown(f"Precomputed on {_day(PRECOMPUTED_ON)} for the default settings, with the "
-                        f"analytic build of the model. One season and {int(allc['observed'])} events in counties that are "
-                        f"not independent: a check, not a calibration. The introduction-rate option on "
-                        f"the left applies the lower rate."),
-        )
+        return check_2026_block()             # the check on equal windows; a note when the file is missing
 
     @render.ui
     def calibration_2026():
         return calibration_2026_block()       # None when the summary file is missing
+
+    # ---- "Traps and wildlife (illustration)" tab: a proposed design, not built ----
+    # Reads only its own "st_" inputs. No model output is read and none is changed.
+    def _st_stream(key: str) -> tuple:
+        return (float(input[f"st_{key}_coverage"]()), float(input[f"st_{key}_rate"]()),
+                float(input[f"st_{key}_delay"]()))
+
+    @reactive.calc
+    def st_in_use() -> dict:
+        """The streams switched on: key -> (coverage, rate per day, delay in days)."""
+        return {k: _st_stream(k) for k in streams.STREAM_KEYS if input[f"st_{k}_on"]()}
+
+    def _st_week(key: str):
+        q = float(input[f"st_{key}_rate"]())
+        return ui.help_text(f"A rate of {q:g} per day is a chance of {_st_pct(streams.per_week(q))} "
+                            f"per week, and a mean wait of {1.0 / q:.0f} days.")
+
+    def _st_pct(x: float) -> str:
+        return f"{100.0 * x:.1f} percent"
+
+    @render.ui
+    def st_trap_week():
+        return _st_week("trap")
+
+    @render.ui
+    def st_wild_week():
+        return _st_week("wild")
+
+    def _st_lines(use: dict) -> list:
+        """(label, colour, list of streams) for each line of the plots."""
+        lines = [(streams.STREAMS[k]["label"], _STREAM_COLOURS[k], [use[k]]) for k in use]
+        if len(use) == 2:
+            lines.append(("Both together", _STREAM_COLOURS["both"], list(use.values())))
+        return lines
+
+    @render.plot
+    def st_found_plot():
+        use = st_in_use()
+        days = np.arange(0, 361)
+        fig, ax = plt.subplots(figsize=(9, 3.8))
+        if not use:
+            ax.plot(days, np.zeros(len(days)), color="#888888", lw=2,
+                    label="Both switched off: nothing is found")
+        for label, colour, ss in _st_lines(use):
+            ax.plot(days, [streams.found(t, ss) for t in days], color=colour, lw=2, label=label)
+            ceil = streams.ceiling_found(ss)
+            ax.axhline(ceil, color=colour, ls="--", lw=1, alpha=0.7)
+            ax.annotate(f"ceiling {ceil:.2f}", xy=(360, ceil), xytext=(-4, 3),
+                        textcoords="offset points", ha="right", fontsize=8, color=colour)
+        ax.set_xlim(0, 360); ax.set_ylim(0, 1.02)
+        ax.set_xticks(range(0, 361, 30))
+        ax.set_xlabel("Days since the premises became infested")
+        ax.set_ylabel("Chance it has been found")
+        ax.set_title("Illustration of a proposed design, not built", fontsize=10, loc="left")
+        ax.legend(frameon=False, loc="upper left")
+        ax.grid(alpha=0.25)
+        fig.tight_layout()
+        return fig
+
+    @render.plot
+    def st_free_plot():
+        use = st_in_use()
+        m = float(input.st_hidden())
+        days = np.arange(0, 361)
+        fig, ax = plt.subplots(figsize=(9, 3.8))
+        none = streams.p_free_none(m)
+        ax.axhline(none, color="#888888", lw=2, label=f"No traps, no wildlife checks: {none:.3f}")
+        if use:
+            ss = list(use.values())
+            name = "Both together" if len(use) == 2 else streams.STREAMS[next(iter(use))]["label"]
+            ax.plot(days, [streams.p_free(t, m, ss) for t in days], color="#b5179e", lw=2,
+                    label=f"{name}, every check negative")
+            ceil = streams.p_free_ceiling(m, ss)
+            ax.axhline(ceil, color="#b5179e", ls="--", lw=1, alpha=0.8, label=f"Ceiling: {ceil:.3f}")
+        ax.set_xlim(0, 360); ax.set_ylim(0, 1.02)
+        ax.set_xticks(range(0, 361, 30))
+        ax.set_xlabel("Days with every trap check and wildlife check negative")
+        ax.set_ylabel("Chance the zone is free")
+        ax.set_title(f"Illustration of a proposed design, not built. Simplest case, {m:g} expected "
+                     f"hidden infested premises at day 0", fontsize=10, loc="left")
+        ax.legend(frameon=False, loc="upper left")
+        ax.grid(alpha=0.25)
+        fig.tight_layout()
+        return fig
+
+    @render.ui
+    def st_table():
+        use = st_in_use()
+        m = float(input.st_hidden())
+        keys = list(use) or list(streams.STREAM_KEYS)       # for the range columns
+        cols = [streams.summary(m, list(use.values()))]
+        cols += [streams.summary(m, [streams.setting(k, w) for k in keys]) for w in ("value", "low", "high")]
+        rows = [[f"Chance one infested premises is found by day {d}"]
+                + [f"{c['found'][d]:.2f}" for c in cols] for d in streams.TABLE_DAYS_FOUND]
+        rows += [[f"Credit at day {d}: rise in the chance the zone is free, simplest case"]
+                 + [f"{c['credit'][d]:+.3f}" for c in cols] for d in streams.TABLE_DAYS_CREDIT]
+        which = " and ".join(streams.STREAMS[k]["short"] for k in keys)
+        if not use:
+            lead = ("Both are switched off, so your settings earn nothing. The other three columns "
+                    "show traps and wildlife both in use.")
+        else:
+            lead = f"All four columns use what is switched on: {which}."
+        return ui.TagList(
+            _table(["", "Your settings", "Proposed starting values", "Low end of the proposed ranges",
+                    "High end of the proposed ranges"], rows),
+            ui.help_text(f"{lead} The low end takes the lowest coverage, the lowest rate and the "
+                         f"longest delay. The high end takes the highest coverage, the highest rate "
+                         f"and the shortest delay. With {m:g} expected hidden infested premises at "
+                         f"day 0 and no traps or wildlife checks, the chance the zone is free in the "
+                         f"simplest case is {streams.p_free_none(m):.3f}. The spread is wide because "
+                         f"the starting values are mostly guesses. Proposed design, not built."),
+        )
 
     # ---- scenario loader: writes EVERY input ----
     # It iterates the preset's own keys, so the v0.6 ids `k0_mean` and `age0_scale` are written

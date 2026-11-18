@@ -1,0 +1,66 @@
+{
+  "source": "changes/2026-11-19-linked-counties/results/backcheck_fair.json",
+  "model": "unfitted, as the app ships it",
+  "autumn_window": {
+    "label": "1 September to 16 November 2026, given what was known on 31 August",
+    "total": {
+      "counties": 254,
+      "expected": 31.9,
+      "seen": 17
+    },
+    "by_group": {
+      "no_case_to_31_aug": {
+        "counties": 238,
+        "expected": 27.72,
+        "seen": 9
+      },
+      "first_wave_case": {
+        "counties": 16,
+        "expected": 4.18,
+        "seen": 8
+      }
+    },
+    "ratio_expected_to_seen": 1.88,
+    "brier_model": 0.0567,
+    "brier_base_rate": 0.0624,
+    "brier_base_rate_carried_from_summer": 0.0626,
+    "brier_adjacency_base_rate": 0.0483,
+    "base_rate_scores_better": false,
+    "mean_chance_where_seen": 0.228,
+    "mean_chance_where_not": 0.118,
+    "rank_score": 0.839
+  },
+  "whole_period": {
+    "label": "1 June to 16 November 2026, every county starting clean on 1 June",
+    "total": {
+      "counties": 254,
+      "expected": 89.82,
+      "seen": 25
+    },
+    "by_group": {
+      "june_to_august": {
+        "counties": 254,
+        "expected": 68.81,
+        "seen": 16
+      },
+      "september_to_mid_november": {
+        "counties": 254,
+        "expected": 21.0,
+        "seen": 9
+      }
+    },
+    "ratio_expected_to_seen": 3.59,
+    "brier_model": 0.1447,
+    "brier_base_rate": 0.0887,
+    "base_rate_scores_better": true,
+    "mean_chance_where_seen": 0.487,
+    "mean_chance_where_not": 0.339,
+    "rank_score": 0.796
+  },
+  "superseded": {
+    "expected": 93.79,
+    "seen": 17,
+    "file": "backcheck_texas.json"
+  },
+  "correction_note": "Corrected on 18 November 2026: the first version of this check compared unequal windows and overstated the over-prediction. Its expected count included June to August risk for counties selected for having no case in those months."
+}
