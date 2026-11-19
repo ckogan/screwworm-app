@@ -584,7 +584,7 @@ def _nearby_source_inputs(*hand):
 
 
 # ---- 2026-11-20: host groups (owner reporting by type of operation). Off by default. ----
-HOST_RANGES = dict(share=(0.0, 1.0, 0.01), contact=(0.0, 120.0, 0.5), rho_r=(0.0, 1.0, 0.01))
+HOST_RANGES = dict(share=(0.0, 1.0, 0.005), contact=(0.0, 120.0, 0.5), rho_r=(0.0, 1.0, 0.01))
 
 
 def _host_group_inputs():
@@ -608,16 +608,24 @@ def _host_group_inputs():
         ui.accordion(
             ui.accordion_panel(
                 "Types of operation",
-                ui.help_text("Shares come from 2022 census counts of operations in the county. An "
-                             "operation with more than one species is counted more than once. The "
-                             "number of premises in the zone does not change. Days between close "
-                             "looks and reporting rates are assumed, not data."),
+                ui.help_text("All 114 premises in the model are cattle operations in the 2022 census. "
+                             "The default shares are what those 114 are: 102 with 10 or more head "
+                             "(range cattle) and 12 with 1 to 9 head (small holdings). The county also "
+                             "has 28 sheep or goat operations and 42 with horses in the census, some of "
+                             "them the same farms. Adding those as premises would change the premises "
+                             "count and is not done here. Their types are kept at share 0 for exploring. "
+                             "Days between close looks and reporting rates are assumed, not data."),
                 *rows,
-                ui.help_text("Each premises is one type. That was chosen knowingly: several types on one premises "
-                             "would make it found sooner, the opposite lesson. Small holdings are a stand-in: "
-                             "cattle operations with 1 to 9 head. Dogs and strays are a separate population. "
-                             "They are not in the model. A farm dog on a livestock premises would also make "
-                             "it found sooner; that is a later option."),
+                ui.help_text("Every type uses the same herd size (100 animals unless changed). Small "
+                             "holdings differ only in how often the owner looks and how fast a report "
+                             "comes, which overstates noticing on a holding of 1 to 9 head."),
+                ui.help_text("With one type per premises, a mixed zone is found out more slowly than its "
+                             "average premises, because slow reporters stay hidden. With several host "
+                             "types on one premises it would be found sooner, because the "
+                             "fastest-reporting host sets the pace."),
+                ui.help_text("Dogs and strays are a separate population. They are not in the model. A "
+                             "farm dog on a livestock premises would also make it found sooner; that is "
+                             "a later option."),
                 value="host_groups_panel",
             ),
             id="host_groups_dials", open=False,
@@ -627,6 +635,13 @@ def _host_group_inputs():
 
 # ---- 2026-11-20: targeted inspection rounds. Off by default. Separate from host groups. ----
 TARGETED_RANGES = dict(processed_share=(0.0, 0.5, 0.01), processed_risk_ratio=(0.2, 20.0, 0.1))
+
+
+def _processed_larvae_share(s: float, ratio: float) -> float:
+    """Share of the larvae-bearing animals that are recently processed: s R / (s R + 1 - s), before
+    any cap (model_design.md, Targeted inspection rounds)."""
+    den = s * ratio + 1.0 - s
+    return s * ratio / den if den > 0 else 0.0
 
 
 def _targeted_inputs():
@@ -641,8 +656,13 @@ def _targeted_inputs():
                      "other animals at random. The number of animals examined does not change."),
         sl("processed_share", "Share of the herd recently processed"),
         sl("processed_risk_ratio", "How many times likelier a recently processed animal is to carry larvae"),
-        ui.help_text("Both values are assumed. No data. This is not the open-wounds setting under "
-                     "Introductions, and the two are not linked. 1 = the same as random rounds."),
+        ui.help_text("Both values are assumed. No data is behind either number. A ratio of 1 is the "
+                     "same as random rounds. With a share s and a ratio R, a share sR / (sR + 1 - s) of "
+                     "the animals carrying larvae are recently processed: about 21 percent at 0.05 and "
+                     "5, about 51 percent at 0.05 and 20."),
+        ui.help_text("The processed share is the same all year. It is not linked to the open-wounds "
+                     "setting under Introductions, nor to a wounds-by-month option that exists on "
+                     "another branch."),
         ui.output_ui("targeted_caption"),
     ]
 
@@ -1936,7 +1956,7 @@ def server(input, output, session):
                   f"{delay:.0f} days. Most of the result rests on this.")
         hgp = host_group_params(pk)
         if hgp:
-            parts = [f"{g['label'].lower()} {100 * w:.0f}% of premises (close looks every {tc:g} days, "
+            parts = [f"{g['label'].lower()} {round(100 * w, 1):g}% of premises (close looks every {tc:g} days, "
                      + (f"a report within about {1.0 / rr:.0f} days)" if rr > 0 else "never reports)")
                      for g, w, tc, rr in zip(HOST_GROUPS, hgp["host_group_share"],
                                              hgp["host_group_contact_interval"], hgp["host_group_rho_r"])
@@ -2027,8 +2047,10 @@ between them.
         rows = []
         for g, w, tc, rr in zip(HOST_GROUPS, hgp["host_group_share"], hgp["host_group_contact_interval"],
                                 hgp["host_group_rho_r"]):
+            if w <= 0:
+                continue                 # a type at share 0 is not in use
             delay = "never reports" if rr <= 0 else f"about {1.0 / rr + tc / 2.0:.0f} days to a report"
-            rows.append(f"{g['label']}: **{100 * w:.0f}%** of premises, {delay}")
+            rows.append(f"{g['label']}: **{round(100 * w, 1):g}%** of premises, {delay}")
         return ui.div(ui.markdown("In use (shares add to 100%). " + ". ".join(rows) + "."),
                       style=_CAPTION_STYLE)
 
@@ -2043,7 +2065,9 @@ between them.
         first = min(n, n_proc)
         return ui.div(ui.markdown(
             f"On a premises of {herd} animals, **{n_proc}** are recently processed. A round examines "
-            f"{first} of them and {n - first} other animals."), style=_CAPTION_STYLE)
+            f"{first} of them and {n - first} other animals. With these values about "
+            f"**{100 * _processed_larvae_share(n_proc / herd, float(input.processed_risk_ratio())):.0f}%** "
+            f"of the animals carrying larvae are recently processed."), style=_CAPTION_STYLE)
 
     # ---------------------------------------------------------------- options added 2026-11-19
     @render.ui

@@ -123,18 +123,23 @@ OPTION_DEFAULTS = dict(
 
 # ---- host groups (2026-11-20; changes/2026-11-20-host-groups-targeted-rounds/). Owner reporting
 # differs by type of operation. Not keys of a scenario pack: a pack without `host_groups_on` runs
-# exactly as before. Shares: 2022 Census of Agriculture operation counts for the county (cattle
-# operations with 10 or more head 102, sheep 7 plus goats 21, horses and ponies 42, cattle operations
-# with 1 to 9 head 12 as a stand-in for small holdings; an operation with several species is counted
-# in several tables), rounded to two places. Days between close looks and reporting rates are
-# ASSUMED, with wide ranges, not data. The zone keeps its premises count; shares apply within it. ----
+# exactly as before. All 114 premises of the county zone ARE the 114 cattle operations of the 2022
+# Census of Agriculture, so the default mix is what those 114 are: 102 with 10 or more head (range
+# cattle, 0.895) and 12 with 1 to 9 head (small holdings, 0.105). The census also lists 28 sheep or
+# goat operations and 42 with horses in the county, some of them the same farms; adding them as
+# premises would change the premises count and is not done here. Those two types are kept at share 0
+# for exploring. Every type uses the same herd size. Days between close looks and reporting rates are
+# ASSUMED, with wide ranges, not data. ----
 HOST_GROUPS = [
     # key, plain label, share, days between close looks, reporting rate per day (1 / delay)
-    dict(key="cattle", label="Range cattle", count=102, share=0.55, contact=7.0, rho_r=0.33),
-    dict(key="sheepgoat", label="Range sheep and goats", count=28, share=0.15, contact=30.0, rho_r=0.33),
-    dict(key="horse", label="Horses", count=42, share=0.23, contact=2.0, rho_r=0.5),
-    dict(key="small", label="Small holdings", count=12, share=0.07, contact=1.0, rho_r=0.2),
+    dict(key="cattle", label="Range cattle", count=102, share=0.895, contact=7.0, rho_r=0.33),
+    dict(key="sheepgoat", label="Range sheep and goats", count=0, share=0.0, contact=30.0, rho_r=0.33),
+    dict(key="horse", label="Horses", count=0, share=0.0, contact=2.0, rho_r=0.5),
+    dict(key="small", label="Small holdings", count=12, share=0.105, contact=1.0, rho_r=0.2),
 ]
+# What-if only: the shares used before the default was corrected (census operation counts of all four
+# types over their sum, 184, which is not the premises count). Kept so the checks made with it rerun.
+HOST_MIX_FOUR_GROUPS = [0.55, 0.15, 0.23, 0.07]
 HOST_GROUP_DEFAULTS = dict(host_groups_on=False)
 for _g in HOST_GROUPS:
     HOST_GROUP_DEFAULTS[f"hg_share_{_g['key']}"] = _g["share"]
