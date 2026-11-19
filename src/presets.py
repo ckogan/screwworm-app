@@ -121,6 +121,59 @@ OPTION_DEFAULTS = dict(
 )
 
 
+# ---- host groups (2026-11-20; changes/2026-11-20-host-groups-targeted-rounds/). Owner reporting
+# differs by type of operation. Not keys of a scenario pack: a pack without `host_groups_on` runs
+# exactly as before. Shares: 2022 Census of Agriculture operation counts for the county (cattle
+# operations with 10 or more head 102, sheep 7 plus goats 21, horses and ponies 42, cattle operations
+# with 1 to 9 head 12 as a stand-in for small holdings; an operation with several species is counted
+# in several tables), rounded to two places. Days between close looks and reporting rates are
+# ASSUMED, with wide ranges, not data. The zone keeps its premises count; shares apply within it. ----
+HOST_GROUPS = [
+    # key, plain label, share, days between close looks, reporting rate per day (1 / delay)
+    dict(key="cattle", label="Range cattle", count=102, share=0.55, contact=7.0, rho_r=0.33),
+    dict(key="sheepgoat", label="Range sheep and goats", count=28, share=0.15, contact=30.0, rho_r=0.33),
+    dict(key="horse", label="Horses", count=42, share=0.23, contact=2.0, rho_r=0.5),
+    dict(key="small", label="Small holdings", count=12, share=0.07, contact=1.0, rho_r=0.2),
+]
+HOST_GROUP_DEFAULTS = dict(host_groups_on=False)
+for _g in HOST_GROUPS:
+    HOST_GROUP_DEFAULTS[f"hg_share_{_g['key']}"] = _g["share"]
+    HOST_GROUP_DEFAULTS[f"hg_contact_{_g['key']}"] = _g["contact"]
+    HOST_GROUP_DEFAULTS[f"hg_rho_r_{_g['key']}"] = _g["rho_r"]
+
+
+def host_group_params(pack: dict) -> dict:
+    """Lane inputs for the host groups, or {} when the option is off (then nothing is passed and the
+    lane runs as before). Shares are divided by their sum; with every share at 0 the option is off."""
+    if not pack.get("host_groups_on", False):
+        return {}
+    get = lambda name, g: float(pack.get(f"hg_{name}_{g['key']}", HOST_GROUP_DEFAULTS[f"hg_{name}_{g['key']}"]))
+    shares = [max(get("share", g), 0.0) for g in HOST_GROUPS]
+    total = sum(shares)
+    if total <= 0.0:
+        return {}
+    return dict(host_group_share=[x / total for x in shares],
+                host_group_contact_interval=[get("contact", g) for g in HOST_GROUPS],
+                host_group_rho_r=[get("rho_r", g) for g in HOST_GROUPS])
+
+
+# ---- targeted inspection rounds (2026-11-20; same change folder, a separate option). Recently
+# processed animals (castrated, docked, dehorned, branded or wounded in a similar way within days)
+# are examined first. Both values are ASSUMED, with wide ranges (share 0.01 to 0.30, ratio 1 to 20).
+# The ratio is a new input. It is not the open-wound factor of the introduction module. ----
+TARGETED_DEFAULTS = dict(targeted_on=False, processed_share=0.05, processed_risk_ratio=5.0)
+
+
+def targeted_params(pack: dict) -> dict:
+    """Lane inputs for targeted rounds, or {} when the option is off."""
+    if not pack.get("targeted_on", False):
+        return {}
+    return dict(targeted_rounds=True,
+                processed_share=float(pack.get("processed_share", TARGETED_DEFAULTS["processed_share"])),
+                processed_risk_ratio=float(pack.get("processed_risk_ratio",
+                                                    TARGETED_DEFAULTS["processed_risk_ratio"])))
+
+
 def renewed_rate(pack: dict) -> float:
     """Added introduction rate per day for the what-if term on renewed infestations.
 
@@ -383,6 +436,8 @@ def preset_to_params(pack: dict, dt: float) -> dict:
             intro_interval = 1.0 / (rate + h)
     return dict(
         **sched,
+        **host_group_params(pack),        # 2026-11-20: {} unless the option is on
+        **targeted_params(pack),          # 2026-11-20: {} unless the option is on
         mean_latent_time=float(pack["mean_latent_time"]),
         doubling_time_within=float(pack["doubling_time_within"]),
         mean_recovery_time_within=recovery_within,

@@ -131,7 +131,11 @@ def evaluate(p: dict) -> dict:
 # The scenario with no surveillance: nothing is detected. The first two entries switch detection
 # off; the rest pin inputs that then have no effect, so the cached run is reused.
 NO_SURVEILLANCE = dict(Se_animal=0.0, rho_r=0.0, rho_a=0.0, n_farms_per_round=0,
-                       n_animals_per_round=0, owner_contact_interval=0.0)
+                       n_animals_per_round=0, owner_contact_interval=0.0,
+                       # 2026-11-20: the two detection options are dropped as well (None and False
+                       # are the model's own defaults), so they do not recompute the baseline
+                       host_group_share=None, host_group_contact_interval=None, host_group_rho_r=None,
+                       targeted_rounds=False, processed_share=0.0, processed_risk_ratio=1.0)
 
 
 # --------------------------------------------------------------------------------------
@@ -166,6 +170,9 @@ from datetime import date, datetime  # noqa: E402
 import nearby_index  # noqa: E402
 from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
                      intro_ref_factor, module_schedule, renewed_rate)
+# 2026-11-20: host groups and targeted inspection rounds (two separate options, both off by default)
+from presets import (HOST_GROUPS, HOST_GROUP_DEFAULTS, TARGETED_DEFAULTS,  # noqa: E402
+                     host_group_params)
 
 _DATA = _HERE / "data"
 INDEX_COUNTY = ("Texas", "Zavala")          # the worked-example county (presets.COUNTY)
@@ -576,6 +583,70 @@ def _nearby_source_inputs(*hand):
     ]
 
 
+# ---- 2026-11-20: host groups (owner reporting by type of operation). Off by default. ----
+HOST_RANGES = dict(share=(0.0, 1.0, 0.01), contact=(0.0, 120.0, 0.5), rho_r=(0.0, 1.0, 0.01))
+
+
+def _host_group_inputs():
+    """Switch and per-group inputs for host groups, for the owner-reporting panel."""
+    def one(g):
+        k = g["key"]
+        sl = lambda name, label: ui.input_slider(f"hg_{name}_{k}", label, *HOST_RANGES[name][:2],
+                                                 HOST_GROUP_DEFAULTS[f"hg_{name}_{k}"],
+                                                 step=HOST_RANGES[name][2])
+        return [ui.tags.div(g["label"], style="font-weight:600; margin:12px 0 4px;"),
+                sl("share", "Share of premises"),
+                sl("contact", "Days between the owner's close looks"),
+                sl("rho_r", "Reporting rate once a wound is noticed (per day)")]
+    rows = [x for g in HOST_GROUPS for x in one(g)]
+    return [
+        ui.input_checkbox("host_groups_on", "Owner reporting differs by type of operation",
+                          value=HOST_GROUP_DEFAULTS["host_groups_on"]),
+        ui.help_text("Each premises is one type of operation. When this is on, the days between close "
+                     "looks and the reporting rate above are replaced by the values for each type."),
+        ui.output_ui("host_caption"),
+        ui.accordion(
+            ui.accordion_panel(
+                "Types of operation",
+                ui.help_text("Shares come from 2022 census counts of operations in the county. An "
+                             "operation with more than one species is counted more than once. The "
+                             "number of premises in the zone does not change. Days between close "
+                             "looks and reporting rates are assumed, not data."),
+                *rows,
+                ui.help_text("Each premises is one type. That was chosen knowingly: several types on one premises "
+                             "would make it found sooner, the opposite lesson. Small holdings are a stand-in: "
+                             "cattle operations with 1 to 9 head. Dogs and strays are a separate population. "
+                             "They are not in the model. A farm dog on a livestock premises would also make "
+                             "it found sooner; that is a later option."),
+                value="host_groups_panel",
+            ),
+            id="host_groups_dials", open=False,
+        ),
+    ]
+
+
+# ---- 2026-11-20: targeted inspection rounds. Off by default. Separate from host groups. ----
+TARGETED_RANGES = dict(processed_share=(0.0, 0.5, 0.01), processed_risk_ratio=(0.2, 20.0, 0.1))
+
+
+def _targeted_inputs():
+    """Switch and two inputs for targeted inspection rounds, for the inspection panel."""
+    sl = lambda k, label: ui.input_slider(k, label, *TARGETED_RANGES[k][:2], TARGETED_DEFAULTS[k],
+                                          step=TARGETED_RANGES[k][2])
+    return [
+        ui.input_checkbox("targeted_on", "Look at recently processed animals first",
+                          value=TARGETED_DEFAULTS["targeted_on"]),
+        ui.help_text("Recently processed animals were castrated, docked, dehorned, branded or wounded "
+                     "in a similar way in the last few days. In a round they are examined first, then "
+                     "other animals at random. The number of animals examined does not change."),
+        sl("processed_share", "Share of the herd recently processed"),
+        sl("processed_risk_ratio", "How many times likelier a recently processed animal is to carry larvae"),
+        ui.help_text("Both values are assumed. No data. This is not the open-wounds setting under "
+                     "Introductions, and the two are not linked. 1 = the same as random rounds."),
+        ui.output_ui("targeted_caption"),
+    ]
+
+
 def _weather_inputs():
     """The weather option (both layouts)."""
     return [
@@ -768,6 +839,9 @@ def _review_sidebar():
                 _sl("rho_r", "Reporting rate once noticed (rho_r, /d)"),
                 _sl("owner_contact_interval", "Days between the owner's close looks (0 = every day)"),
                 ui.help_text("1/7 = a one-week mean reporting delay."),
+                *_host_group_inputs(),
+                ui.help_text("Targeted rounds"),
+                *_targeted_inputs(),
             ),
             ui.accordion_panel(
                 "Zone design",
@@ -931,6 +1005,7 @@ def _plain_sidebar():
                 _sl("rho_r", "Reporting rate once a wound is noticed (per day)"),
                 ui.output_ui("delay_caption"),
                 _sl("rho_a", "Chance an owner notices a visible wound"),
+                *_host_group_inputs(),
             ),
             ui.accordion_panel(
                 "Inspection schedule",
@@ -938,6 +1013,7 @@ def _plain_sidebar():
                 _sl("round_interval", "Days between rounds"),
                 ui.output_ui("rounds_caption"),
                 _sl("n_farms_per_round", "Premises inspected per round"),
+                *_targeted_inputs(),
             ),
             ui.accordion_panel(
                 "Infestation on a premises",
@@ -1316,6 +1392,12 @@ def server(input, output, session):
             # options added 2026-11-19 (presets.OPTION_DEFAULTS); the defaults change nothing
             intro_ref=input.intro_ref(), weather_source=input.weather_source(),
             renewed_chance=input.renewed_chance(),      # what-if term, 0 = off (presets.renewed_rate)
+            # 2026-11-20: host groups and targeted rounds; off by default, and then the model
+            # receives nothing for them (presets.host_group_params, presets.targeted_params)
+            host_groups_on=input.host_groups_on(),
+            **{k: getattr(input, k)() for k in HOST_GROUP_DEFAULTS if k != "host_groups_on"},
+            targeted_on=input.targeted_on(), processed_share=input.processed_share(),
+            processed_risk_ratio=input.processed_risk_ratio(),
             mean_latent_time=input.mean_latent_time(), doubling_time_within=input.doubling_time_within(),
             recovery_within_on=input.recovery_within_on(),
             mean_recovery_time_within=input.mean_recovery_time_within(),
@@ -1848,15 +1930,32 @@ def server(input, output, session):
                   "Rates are constant in this scenario, so the season is not considered.")
         whatif = _renewed_sentence(pk)
         whatif = f"\n- {whatif}" if whatif else ""
+        # 2026-11-20: the owner line and the inspection line follow the two detection options
+        owners = (f"Owners look their animals over closely at least every "
+                  f"{float(pk['owner_contact_interval']):g} days and\n  report a wound within about "
+                  f"{delay:.0f} days. Most of the result rests on this.")
+        hgp = host_group_params(pk)
+        if hgp:
+            parts = [f"{g['label'].lower()} {100 * w:.0f}% of premises (close looks every {tc:g} days, "
+                     + (f"a report within about {1.0 / rr:.0f} days)" if rr > 0 else "never reports)")
+                     for g, w, tc, rr in zip(HOST_GROUPS, hgp["host_group_share"],
+                                             hgp["host_group_contact_interval"], hgp["host_group_rho_r"])
+                     if w > 0]
+            owners = ("Each premises is one type of operation, and owners look at their animals and report "
+                      "as entered for that type: " + "; ".join(parts) + ". Most of the result rests on this.")
+        targeted = ""
+        if pk.get("targeted_on", False):
+            targeted = (f" Recently processed animals ({100 * float(pk['processed_share']):.0f}% of the herd) "
+                        f"were examined first, and they are {float(pk['processed_risk_ratio']):g} times "
+                        f"likelier to carry larvae than the other animals.")
         text = f"""
 The chance of freedom shown for this run (**{_pct(r['out']['P_free'])}** at day {last:g}) holds only if all of
 the following are true.
 
 **The surveillance happened as entered**
 - {n_r} inspection round{'' if n_r == 1 else 's'} over {last:g} days, each visiting {share:.0f}% of premises
-  and {int(pk['n_animals_per_round'])} animals on each.
-- Owners look their animals over closely at least every {float(pk['owner_contact_interval']):g} days and
-  report a wound within about {delay:.0f} days. Most of the result rests on this.
+  and {int(pk['n_animals_per_round'])} animals on each.{targeted}
+- {owners}
 - No confirmed detection of any kind in the zone over the whole period: no inspection finding, no owner
   report, and no positive fly trap.
 
@@ -1909,7 +2008,42 @@ between them.
                     f"{1.0 / r:.0f} days to report.")
         else:
             text = f"Average delay about **{1.0 / r:.0f} days** from noticing to reporting."
+        if input.host_groups_on():      # 2026-11-20
+            text = "Replaced by the values for each type of operation (below)."
         return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
+
+    # ---------------------------------------------------------------- options added 2026-11-20
+    @render.ui
+    def host_caption():
+        """Host groups: the shares as used and the average delay of each type of operation."""
+        if not input.host_groups_on():
+            return ui.div()
+        pk = dict(host_groups_on=True, **{k: getattr(input, k)() for k in HOST_GROUP_DEFAULTS
+                                          if k != "host_groups_on"})
+        hgp = host_group_params(pk)
+        if not hgp:
+            return ui.div(ui.markdown("Every share is 0, so the single values above are used."),
+                          style=_CAPTION_STYLE)
+        rows = []
+        for g, w, tc, rr in zip(HOST_GROUPS, hgp["host_group_share"], hgp["host_group_contact_interval"],
+                                hgp["host_group_rho_r"]):
+            delay = "never reports" if rr <= 0 else f"about {1.0 / rr + tc / 2.0:.0f} days to a report"
+            rows.append(f"{g['label']}: **{100 * w:.0f}%** of premises, {delay}")
+        return ui.div(ui.markdown("In use (shares add to 100%). " + ". ".join(rows) + "."),
+                      style=_CAPTION_STYLE)
+
+    @render.ui
+    def targeted_caption():
+        """Targeted rounds: how many of the animals examined are recently processed."""
+        if not input.targeted_on():
+            return ui.div()
+        herd = int(input.N_herd())
+        n = min(int(input.n_animals_per_round()), herd)
+        n_proc = min(max(int(math.floor(float(input.processed_share()) * herd + 0.5)), 0), herd)
+        first = min(n, n_proc)
+        return ui.div(ui.markdown(
+            f"On a premises of {herd} animals, **{n_proc}** are recently processed. A round examines "
+            f"{first} of them and {n - first} other animals."), style=_CAPTION_STYLE)
 
     # ---------------------------------------------------------------- options added 2026-11-19
     @render.ui
@@ -2203,6 +2337,14 @@ between them.
             ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
         for k in ("kernel_km", "south_weight", "renewed_chance"):
             ui.update_slider(k, value=OPTION_DEFAULTS[k])
+        # 2026-11-20: the two detection options are not pack keys either; a scenario loads with both off
+        ui.update_checkbox("host_groups_on", value=HOST_GROUP_DEFAULTS["host_groups_on"])
+        for k, v in HOST_GROUP_DEFAULTS.items():
+            if k != "host_groups_on":
+                ui.update_slider(k, value=v)
+        ui.update_checkbox("targeted_on", value=TARGETED_DEFAULTS["targeted_on"])
+        for k in ("processed_share", "processed_risk_ratio"):
+            ui.update_slider(k, value=TARGETED_DEFAULTS[k])
 
 
 app = App(app_ui, server)

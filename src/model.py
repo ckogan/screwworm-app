@@ -68,6 +68,20 @@ COURSE-END EXIT AND RELEASE CLOCK (2026-10-24; changes/2026-10-24-lane-clearance
      (post-detection) branch only, the release clock for found and treated premises. The D = 0 branch
      and the age field keep gamma_region = 1 / mean_recovery_time.
 
+HOST GROUPS AND TARGETED ROUNDS (2026-11-20; changes/2026-11-20-host-groups-targeted-rounds/; edited in
+place; two separate optional changes, each off at the lane defaults, every output byte-identical when unset)
+------------------------------------------------------------------------------------
+8. Host groups (model_design.md "Host groups"): `host_group_share` (None = off) with
+   `host_group_contact_interval`, `host_group_rho_r` and optional `host_group_rho_a`. Each premises
+   belongs to one group; a premises of age tau that has not been reported carries the mixture hazard
+   h(tau) = sum_g w_g S_g(tau) h_g(tau) / sum_g w_g S_g(tau). In this lane that is an age-only curve that
+   replaces h_pass(tau), plus the matching per-step survival S_mix(tau + dt) / S_mix(tau) for the age
+   field (host_group_curves). The march itself is not edited. A leftover of initial age tau_0 carries the
+   same curve at its true age (group weights w_g S_g(tau_0), normalised).
+9. Targeted rounds (model_design.md "Targeted inspection rounds"): `targeted_rounds` (False = off),
+   `processed_share`, `processed_risk_ratio`. Recently processed animals are examined first; HSe(tau) is
+   replaced by the targeted value (targeted_hse). Nothing else is edited.
+
 HAZARD CHECKLIST (design_to_impl_recommendations.md / memory.md) honoured inline; see
 assert_invariants() and comments flagged `# HAZARD:`.
 """
@@ -184,6 +198,19 @@ DEFAULTS = dict(
     schedule_times=None,             # breakpoints 0 = s_0 < s_1 < ..., multiples of dt
     intro_multiplier=None,           # a_j >= 0 on [s_j, s_{j+1}): lambda(t) = a_j * lambda_region
     spread_multiplier=None,          # m_j >= 0 on [s_j, s_{j+1}): beta_max(t) = m_j * beta_max
+    # host groups (2026-11-20, model_design.md "Host groups"): owner reporting differs by type of
+    # operation. host_group_share = None is OFF: the single owner_contact_interval, rho_r and rho_a
+    # above apply to every premises and the lane's previous outputs are kept bit for bit.
+    host_group_share=None,            # w_g >= 0, summing to 1: share of premises in each group
+    host_group_contact_interval=None, # T_c of each group, days (same length as the shares)
+    host_group_rho_r=None,            # reporting rate of each group, per day (1 / reporting delay)
+    host_group_rho_a=None,            # optional: rho_a of each group; None, or None entries = rho_a
+    # targeted inspection rounds (2026-11-20, model_design.md "Targeted inspection rounds"): recently
+    # processed animals are examined first. targeted_rounds = False is OFF (random rounds, the lane's
+    # previous outputs bit for bit); the two other inputs are read only when it is True.
+    targeted_rounds=False,
+    processed_share=0.0,              # share of the herd recently processed (rounded to whole animals)
+    processed_risk_ratio=1.0,         # larvae-bearing chance of a processed animal over that of the others
     # cost weights (NOT lit-derived; placeholders per priors_design.md note)
     c_lost_freedom=1.0,
     c_per_case=1.0,
@@ -199,6 +226,136 @@ DEFAULTS = dict(
                                      # Grid cost is nearly flat in dt (expm_multiply work
                                      # scales with ||h.A||); interactive cost is not.
 )
+
+
+# --------------------------------------------------------------------------------------
+# Host groups (2026-11-20, model_design.md "Host groups"). Separate from targeted rounds below.
+# --------------------------------------------------------------------------------------
+HOST_GROUP_KEYS = ("host_group_share", "host_group_contact_interval", "host_group_rho_r",
+                   "host_group_rho_a")
+
+
+def host_group_inputs(p: dict):
+    """The host-group inputs as arrays (share, T_c, rho_r, rho_a), groups with share 0 dropped; None
+    when the switch is off (host_group_share is None).
+
+    Raises ValueError for: lists of unequal length; an empty list; a negative or non-finite share;
+    shares that do not sum to 1 (within 1e-9); a negative or non-finite contact interval or reporting
+    rate; a rho_a outside [0, 1]; contact intervals or reporting rates missing while shares are given."""
+    if p.get("host_group_share") is None:
+        return None
+    w = np.atleast_1d(np.asarray(p["host_group_share"], dtype=float))
+    if w.ndim != 1 or len(w) == 0:
+        raise ValueError("host_group_share must be a non-empty flat list")
+    if not np.all(np.isfinite(w)) or np.any(w < 0.0):
+        raise ValueError(f"host_group_share entries must be finite and >= 0, got {list(w)}")
+    if abs(float(w.sum()) - 1.0) > 1e-9:
+        raise ValueError(f"host_group_share must sum to 1, got {float(w.sum())}")
+    cols = []
+    for key in ("host_group_contact_interval", "host_group_rho_r"):
+        if p.get(key) is None:
+            raise ValueError(f"host groups: {key} is required when host_group_share is given")
+        v = np.atleast_1d(np.asarray(p[key], dtype=float))
+        if v.shape != w.shape:
+            raise ValueError(f"host groups: {key} must have one entry per group ({len(w)}), got {len(v)}")
+        if not np.all(np.isfinite(v)) or np.any(v < 0.0):
+            raise ValueError(f"{key} entries must be finite and >= 0, got {list(v)}")
+        cols.append(v)
+    ra = p.get("host_group_rho_a")
+    if ra is None:
+        rho_a = np.full(len(w), float(p["rho_a"]))
+    else:
+        ra = list(ra)
+        if len(ra) != len(w):
+            raise ValueError(f"host groups: host_group_rho_a must have one entry per group ({len(w)})")
+        rho_a = np.array([float(p["rho_a"]) if x is None else float(x) for x in ra])
+        if not np.all((rho_a >= 0.0) & (rho_a <= 1.0)):
+            raise ValueError(f"host_group_rho_a entries must be in [0, 1], got {list(rho_a)}")
+    keep = w > 0.0
+    w = w[keep] / w[keep].sum()
+    return dict(share=w, contact=cols[0][keep], rho_r=cols[1][keep], rho_a=rho_a[keep])
+
+
+def host_group_curves(hg: dict, grid: np.ndarray, p_clin: np.ndarray, N_herd: int):
+    """Mixture owner-report hazard over the host groups, on the age grid.
+
+    Each group g has the hazard of the single-group model with its own inputs,
+        h_g(tau) = rho_r_g_eff * [1 - (1 - rho_a_g * p_clinical(tau))^N_herd],
+        rho_r_g_eff = rho_r_g / (1 + rho_r_g * T_c_g / 2),
+    and S_g(tau) = exp(-int_0^tau h_g). A premises of age tau that has not been reported is in group g
+    with probability w_g S_g(tau) / S_mix(tau), S_mix = sum_g w_g S_g, so its hazard is
+        h_mix(tau) = sum_g w_g S_g(tau) h_g(tau) / S_mix(tau).
+    Returns (h_mix, step, h_groups): `step[j]` = S_mix(tau_j) / S_mix(tau_{j-1}) (step[0] = 1), the exact
+    no-report survival of an age cohort over one grid step, which the age field uses in place of
+    exp(-h * dt); `h_groups` is the (G, n_age) table of h_g.
+    S_g is accumulated with the hazard at the end of each step, S_g[j] = S_g[j-1] exp(-h_g[j] dtau_j),
+    the same rule the age field uses for one group, so the mixture is the sum of per-group fields.
+    # HAZARD (underflow): S_g is kept in logs and the weights are formed after subtracting the largest
+    # log weight, so a fast-reporting group whose S_g underflows at old ages gets weight 0, not NaN."""
+    hs = []
+    for T_c, rho_r, rho_a in zip(hg["contact"], hg["rho_r"], hg["rho_a"]):
+        rr = float(rho_r)
+        if T_c > 0.0:
+            rr = rr / (1.0 + rr * float(T_c) / 2.0)
+        hs.append(rr * (1.0 - (1.0 - float(rho_a) * np.clip(p_clin, 0.0, 1.0)) ** N_herd))
+    H = np.array(hs)                                              # (G, n_age)
+    dtau = np.diff(grid, prepend=grid[0])                         # dtau[0] = 0
+    logS = -np.cumsum(H * dtau[None, :], axis=1)                  # log S_g on the grid
+    lw = np.log(hg["share"])[:, None] + logS
+    top = lw.max(axis=0)
+    wts = np.exp(lw - top[None, :])                               # unnormalised posterior weights
+    tot = wts.sum(axis=0)
+    h_mix = (wts * H).sum(axis=0) / tot
+    log_mix = top + np.log(tot)                                   # log S_mix
+    step = np.ones(len(grid))
+    step[1:] = np.exp(np.diff(log_mix))
+    return h_mix, step, H
+
+
+# --------------------------------------------------------------------------------------
+# Targeted inspection rounds (2026-11-20, model_design.md "Targeted inspection rounds").
+# Separate from host groups above.
+# --------------------------------------------------------------------------------------
+def processed_split(p_shed, N_herd: int, share: float, ratio: float):
+    """Larvae-bearing fraction among the recently processed animals and among the others, and the
+    whole number of processed animals.
+
+    N_p = floor(share * N_herd + 1/2) animals are recently processed (s = N_p / N_herd). With relative
+    risk R = ratio the two fractions are p_p = R p / (s R + 1 - s) and p_o = p / (s R + 1 - s), which
+    keeps the herd-wide fraction s p_p + (1 - s) p_o = p. If p_p would pass 1 it is 1 and
+    p_o = (p - s) / (1 - s); if p_o would pass 1 (only when R < 1) it is 1 and p_p = (p - (1 - s)) / s.
+    With N_p = 0 or N_p = N_herd there is one group and both fractions are p."""
+    if not (0.0 <= share <= 1.0):
+        raise ValueError(f"processed_share must be in [0, 1], got {share}")
+    if not (np.isfinite(ratio) and ratio >= 0.0):
+        raise ValueError(f"processed_risk_ratio must be finite and >= 0, got {ratio}")
+    p = np.clip(np.asarray(p_shed, dtype=float), 0.0, 1.0)
+    N_p = min(max(int(math.floor(share * N_herd + 0.5)), 0), N_herd)
+    if N_p == 0 or N_p == N_herd:
+        return p, p, N_p
+    s = N_p / N_herd
+    den = s * ratio + 1.0 - s
+    p_p = ratio * p / den
+    p_o = p / den
+    over = p_p > 1.0
+    p_o = np.where(over, (p - s) / (1.0 - s), p_o)
+    p_p = np.where(over, 1.0, p_p)
+    over = p_o > 1.0
+    p_p = np.where(over, (p - (1.0 - s)) / s, p_p)
+    p_o = np.where(over, 1.0, p_o)
+    return np.clip(p_p, 0.0, 1.0), np.clip(p_o, 0.0, 1.0), N_p
+
+
+def targeted_hse(p_shed, Se: float, N_herd: int, n_an: int, share: float, ratio: float):
+    """Chance that a targeted round finds an infested premises it visits, by age.
+
+    The n_an animals examined are the processed animals first (n_p = min(n_an, N_p)), then
+    n_an - n_p taken at random from the others. Animals carry larvae independently, so the round
+    comes back clean with probability (1 - Se p_p)^n_p * (1 - Se p_o)^(n_an - n_p)."""
+    p_p, p_o, N_p = processed_split(p_shed, N_herd, share, ratio)
+    n_p = min(n_an, N_p)
+    clean = (1.0 - np.clip(p_p * Se, 0.0, 1.0)) ** n_p * (1.0 - np.clip(p_o * Se, 0.0, 1.0)) ** (n_an - n_p)
+    return 1.0 - clean
 
 
 # --------------------------------------------------------------------------------------
@@ -285,6 +442,11 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
     n_an = min(int(round(p["n_animals_per_round"])), N_herd)
     q = np.clip(p_shed * Se, 0.0, 1.0)
     HSe = 1.0 - (1.0 - q) ** n_an
+    # 2026-11-20 targeted rounds: recently processed animals are examined first. Off (the default):
+    # the line above stands, untouched.
+    if bool(p.get("targeted_rounds", False)):
+        HSe = targeted_hse(p_shed, Se, N_herd, n_an, float(p.get("processed_share", 0.0)),
+                           float(p.get("processed_risk_ratio", 1.0)))
 
     # Passive hazard (per-farm clinical-reporting hazard), model_design.md.
     rho_a = float(p["rho_a"])
@@ -299,8 +461,18 @@ def within_farm_curves(p: dict, age_grid: np.ndarray, age_grid_ext: np.ndarray |
     # 2026-10-24: the infested share (latent + larvae-bearing), read by the course-end exit only.
     p_infested = np.clip(pi_L + pi_I, 0.0, 1.0)
 
-    return dict(p_shed=p_shed, f_clinical=f_clin, p_clinical=p_clin, HSe=HSe, h_pass=h_pass,
-                p_infested=p_infested)
+    out = dict(p_shed=p_shed, f_clinical=f_clin, p_clinical=p_clin, HSe=HSe, h_pass=h_pass,
+               p_infested=p_infested)
+    # 2026-11-20 host groups: the owner-report hazard becomes the mixture over the groups, and the age
+    # field gets the matching per-step survival. Off (the default): nothing here runs and the
+    # dictionary is the one of the lane before the change.
+    hg = host_group_inputs(p)
+    if hg is not None:
+        h_mix, step, H = host_group_curves(hg, grid, p_clin, N_herd)
+        out["h_pass"] = h_mix
+        out["h_pass_step"] = step
+        out["h_pass_groups"] = H
+    return out
 
 
 def course_end_threshold(p: dict) -> float:
@@ -598,6 +770,11 @@ def evaluate(params: dict) -> dict:
         p_noalarm_by_time[eval_idx[0]] = float(P0.sum())
 
     surv_step_age = math.exp(-gamma_reg * h) * np.exp(-h_pass_age * h)  # per-cohort step survival
+    if "h_pass_step" in curves:
+        # 2026-11-20 host groups: the no-report survival of a cohort over one step is the mixture's
+        # S_mix(tau + dt) / S_mix(tau), not exp(-h_mix dt) (the groups thin at different rates within
+        # the step). Off: the key is absent and the line above stands.
+        surv_step_age = math.exp(-gamma_reg * h) * curves["h_pass_step"]
 
     for i in range(nT):
         W = field.sum()
