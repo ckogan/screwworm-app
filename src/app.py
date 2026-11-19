@@ -128,6 +128,12 @@ def evaluate(p: dict) -> dict:
     return _evaluate_cached(_frozen(p))
 
 
+# The scenario with no surveillance: nothing is detected. The first two entries switch detection
+# off; the rest pin inputs that then have no effect, so the cached run is reused.
+NO_SURVEILLANCE = dict(Se_animal=0.0, rho_r=0.0, rho_a=0.0, n_farms_per_round=0,
+                       n_animals_per_round=0, owner_contact_interval=0.0)
+
+
 # --------------------------------------------------------------------------------------
 # Presentation mode (2026-10-29, app_design.md "Presentation modes")
 # --------------------------------------------------------------------------------------
@@ -1009,6 +1015,13 @@ BY_HAND = ("**Conditions this model does not cover, to confirm by hand:** enough
            "adequate outreach to producers and veterinarians; no pending or unresolved laboratory "
            "samples; wildlife surveillance clean during the window.")
 
+BASELINE_NOTE = ("**The dashed line is the baseline:** the chance the zone is free if nobody were looking, "
+                 "with no inspection rounds and no owner reports. Infestations still arrive, spread and end "
+                 "by themselves. The gap between the two lines is what the surveillance evidence adds: "
+                 "inspection rounds that found nothing and no confirmed owner report. The baseline can "
+                 "rise late in the run, because in this model an infestation that nobody finds ends by "
+                 "itself once it has run its course on the farm.")
+
 _CAPTION_STYLE = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 8px; "
                   "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
 
@@ -1032,6 +1045,7 @@ if PLAIN:
                 ui.output_ui("intro_caution"),
                 ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
+                ui.div(ui.markdown(BASELINE_NOTE), style=_CAPTION_STYLE),
                 ui.output_ui("rule_table"),
                 ui.output_ui("scorecard"),
                 ui.div(ui.markdown(BY_HAND), style=_CAPTION_STYLE),
@@ -1389,7 +1403,20 @@ def server(input, output, session):
                 pfree.append(p_free_0); puncond.append(p_free_0); continue
             pf = float(pf_t[t])
             pfree.append(pf); puncond.append(pf * float(pn_t[t]))
-        return dict(t=ts, pfree=pfree, puncond=puncond, rounds=rounds)
+        # Baseline of the plain graph (2026-11-20): the chance the zone is free with no surveillance.
+        # The same scenario with nothing able to detect: no inspection finds anything
+        # (Se_animal = 0) and no owner report is ever made (rho_r = 0). Infestations still arrive,
+        # spread and end as in the scenario; with no detection no control starts. One more lane
+        # call on the same grid. The inputs that only act through detection are pinned first, so
+        # moving an inspection or owner slider reuses the cached baseline (not the round interval,
+        # which sets the time grid)
+        # (changes/2026-11-20-baseline-no-surveillance: the line does not move with them).
+        pbase = None
+        if PLAIN:
+            ob = evaluate(dict(p, **NO_SURVEILLANCE, eval_times=ts))
+            pb_t = ob["p_free_by_time"]
+            pbase = [float(pb_t[0.0 if t <= 0.0 else t]) for t in ts]
+        return dict(t=ts, pfree=pfree, puncond=puncond, pbase=pbase, rounds=rounds)
 
     # ---------------------------------------------------------------- panel 1 plot
     def _narrow(output_id: str) -> bool:
@@ -1459,7 +1486,7 @@ def server(input, output, session):
         fig, ax = plt.subplots(figsize=(9, 4.4 if PLAIN else 4.0))
         if PLAIN:
             lab_free = "Chance the zone is free, given no detection so far"
-            lab_unc = "Baseline, before counting the inspection results: chance the zone is free and nothing detected so far"
+            lab_unc = "Baseline: chance the zone is free with no surveillance"
             lab_thr = f"{_pct(thr)} reference line (for illustration)"
             xlab = "Days since the last detection"
         else:
@@ -1468,7 +1495,10 @@ def server(input, output, session):
             lab_thr = f"{thr:.3g} reference line (for illustration)"
             xlab = "time since the last detection, t (days)"
         ax.plot(ts, pfree, color="#1f77b4", lw=2, label=lab_free)
-        ax.plot(ts, puncond, color="#1f77b4", lw=1.3, ls="--", alpha=0.5, label=lab_unc)
+        # plain view: the no-surveillance baseline; technical view: the joint chance of being free
+        # and undetected, under its exact label
+        ax.plot(ts, tr["pbase"] if PLAIN else puncond, color="#1f77b4", lw=1.3, ls="--", alpha=0.5,
+                label=lab_unc)
         # Inspection rounds: a dot on the curve and a short upward arrow just under it (no
         # full-height lines, so the curve crosses nothing). The policy milestones are not drawn
         # (2026-11-17): they are policy dates, not model results.

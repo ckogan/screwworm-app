@@ -463,18 +463,24 @@ computed with the analytic (closed-form) build of this version.</p>
 detection by day 360 (before any results)". It is about 2 percent on the
 county scenario, and about 10 percent by day 180 on the six-month scenario. It
 is a projection made at the start, before any inspection result, and it is not part of the
-freedom estimate. Three different numbers are easy to confuse. Each is named here once, with its
-value at day 180 on the six-month scenario:</p>
+freedom estimate. Two different numbers are easy to confuse with the freedom result. Each is named
+here once, with its value at day 180 on the six-month scenario:</p>
 <ul>
 <li><strong>The chance of no detection by the last round:</strong> the Planning box, about
 10 percent.</li>
-<li><strong>The chance the zone is free and nothing was detected:</strong> the dashed line on the
-app's graph, about 9 percent.</li>
-<li><strong>The chance the zone is free with no surveillance at all:</strong> about
-25 percent. Neither stream operates, so nothing can be detected.</li>
+<li><strong>The baseline, the chance the zone is free with no surveillance:</strong> the dashed
+line on the app's graph, about 25 percent, and about
+32 percent at day 360 on the county scenario.</li>
 </ul>
-<p>The freedom result itself is a fourth number: the chance the zone is free given that nothing was
+<p>The freedom result itself is a third number: the chance the zone is free given that nothing was
 detected.</p>
+<p><strong>What "no surveillance" means:</strong> the same scenario with nothing able to detect.
+No inspection finds anything and no owner report is ever made, so there is no detection and no
+control starts. Infestations still arrive, spread and end by themselves. Up to the first detection
+the zone behaves the same with or without surveillance, so the gap between the solid line and the
+baseline is what the surveillance evidence adds: inspection rounds that found nothing and no
+confirmed owner report. The baseline can rise late in a run, because in this model an infestation
+that nobody finds ends by itself once it has run its course on the farm.</p>
 <h3>Stream 2, inspection rounds</h3>
 <p>Drawn as "Inspection: a sample of animals" on the farm picture and "Inspection rounds" on the
 zone picture. On set dates a round visits a set number of farms, drawn at random, and on each
