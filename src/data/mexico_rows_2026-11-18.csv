@@ -1,0 +1,637 @@
+first_seen,last_seen,copies,Date (mm/dd/yy),State,Species,Age,Active/Inactive*,USDA Sterile Insect Dispersal,Approximate Miles From US
+2026-11-18,2026-11-18,1,11/15/26,Coahuila,Caprine,36 months,Active,**,85
+2026-11-18,2026-11-18,1,11/14/26,Coahuila,Bovine,209 months,Active,**,58
+2026-11-18,2026-11-18,1,11/13/26,Coahuila,Equine,10 years,Active,**,73
+2026-11-18,2026-11-18,1,11/13/26,Sonora,Bovine,8 days,Active,**,82
+2026-11-18,2026-11-18,1,11/12/26,Sonora,Equine,4 years,Active,**,64
+2026-11-18,2026-11-18,1,11/12/26,Nuevo León,Bovine,1 week,Active,**,80
+2026-11-18,2026-11-18,1,11/12/26,Nuevo León,Bovine,10 days,Active,**,80
+2026-11-18,2026-11-18,1,11/12/26,Tamaulipas,Caprine,2 years,Active,**,82
+2026-11-18,2026-11-18,1,11/11/26,Tamaulipas,Bovine,5 days,Active,**,81
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Bovine,10 days,Active,Aerial,10
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Bovine,9 years,Active,**,33
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Ovine,7 days,Active,**,41
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Canine,4 years,Active,**,57
+2026-11-18,2026-11-18,1,11/10/26,Sonora,Bovine,4 years,Active,**,69
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Ovine,2 months,Active,**,72
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Bovine,5 days,Active,**,79
+2026-11-18,2026-11-18,1,11/10/26,Coahuila,Bovine,14 months,Active,**,80
+2026-11-18,2026-11-18,1,11/10/26,Chihuahua,Bovine,7 months,Active,**,82
+2026-11-18,2026-11-18,1,11/10/26,Sonora,Bovine,3 months,Active,**,82
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Caprine,3 years,Active,**,89
+2026-11-18,2026-11-18,1,11/10/26,Nuevo León,Canine,6 years,Active,**,92
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Caprine,2 years,Active,**,98
+2026-11-18,2026-11-18,1,11/10/26,Sonora,Bovine,2 weeks,Active,**,99
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Bovine,5 days,Active,**,99
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Bovine,1 year,Active,**,99
+2026-11-18,2026-11-18,1,11/09/26,Tamaulipas,Bovine,10 days,Active,Aerial,14
+2026-11-18,2026-11-18,1,11/09/26,Tamaulipas,Bovine,3 years,Active,Aerial,15
+2026-11-18,2026-11-18,1,11/09/26,Sonora,Bovine,10 years,Active,Aerial,53
+2026-11-18,2026-11-18,1,11/09/26,Sonora,Ovine,4 months,Active,Aerial,53
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Bovine,6 months,Active,**,60
+2026-11-18,2026-11-18,1,11/09/26,Sonora,Bovine,7 days,Active,**,63
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Bovine,11 months,Active,**,68
+2026-11-18,2026-11-18,1,11/09/26,Sonora,Bovine,10 years,Active,**,69
+2026-11-18,2026-11-18,1,11/09/26,Coahuila,Bovine,10 years,Active,**,70
+2026-11-18,2026-11-18,1,11/09/26,Chihuahua,Bovine,10 years,Active,**,91
+2026-11-18,2026-11-18,2,11/09/26,Chihuahua,Bovine,30 days,Active,**,91
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Canine,4 years,Active,**,92
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Bovine,1 year,Active,**,95
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Bovine,6 years,Active,**,95
+2026-11-18,2026-11-18,1,11/09/26,Nuevo León,Bovine,5 years,Active,**,95
+2026-11-18,2026-11-18,1,11/08/26,Chihuahua,Bovine,4 months,Active,**,11
+2026-11-18,2026-11-18,1,11/08/26,Chihuahua,Equine,6 months,Active,**,76
+2026-11-18,2026-11-18,1,11/08/26,Coahuila,Bovine,115 months,Active,**,84
+2026-11-18,2026-11-18,1,11/08/26,Coahuila,Bovine,14 days,Active,**,91
+2026-11-18,2026-11-18,1,11/07/26,Chihuahua,Canine,7 years,Active,**,3
+2026-11-18,2026-11-18,1,11/07/26,Nuevo León,Bovine,4 years,Active,**,68
+2026-11-18,2026-11-18,1,11/07/26,Nuevo León,Bovine,1 year,Active,**,76
+2026-11-18,2026-11-18,1,11/07/26,Nuevo León,Canine,15 years,Active,**,91
+2026-11-18,2026-11-18,1,11/07/26,Nuevo León,Canine,2 years,Active,**,92
+2026-11-18,2026-11-18,1,11/07/26,Tamaulipas,Bovine,10 days,Active,**,92
+2026-11-18,2026-11-18,1,11/06/26,Chihuahua,Bovine,4 months,Active,**,28
+2026-11-18,2026-11-18,1,11/06/26,Coahuila,Equine,5 years,Active,**,30
+2026-11-18,2026-11-18,1,11/06/26,Coahuila,Canine,4 years,Active,**,74
+2026-11-18,2026-11-18,1,11/06/26,Tamaulipas,Caprine,2 years,Active,**,75
+2026-11-18,2026-11-18,1,11/06/26,Nuevo León,Equine,11 years,Active,**,86
+2026-11-18,2026-11-18,2,11/06/26,Sonora,Bovine,5 months,Active,**,89
+2026-11-18,2026-11-18,1,11/06/26,Chihuahua,Bovine,7 days,Active,**,95
+2026-11-18,2026-11-18,1,11/06/26,Chihuahua,Bovine,11 months,Active,**,95
+2026-11-18,2026-11-18,1,11/06/26,Chihuahua,Bovine,3 months,Active,**,95
+2026-11-18,2026-11-18,1,11/06/26,Chihuahua,Bovine,5 months,Active,**,95
+2026-11-18,2026-11-18,1,11/05/26,Coahuila,Equine,8 years,Active,**,30
+2026-11-18,2026-11-18,1,11/05/26,Sonora,Bovine,1 month,Active,Aerial,32
+2026-11-18,2026-11-18,1,11/05/26,Nuevo León,Bovine,10 months,Active,**,69
+2026-11-18,2026-11-18,1,11/05/26,Nuevo León,Bovine,1 year,Active,**,73
+2026-11-18,2026-11-18,1,11/05/26,Nuevo León,Canine,1 year,Active,**,73
+2026-11-18,2026-11-18,1,11/05/26,Nuevo León,Canine,5 years,Active,**,100
+2026-11-18,2026-11-18,1,11/04/26,Coahuila,Bovine,9 years,Active,**,35
+2026-11-18,2026-11-18,1,11/04/26,Nuevo León,Bovine,10 days,Active,**,35
+2026-11-18,2026-11-18,1,11/04/26,Nuevo León,Caprine,3 months,Active,**,48
+2026-11-18,2026-11-18,1,11/04/26,Coahuila,Bovine,6 months,Active,**,80
+2026-11-18,2026-11-18,1,11/04/26,Coahuila,Ovine,3 years,Active,**,85
+2026-11-18,2026-11-18,1,11/03/26,Nuevo León,Canine,4 years,Active,**,58
+2026-11-18,2026-11-18,1,11/03/26,Coahuila,Bovine,14 years,Active,**,85
+2026-11-18,2026-11-18,1,11/03/26,Nuevo León,Canine,10 years,Active,**,87
+2026-11-18,2026-11-18,1,11/03/26,Nuevo León,Bovine,8 months,Active,**,88
+2026-11-18,2026-11-18,1,11/03/26,Tamaulipas,Bovine,7 years,Active,**,93
+2026-11-18,2026-11-18,1,11/03/26,Nuevo León,Canine,12 years,Active,**,95
+2026-11-18,2026-11-18,1,11/03/26,Nuevo León,Bovine,2 days,Active,**,97
+2026-11-18,2026-11-18,1,11/02/26,Chihuahua,Canine,13 years,Active,Aerial,3
+2026-11-18,2026-11-18,1,11/02/26,Tamaulipas,Bovine,2 days,Active,**,100
+2026-11-18,2026-11-18,,11/01/26,Nuevo León,Equine,3 years,Active,**,31
+2026-11-18,2026-11-18,,11/01/26,Coahuila,Bovine,6 months,Active,**,64
+2026-11-18,2026-11-18,,11/01/26,Sonora,Bovine,6 days,Active,**,73
+2026-11-18,2026-11-18,1,10/31/26,Nuevo León,Ovine,2 years,Inactive,**,37
+2026-11-18,2026-11-18,1,10/31/26,Coahuila,Equine,13 years,Inactive,**,58
+2026-11-18,2026-11-18,1,10/31/26,Nuevo León,Canine,7 years,Inactive,**,94
+2026-11-18,2026-11-18,1,10/30/26,Tamaulipas,Bovine,7 years,Inactive,Aerial,12
+2026-11-18,2026-11-18,1,10/30/26,Nuevo León,Ovine,1 year,Inactive,**,40
+2026-11-18,2026-11-18,1,10/30/26,Sonora,Bovine,8 days,Inactive,**,62
+2026-11-18,2026-11-18,1,10/30/26,Sonora,Bovine,44 months,Inactive,**,67
+2026-11-18,2026-11-18,1,10/30/26,Sonora,Bovine,6 years,Inactive,**,87
+2026-11-18,2026-11-18,1,10/30/26,Nuevo León,Caprine,3 years,Inactive,**,97
+2026-11-18,2026-11-18,1,10/29/26,Sonora,Canine,4 years,Inactive,Aerial,2
+2026-11-18,2026-11-18,1,10/29/26,Chihuahua,Bovine,11 years,Inactive,Aerial,9
+2026-11-18,2026-11-18,1,10/29/26,Chihuahua,Bovine,10 days,Inactive,Aerial,30
+2026-11-18,2026-11-18,1,10/29/26,Chihuahua,Bovine,120 days,Inactive,**,57
+2026-11-18,2026-11-18,1,10/29/26,Coahuila,Bovine,36 months,Inactive,**,74
+2026-11-18,2026-11-18,1,10/29/26,Sonora,Bovine,6 months,Inactive,**,82
+2026-11-18,2026-11-18,1,10/29/26,Nuevo León,Canine,3 months,Inactive,**,84
+2026-11-18,2026-11-18,1,10/29/26,Nuevo León,Canine,1 year,Inactive,**,84
+2026-11-18,2026-11-18,1,10/29/26,Chihuahua,Bovine,5 days,Inactive,**,86
+2026-11-18,2026-11-18,1,10/29/26,Chihuahua,Bovine,14 months,Inactive,**,95
+2026-11-18,2026-11-18,1,10/28/26,Sonora,Bovine,15 days,Inactive,**,45
+2026-11-18,2026-11-18,1,10/28/26,Nuevo León,Caprine,5 months,Inactive,**,57
+2026-11-18,2026-11-18,1,10/28/26,Chihuahua,Bovine,8 months,Inactive,**,87
+2026-11-18,2026-11-18,1,10/28/26,Nuevo León,Canine,3 years,Inactive,**,87
+2026-11-18,2026-11-18,1,10/27/26,Coahuila,Canine,6 years,Inactive,**,71
+2026-11-18,2026-11-18,1,10/26/26,Sonora,Bovine,10 months,Inactive,**,51
+2026-11-18,2026-11-18,1,10/26/26,Sonora,Bovine,2 weeks,Inactive,Aerial,86
+2026-11-18,2026-11-18,1,10/26/26,Sonora,Bovine,6 years,Inactive,**,88
+2026-11-18,2026-11-18,1,10/25/26,Sonora,Bovine,1 month,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,10/24/26,Nuevo León,Canine,6 years,Inactive,**,86
+2026-11-18,2026-11-18,1,10/23/26,Chihuahua,Bovine,2 years,Inactive,**,99
+2026-11-18,2026-11-18,1,10/22/26,Coahuila,Bovine,60 months,Inactive,**,78
+2026-11-18,2026-11-18,1,10/21/26,Sonora,Canine,8 years,Inactive,**,0
+2026-11-18,2026-11-18,1,10/21/26,Chihuahua,Bovine,20 days,Inactive,**,36
+2026-11-18,2026-11-18,1,10/20/26,Chihuahua,Canine,6 years,Inactive,**,1
+2026-11-18,2026-11-18,1,10/20/26,Coahuila,Caprine,3 years,Inactive,**,89
+2026-11-18,2026-11-18,1,10/20/26,Chihuahua,Equine,5 months,Inactive,**,94
+2026-11-18,2026-11-18,1,10/20/26,Nuevo León,Canine,7 years,Inactive,**,95
+2026-11-18,2026-11-18,1,10/20/26,Nuevo León,Canine,8 years,Inactive,**,97
+2026-11-18,2026-11-18,1,10/19/26,Sonora,Bovine,4 years,Inactive,Aerial,67
+2026-11-18,2026-11-18,1,10/19/26,Sonora,Bovine,15 days,Inactive,Aerial,77
+2026-11-18,2026-11-18,1,10/19/26,Nuevo León,Swine,2 years,Inactive,**,82
+2026-11-18,2026-11-18,1,10/19/26,Tamaulipas,Caprine,1 year,Inactive,**,85
+2026-11-18,2026-11-18,1,10/19/26,Tamaulipas,Caprine,1 year,Inactive,**,90
+2026-11-18,2026-11-18,1,10/19/26,Tamaulipas,Canine,2 years,Inactive,**,90
+2026-11-18,2026-11-18,1,10/19/26,Nuevo León,Canine,6 years,Inactive,**,92
+2026-11-18,2026-11-18,1,10/19/26,Coahuila,Bovine,6 months,Inactive,**,93
+2026-11-18,2026-11-18,1,10/19/26,Coahuila,Bovine,15 days,Inactive,**,95
+2026-11-18,2026-11-18,1,10/19/26,Coahuila,Equine,8 years,Inactive,**,95
+2026-11-18,2026-11-18,2,10/19/26,Nuevo León,Canine,3 years,Inactive,**,95
+2026-11-18,2026-11-18,1,10/18/26,Chihuahua,Equine,2 years,Inactive,**,61
+2026-11-18,2026-11-18,1,10/18/26,Chihuahua,Bovine,12 years,Inactive,**,86
+2026-11-18,2026-11-18,1,10/18/26,Chihuahua,Bovine,5 years,Inactive,**,86
+2026-11-18,2026-11-18,1,10/18/26,Sonora,Canine,2 years,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,10/18/26,Nuevo León,Canine,14 years,Inactive,**,92
+2026-11-18,2026-11-18,1,10/18/26,Nuevo León,Canine,8 years,Inactive,**,92
+2026-11-18,2026-11-18,1,10/16/26,Tamaulipas,Bovine,5 days,Inactive,**,90
+2026-11-18,2026-11-18,2,10/15/26,Chihuahua,Bovine,5 days,Inactive,**,13
+2026-11-18,2026-11-18,1,10/15/26,Chihuahua,Bovine,5 months,Inactive,**,14
+2026-11-18,2026-11-18,1,10/15/26,Chihuahua,Bovine,4 days,Inactive,**,20
+2026-11-18,2026-11-18,1,10/15/26,Chihuahua,Bovine,20 days,Inactive,**,88
+2026-11-18,2026-11-18,1,10/15/26,Nuevo León,Canine,1 year,Inactive,**,95
+2026-11-18,2026-11-18,1,10/13/26,Nuevo León,Bovine,1 month,Inactive,**,30
+2026-11-18,2026-11-18,1,10/13/26,Coahuila,Ovine,4 years,Inactive,**,31
+2026-11-18,2026-11-18,1,10/13/26,Nuevo León,Canine,4 years,Inactive,**,73
+2026-11-18,2026-11-18,1,10/13/26,Nuevo León,Bovine,2 years,Inactive,**,85
+2026-11-18,2026-11-18,1,10/13/26,Tamaulipas,Bovine,3 years,Inactive,**,88
+2026-11-18,2026-11-18,1,10/13/26,Tamaulipas,Caprine,3 years,Inactive,**,93
+2026-11-18,2026-11-18,1,10/13/26,Tamaulipas,Bovine,1 year,Inactive,**,93
+2026-11-18,2026-11-18,1,10/12/26,Nuevo León,Bovine,10 days,Inactive,**,37
+2026-11-18,2026-11-18,1,10/12/26,Coahuila,Bovine,20 days,Inactive,**,71
+2026-11-18,2026-11-18,1,10/12/26,Sonora,Bovine,25 days,Inactive,Aerial,84
+2026-11-18,2026-11-18,1,10/12/26,Nuevo León,Bovine,8 days,Inactive,**,91
+2026-11-18,2026-11-18,1,10/12/26,Chihuahua,Bovine,5 years,Inactive,**,98
+2026-11-18,2026-11-18,1,10/11/26,Sonora,Bovine,8 days,Inactive,Aerial,99
+2026-11-18,2026-11-18,1,10/10/26,Chihuahua,Canine,7 years,Inactive,Aerial,19
+2026-11-18,2026-11-18,1,10/10/26,Nuevo León,Bovine,1 year,Inactive,**,97
+2026-11-18,2026-11-18,1,10/09/26,Chihuahua,Equine,2 years,Inactive,**,4
+2026-11-18,2026-11-18,1,10/09/26,Coahuila,Caprine,36 months,Inactive,**,41
+2026-11-18,2026-11-18,1,10/09/26,Sonora,Bovine,5 years,Inactive,Aerial,65
+2026-11-18,2026-11-18,1,10/09/26,Tamaulipas,Canine,4 years,Inactive,**,82
+2026-11-18,2026-11-18,2,10/09/26,Chihuahua,Bovine,6 days,Inactive,**,90
+2026-11-18,2026-11-18,1,10/08/26,Coahuila,Bovine,10 months,Inactive,**,33
+2026-11-18,2026-11-18,1,10/08/26,Coahuila,Bovine,1 month,Inactive,**,33
+2026-11-18,2026-11-18,1,10/08/26,Nuevo León,Canine,6 years,Inactive,**,86
+2026-11-18,2026-11-18,1,10/08/26,Sonora,Equine,10 years,Inactive,Aerial,94
+2026-11-18,2026-11-18,1,10/07/26,Nuevo León,Bovine,6 days,Inactive,**,52
+2026-11-18,2026-11-18,1,10/07/26,Nuevo León,Canine,1 year,Inactive,**,71
+2026-11-18,2026-11-18,1,10/07/26,Sonora,Bovine,3 months,Inactive,Aerial,92
+2026-11-18,2026-11-18,1,10/06/26,Coahuila,Bovine,4 days,Inactive,**,34
+2026-11-18,2026-11-18,1,10/06/26,Nuevo León,Canine,6 years,Inactive,**,95
+2026-11-18,2026-11-18,1,10/06/26,Nuevo León,Equine,16 years,Inactive,**,95
+2026-11-18,2026-11-18,2,10/05/26,Coahuila,Bovine,7 days,Inactive,**,38
+2026-11-18,2026-11-18,1,10/05/26,Sonora,Bovine,4 months,Inactive,Aerial,76
+2026-11-18,2026-11-18,1,10/05/26,Nuevo León,Canine,10 years,Inactive,**,94
+2026-11-18,2026-11-18,1,10/05/26,Nuevo León,Canine,11 years,Inactive,**,96
+2026-11-18,2026-11-18,1,10/04/26,Sonora,Bovine,12 years,Inactive,**,84
+2026-11-18,2026-11-18,1,10/04/26,Sonora,Bovine,8 months,Inactive,**,98
+2026-11-18,2026-11-18,1,10/03/26,Coahuila,Bovine,96 months,Inactive,**,38
+2026-11-18,2026-11-18,1,10/03/26,Coahuila,Bovine,2 months,Inactive,**,38
+2026-11-18,2026-11-18,1,10/02/26,Nuevo León,Canine,7 months,Inactive,**,73
+2026-11-18,2026-11-18,1,10/02/26,Nuevo León,Canine,6 years,Inactive,**,95
+2026-11-18,2026-11-18,1,10/02/26,Nuevo León,Canine,2 years,Inactive,**,96
+2026-11-18,2026-11-18,1,10/02/26,Nuevo León,Leporid,10 months,Inactive,**,97
+2026-11-18,2026-11-18,1,10/01/26,Chihuahua,Bovine,7 years,Inactive,**,18
+2026-11-18,2026-11-18,1,10/01/26,Chihuahua,Bovine,1 month,Inactive,**,21
+2026-11-18,2026-11-18,1,09/30/26,Sonora,Equine,10 years,Inactive,**,66
+2026-11-18,2026-11-18,1,09/28/26,Coahuila,Bovine,7 days,Inactive,**,34
+2026-11-18,2026-11-18,1,09/28/26,Coahuila,Equine,11 years,Inactive,**,87
+2026-11-18,2026-11-18,1,09/26/26,Sonora,Bovine,15 days,Inactive,**,63
+2026-11-18,2026-11-18,1,09/25/26,Tamaulipas,Swine,4 months,Inactive,**,92
+2026-11-18,2026-11-18,1,09/25/26,Nuevo León,Canine,9 years,Inactive,**,95
+2026-11-18,2026-11-18,1,09/24/26,Nuevo León,Ovine,5 months,Inactive,**,68
+2026-11-18,2026-11-18,1,09/23/26,Nuevo León,Canine,10 years,Inactive,**,57
+2026-11-18,2026-11-18,1,09/23/26,Nuevo León,Bovine,13 years,Inactive,**,71
+2026-11-18,2026-11-18,1,09/22/26,Nuevo León,Canine,14 years,Inactive,**,95
+2026-11-18,2026-11-18,1,09/19/26,Nuevo León,Bovine,8 months,Inactive,**,72
+2026-11-18,2026-11-18,1,09/19/26,Nuevo León,Canine,3 years,Inactive,**,92
+2026-11-18,2026-11-18,1,09/19/26,Nuevo León,Wildlife,8 years,Inactive,**,92
+2026-11-18,2026-11-18,1,09/18/26,Sonora,Bovine,10 days,Inactive,**,77
+2026-11-18,2026-11-18,1,09/18/26,Nuevo León,Canine,11 years,Inactive,**,81
+2026-11-18,2026-11-18,1,09/18/26,Nuevo León,Canine,1 year,Inactive,**,94
+2026-11-18,2026-11-18,1,09/18/26,Nuevo León,Canine,12 years,Inactive,**,94
+2026-11-18,2026-11-18,1,09/17/26,Nuevo León,Bovine,2 years,Inactive,**,37
+2026-11-18,2026-11-18,1,09/16/26,Coahuila,Bovine,6 days,Inactive,**,63
+2026-11-18,2026-11-18,1,09/15/26,Coahuila,Equine,2 years,Inactive,Aerial,3
+2026-11-18,2026-11-18,1,09/15/26,Coahuila,Bovine,60 months,Inactive,**,78
+2026-11-18,2026-11-18,1,09/15/26,Coahuila,Bovine,60 months,Inactive,**,92
+2026-11-18,2026-11-18,1,09/15/26,Nuevo León,Canine,10 years,Inactive,**,94
+2026-11-18,2026-11-18,1,09/14/26,Coahuila,Bovine,30 months,Inactive,**,63
+2026-11-18,2026-11-18,1,09/13/26,Nuevo León,Canine,3 years,Inactive,**,93
+2026-11-18,2026-11-18,1,09/11/26,Nuevo León,Canine,14 months,Inactive,**,96
+2026-11-18,2026-11-18,1,09/11/26,Chihuahua,Ovine,36 months,Inactive,**,98
+2026-11-18,2026-11-18,1,09/09/26,Chihuahua,Swine,1 year,Inactive,**,11
+2026-11-18,2026-11-18,1,09/09/26,Coahuila,Canine,5 years,Inactive,**,80
+2026-11-18,2026-11-18,1,09/07/26,Nuevo León,Canine,15 years,Inactive,**,92
+2026-11-18,2026-11-18,1,09/05/26,Coahuila,Equine,4 years,Inactive,**,80
+2026-11-18,2026-11-18,1,09/04/26,Nuevo León,Bovine,2 years,Inactive,**,48
+2026-11-18,2026-11-18,1,09/04/26,Nuevo León,Canine,10 years,Inactive,**,92
+2026-11-18,2026-11-18,1,09/01/26,Chihuahua,Equine,10 years,Inactive,**,2
+2026-11-18,2026-11-18,1,09/01/26,Nuevo León,Canine,9 years,Inactive,**,94
+2026-11-18,2026-11-18,1,08/31/26,Coahuila,Bovine,1 month,Inactive,**,76
+2026-11-18,2026-11-18,1,08/31/26,Coahuila,Canine,2 years,Inactive,**,80
+2026-11-18,2026-11-18,1,08/31/26,Coahuila,Canine,5 years,Inactive,**,80
+2026-11-18,2026-11-18,1,08/28/26,Coahuila,Bovine,10 days,Inactive,**,80
+2026-11-18,2026-11-18,1,08/27/26,Coahuila,Avian,12 months,Inactive,**,28
+2026-11-18,2026-11-18,1,08/27/26,Coahuila,Bovine,8 months,Inactive,**,45
+2026-11-18,2026-11-18,1,08/24/26,Nuevo León,Bovine,10 days,Inactive,**,85
+2026-11-18,2026-11-18,1,08/24/26,Nuevo León,Canine,4 years,Inactive,**,92
+2026-11-18,2026-11-18,1,08/24/26,Nuevo León,Canine,2 years,Inactive,**,96
+2026-11-18,2026-11-18,1,08/23/26,Nuevo León,Caprine,4 years,Inactive,**,74
+2026-11-18,2026-11-18,1,08/23/26,Nuevo León,Canine,12 years,Inactive,**,87
+2026-11-18,2026-11-18,1,08/22/26,Nuevo León,Caprine,3 years,Inactive,**,74
+2026-11-18,2026-11-18,2,08/21/26,Coahuila,Bovine,15 days,Inactive,**,54
+2026-11-18,2026-11-18,1,08/20/26,Nuevo León,Canine,5 years,Inactive,**,93
+2026-11-18,2026-11-18,1,08/20/26,Nuevo León,Canine,6 years,Inactive,**,93
+2026-11-18,2026-11-18,1,08/19/26,Coahuila,Bovine,8 days,Inactive,**,69
+2026-11-18,2026-11-18,1,08/19/26,Nuevo León,Canine,13 years,Inactive,**,96
+2026-11-18,2026-11-18,1,08/18/26,Nuevo León,Equine,6 years,Inactive,**,77
+2026-11-18,2026-11-18,1,08/18/26,Coahuila,Bovine,5 days,Inactive,**,79
+2026-11-18,2026-11-18,1,08/18/26,Coahuila,Bovine,12 years,Inactive,**,79
+2026-11-18,2026-11-18,1,08/18/26,Coahuila,Caprine,32 months,Inactive,**,82
+2026-11-18,2026-11-18,1,08/17/26,Nuevo León,Equine,6 years,Inactive,**,73
+2026-11-18,2026-11-18,1,08/17/26,Coahuila,Bovine,72 months,Inactive,**,84
+2026-11-18,2026-11-18,1,08/17/26,Chihuahua,Ovine,3 years,Inactive,**,100
+2026-11-18,2026-11-18,1,08/15/26,Coahuila,Equine,10 years,Inactive,Aerial,11
+2026-11-18,2026-11-18,1,08/15/26,Nuevo León,Bovine,4 years,Inactive,**,73
+2026-11-18,2026-11-18,1,08/15/26,Coahuila,Bovine,60 months,Inactive,**,82
+2026-11-18,2026-11-18,1,08/15/26,Nuevo León,Canine,13 years,Inactive,**,94
+2026-11-18,2026-11-18,1,08/14/26,Chihuahua,Canine,6 years,Inactive,**,18
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,20 days,Inactive,**,42
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Caprine,9 months,Inactive,**,45
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,4 years,Inactive,**,49
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,5 years,Inactive,**,52
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,7 years,Inactive,**,52
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,14 days,Inactive,**,72
+2026-11-18,2026-11-18,1,08/14/26,Nuevo León,Bovine,12 days,Inactive,**,73
+2026-11-18,2026-11-18,1,08/13/26,Coahuila,Bovine,30 months,Inactive,**,79
+2026-11-18,2026-11-18,2,08/13/26,Coahuila,Bovine,60 months,Inactive,**,90
+2026-11-18,2026-11-18,1,08/12/26,Chihuahua,Bovine,5 years,Inactive,**,99
+2026-11-18,2026-11-18,1,08/11/26,Coahuila,Bovine,48 months,Inactive,**,82
+2026-11-18,2026-11-18,1,08/11/26,Nuevo León,Equine,18 months,Inactive,**,90
+2026-11-18,2026-11-18,1,08/11/26,Nuevo León,Canine,8 years,Inactive,**,95
+2026-11-18,2026-11-18,1,08/11/26,Nuevo León,Canine,8 years,Inactive,**,96
+2026-11-18,2026-11-18,1,08/10/26,Nuevo León,Canine,15 years,Inactive,**,92
+2026-11-18,2026-11-18,1,08/10/26,Nuevo León,Canine,9 years,Inactive,**,95
+2026-11-18,2026-11-18,1,08/07/26,Nuevo León,Canine,10 years,Inactive,**,92
+2026-11-18,2026-11-18,1,08/07/26,Nuevo León,Equine,4 years,Inactive,**,98
+2026-11-18,2026-11-18,1,08/06/26,Chihuahua,Canine,21 months,Inactive,**,60
+2026-11-18,2026-11-18,1,08/05/26,Nuevo León,Bovine,1 week,Inactive,**,72
+2026-11-18,2026-11-18,1,08/05/26,Chihuahua,Bovine,4 days,Inactive,**,96
+2026-11-18,2026-11-18,1,08/04/26,Nuevo León,Caprine,3 years,Inactive,**,39
+2026-11-18,2026-11-18,1,08/04/26,Nuevo León,Canine,11 years,Inactive,**,90
+2026-11-18,2026-11-18,1,08/03/26,Coahuila,Bovine,9 days,Inactive,**,82
+2026-11-18,2026-11-18,1,08/03/26,Nuevo León,Canine,11 years,Inactive,**,94
+2026-11-18,2026-11-18,1,08/02/26,Nuevo León,Caprine,18 months,Inactive,**,39
+2026-11-18,2026-11-18,1,08/01/26,Coahuila,Bovine,9 days,Inactive,Aerial,0.5
+2026-11-18,2026-11-18,1,08/01/26,Nuevo León,Caprine,3 years,Inactive,**,34
+2026-11-18,2026-11-18,1,08/01/26,Nuevo León,Bovine,4 years,Inactive,**,44
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Bovine,5 years,Inactive,**,41
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Bovine,2 years,Inactive,**,45
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Bovine,6 years,Inactive,**,45
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Bovine,6 years,Inactive,**,59
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Canine,1 year,Inactive,**,70
+2026-11-18,2026-11-18,1,07/31/26,Nuevo León,Canine,13 years,Inactive,**,96
+2026-11-18,2026-11-18,1,07/30/26,Coahuila,Canine,12 years,Inactive,Aerial,21
+2026-11-18,2026-11-18,1,07/30/26,Nuevo León,Canine,9 years,Inactive,**,94
+2026-11-18,2026-11-18,1,07/29/26,Nuevo León,Caprine,3 years,Inactive,**,61
+2026-11-18,2026-11-18,1,07/29/26,Coahuila,Bovine,1 month,Inactive,**,76
+2026-11-18,2026-11-18,1,07/28/26,Coahuila,Bovine,25 days,Inactive,**,80
+2026-11-18,2026-11-18,1,07/28/26,Chihuahua,Bovine,4 months,Inactive,**,87
+2026-11-18,2026-11-18,1,07/28/26,Nuevo León,Equine,2 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/28/26,Coahuila,Bovine,5 months,Inactive,**,99
+2026-11-18,2026-11-18,1,07/25/26,Nuevo León,Canine,10 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/25/26,Nuevo León,Canine,12 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/25/26,Nuevo León,Canine,8 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/25/26,Nuevo León,Equine,4 months,Inactive,**,95
+2026-11-18,2026-11-18,1,07/25/26,Nuevo León,Equine,4 years,Inactive,**,98
+2026-11-18,2026-11-18,1,07/24/26,Coahuila,Canine,4 years,Inactive,**,75
+2026-11-18,2026-11-18,1,07/24/26,Chihuahua,Bovine,76 months,Inactive,**,100
+2026-11-18,2026-11-18,1,07/23/26,Nuevo León,Bovine,1 month,Inactive,**,41
+2026-11-18,2026-11-18,1,07/23/26,Coahuila,Bovine,5 days,Inactive,**,84
+2026-11-18,2026-11-18,1,07/23/26,Nuevo León,Canine,7 months,Inactive,**,91
+2026-11-18,2026-11-18,1,07/22/26,Nuevo León,Canine,1 year,Inactive,**,94
+2026-11-18,2026-11-18,1,07/22/26,Nuevo León,Canine,15 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/21/26,Nuevo León,Caprine,5 years,Inactive,**,45
+2026-11-18,2026-11-18,1,07/21/26,Nuevo León,Canine,13 years,Inactive,**,92
+2026-11-18,2026-11-18,1,07/21/26,Nuevo León,Bovine,7 months,Inactive,**,99
+2026-11-18,2026-11-18,1,07/20/26,Nuevo León,Caprine,4 years,Inactive,**,45
+2026-11-18,2026-11-18,1,07/20/26,Nuevo León,Bovine,10 days,Inactive,**,45
+2026-11-18,2026-11-18,1,07/20/26,Coahuila,Caprine,24 months,Inactive,**,70
+2026-11-18,2026-11-18,1,07/20/26,Nuevo León,Canine,7 years,Inactive,**,70
+2026-11-18,2026-11-18,1,07/20/26,Nuevo León,Bovine,10 days,Inactive,**,71
+2026-11-18,2026-11-18,1,07/20/26,Nuevo León,Canine,22 years,Inactive,**,73
+2026-11-18,2026-11-18,1,07/20/26,Coahuila,Bovine,10 days,Inactive,**,76
+2026-11-18,2026-11-18,1,07/18/26,Nuevo León,Bovine,8 days,Inactive,**,69
+2026-11-18,2026-11-18,1,07/17/26,Nuevo León,Bovine,4 years,Inactive,**,50
+2026-11-18,2026-11-18,1,07/17/26,Coahuila,Bovine,5 days,Inactive,**,71
+2026-11-18,2026-11-18,1,07/17/26,Nuevo León,Canine,20 months,Inactive,**,91
+2026-11-18,2026-11-18,1,07/16/26,Nuevo León,Bovine,5 years,Inactive,**,43
+2026-11-18,2026-11-18,1,07/16/26,Coahuila,Bovine,10 days,Inactive,**,76
+2026-11-18,2026-11-18,1,07/16/26,Nuevo León,Caprine,4 years,Inactive,**,88
+2026-11-18,2026-11-18,1,07/15/26,Nuevo León,Bovine,6 years,Inactive,**,46
+2026-11-18,2026-11-18,1,07/14/26,Nuevo León,Bovine,1 week,Inactive,**,41
+2026-11-18,2026-11-18,1,07/14/26,Nuevo León,Canine,10 years,Inactive,**,97
+2026-11-18,2026-11-18,1,07/11/26,Nuevo León,Canine,6 years,Inactive,**,57
+2026-11-18,2026-11-18,1,07/11/26,Nuevo León,Bovine,7 days,Inactive,**,66
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,12 days,Inactive,**,34
+2026-11-18,2026-11-18,1,07/10/26,Coahuila,Ovine,5 months,Inactive,Aerial,35
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Caprine,1 year,Inactive,**,46
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,4 months,Inactive,**,46
+2026-11-18,2026-11-18,2,07/10/26,Nuevo León,Bovine,17 days,Inactive,**,48
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,6 years,Inactive,**,50
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,5 years,Inactive,**,50
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,10 days,Inactive,**,58
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,15 days,Inactive,**,64
+2026-11-18,2026-11-18,1,07/10/26,Nuevo León,Bovine,12 days,Inactive,**,64
+2026-11-18,2026-11-18,1,07/10/26,Tamaulipas,Bovine,1 month,Inactive,**,90
+2026-11-18,2026-11-18,1,07/10/26,Tamaulipas,Caprine,12 months,Inactive,**,92
+2026-11-18,2026-11-18,1,07/10/26,Tamaulipas,Bovine,80 months,Inactive,**,96
+2026-11-18,2026-11-18,1,07/10/26,Tamaulipas,Bovine,1 year,Inactive,**,98
+2026-11-18,2026-11-18,1,07/10/26,Tamaulipas,Caprine,4 years,Inactive,**,99
+2026-11-18,2026-11-18,1,07/09/26,Coahuila,Equine,8 days,Inactive,Aerial,18
+2026-11-18,2026-11-18,1,07/09/26,Nuevo León,Bovine,1 month,Inactive,**,44
+2026-11-18,2026-11-18,1,07/09/26,Nuevo León,Canine,4 years,Inactive,**,75
+2026-11-18,2026-11-18,1,07/08/26,Coahuila,Canine,12 years,Inactive,**,76
+2026-11-18,2026-11-18,1,07/07/26,Nuevo León,Bovine,1 year,Inactive,**,56
+2026-11-18,2026-11-18,1,07/07/26,Nuevo León,Equine,6 years,Inactive,**,70
+2026-11-18,2026-11-18,1,07/07/26,Nuevo León,Canine,4 years,Inactive,**,99
+2026-11-18,2026-11-18,1,07/06/26,Nuevo León,Caprine,1 year,Inactive,**,48
+2026-11-18,2026-11-18,1,07/06/26,Nuevo León,Bovine,10 days,Inactive,**,64
+2026-11-18,2026-11-18,1,07/06/26,Coahuila,Bovine,10 days,Inactive,**,85
+2026-11-18,2026-11-18,1,07/06/26,Nuevo León,Canine,15 years,Inactive,**,94
+2026-11-18,2026-11-18,1,07/05/26,Nuevo León,Bovine,10 days,Inactive,**,47
+2026-11-18,2026-11-18,1,07/05/26,Nuevo León,Bovine,1 year,Inactive,**,59
+2026-11-18,2026-11-18,1,07/05/26,Tamaulipas,Bovine,5 years,Inactive,**,66
+2026-11-18,2026-11-18,1,07/04/26,Nuevo León,Canine,7 years,Inactive,**,95
+2026-11-18,2026-11-18,1,07/04/26,Nuevo León,Bovine,4 days,Inactive,**,99
+2026-11-18,2026-11-18,1,07/04/26,Nuevo León,Canine,10 years,Inactive,**,100
+2026-11-18,2026-11-18,1,07/03/26,Nuevo León,Bovine,5 days,Inactive,**,33
+2026-11-18,2026-11-18,1,07/03/26,Nuevo León,Bovine,2 years,Inactive,**,50
+2026-11-18,2026-11-18,1,07/03/26,Tamaulipas,Bovine,15 days,Inactive,**,89
+2026-11-18,2026-11-18,1,07/03/26,Tamaulipas,Ovine,24 months,Inactive,**,89
+2026-11-18,2026-11-18,1,07/02/26,Nuevo León,Bovine,6 days,Inactive,Aerial,16
+2026-11-18,2026-11-18,1,07/02/26,Coahuila,Ovine,4 years,Inactive,Aerial,29
+2026-11-18,2026-11-18,1,07/02/26,Nuevo León,Caprine,2 months,Inactive,**,38
+2026-11-18,2026-11-18,1,07/02/26,Nuevo León,Bovine,3 years,Inactive,**,49
+2026-11-18,2026-11-18,1,07/02/26,Coahuila,Bovine,7 days,Inactive,**,63
+2026-11-18,2026-11-18,1,07/02/26,Tamaulipas,Bovine,10 days,Inactive,**,81
+2026-11-18,2026-11-18,1,07/02/26,Coahuila,Bovine,2 months,Inactive,**,92
+2026-11-18,2026-11-18,1,07/02/26,Nuevo León,Canine,102 months,Inactive,**,92
+2026-11-18,2026-11-18,1,07/01/26,Nuevo León,Bovine,7 days,Inactive,**,51
+2026-11-18,2026-11-18,1,07/01/26,Tamaulipas,Bovine,7 days,Inactive,**,63
+2026-11-18,2026-11-18,1,07/01/26,Nuevo León,Canine,5 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/30/26,Nuevo León,Bovine,1 month,Inactive,**,51
+2026-11-18,2026-11-18,1,06/30/26,Nuevo León,Bovine,5 days,Inactive,**,78
+2026-11-18,2026-11-18,1,06/30/26,Nuevo León,Canine,6 years,Inactive,**,85
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Bovine,10 days,Inactive,**,85
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Canine,15 years,Inactive,**,85
+2026-11-18,2026-11-18,1,06/30/26,Nuevo León,Bovine,5 days,Inactive,**,87
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Bovine,1 week,Inactive,**,88
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Bovine,10 days,Inactive,**,88
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Bovine,8 years,Inactive,**,91
+2026-11-18,2026-11-18,1,06/30/26,Tamaulipas,Bovine,1 month,Inactive,**,98
+2026-11-18,2026-11-18,4,06/30/26,Nuevo León,Bovine,20 days,Inactive,**,99
+2026-11-18,2026-11-18,1,06/29/26,Nuevo León,Bovine,15 days,Inactive,**,46
+2026-11-18,2026-11-18,1,06/29/26,Nuevo León,Bovine,7 years,Inactive,**,62
+2026-11-18,2026-11-18,1,06/29/26,Coahuila,Bovine,48 months,Inactive,**,98
+2026-11-18,2026-11-18,1,06/27/26,Nuevo León,Bovine,6 years,Inactive,Aerial,23
+2026-11-18,2026-11-18,1,06/27/26,Nuevo León,Bovine,6 days,Inactive,**,27
+2026-11-18,2026-11-18,1,06/27/26,Nuevo León,Caprine,2 years,Inactive,**,46
+2026-11-18,2026-11-18,1,06/27/26,Tamaulipas,Bovine,5 months,Inactive,**,71
+2026-11-18,2026-11-18,1,06/27/26,Nuevo León,Bovine,15 days,Inactive,**,76
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Bovine,4 days,Inactive,**,43
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Caprine,8 months,Inactive,**,65
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Canine,17 years,Inactive,**,90
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Bovine,10 days,Inactive,**,90
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Canine,1 year,Inactive,**,96
+2026-11-18,2026-11-18,1,06/26/26,Nuevo León,Bovine,7 days,Inactive,**,98
+2026-11-18,2026-11-18,1,06/25/26,Nuevo León,Caprine,3 years,Inactive,**,30
+2026-11-18,2026-11-18,1,06/25/26,Nuevo León,Bovine,20 days,Inactive,**,38
+2026-11-18,2026-11-18,1,06/25/26,Nuevo León,Bovine,2 years,Inactive,**,42
+2026-11-18,2026-11-18,1,06/25/26,Nuevo León,Bovine,3 years,Inactive,**,42
+2026-11-18,2026-11-18,1,06/25/26,Tamaulipas,Bovine,8 days,Inactive,**,85
+2026-11-18,2026-11-18,1,06/25/26,Tamaulipas,Ovine,1 year,Inactive,**,86
+2026-11-18,2026-11-18,1,06/25/26,Tamaulipas,Ovine,7 days,Inactive,**,86
+2026-11-18,2026-11-18,1,06/25/26,Coahuila,Bovine,7 days,Inactive,**,87
+2026-11-18,2026-11-18,1,06/25/26,Tamaulipas,Bovine,1 month,Inactive,**,88
+2026-11-18,2026-11-18,1,06/25/26,Nuevo León,Bovine,3 days,Inactive,**,98
+2026-11-18,2026-11-18,1,06/25/26,Tamaulipas,Ovine,8 days,Inactive,**,99
+2026-11-18,2026-11-18,1,06/24/26,Coahuila,Canine,10 years,Inactive,Aerial,30
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Bovine,8 days,Inactive,**,34
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Bovine,1 month,Inactive,**,40
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Bovine,10 days,Inactive,**,40
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Bovine,20 days,Inactive,**,43
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Bovine,8 months,Inactive,**,56
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Equine,11 years,Inactive,**,94
+2026-11-18,2026-11-18,1,06/24/26,Nuevo León,Canine,5 years,Inactive,**,97
+2026-11-18,2026-11-18,1,06/23/26,Nuevo León,Bovine,7 years,Inactive,**,45
+2026-11-18,2026-11-18,1,06/23/26,Nuevo León,Bovine,7 days,Inactive,**,60
+2026-11-18,2026-11-18,1,06/23/26,Tamaulipas,Bovine,10 days,Inactive,**,69
+2026-11-18,2026-11-18,1,06/23/26,Nuevo León,Canine,19 years,Inactive,**,85
+2026-11-18,2026-11-18,1,06/23/26,Nuevo León,Canine,10 years,Inactive,**,95
+2026-11-18,2026-11-18,1,06/22/26,Coahuila,Bovine,3 weeks,Inactive,Aerial,21
+2026-11-18,2026-11-18,1,06/22/26,Nuevo León,Bovine,2 months,Inactive,**,36
+2026-11-18,2026-11-18,1,06/22/26,Nuevo León,Bovine,2 years,Inactive,Aerial,39
+2026-11-18,2026-11-18,1,06/22/26,Nuevo León,Caprine,4 years,Inactive,**,47
+2026-11-18,2026-11-18,1,06/22/26,Nuevo León,Bovine,9 years,Inactive,**,58
+2026-11-18,2026-11-18,1,06/21/26,Tamaulipas,Bovine,12 months,Inactive,Aerial,15
+2026-11-18,2026-11-18,1,06/21/26,Nuevo León,Bovine,12 days,Inactive,**,71
+2026-11-18,2026-11-18,1,06/20/26,Nuevo León,Canine,4 years,Inactive,**,87
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Bovine,10 days,Inactive,**,53
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Bovine,10 days,Inactive,**,79
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Bovine,13 months,Inactive,**,90
+2026-11-18,2026-11-18,1,06/19/26,Coahuila,Bovine,60 months,Inactive,**,92
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Canine,13 years,Inactive,**,94
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Caprine,5 months,Inactive,**,97
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Bovine,1 year,Inactive,**,99
+2026-11-18,2026-11-18,1,06/19/26,Nuevo León,Bovine,3 years,Inactive,**,99
+2026-11-18,2026-11-18,1,06/18/26,Nuevo León,Canine,5 years,Inactive,**,99
+2026-11-18,2026-11-18,1,06/17/26,Coahuila,Caprine,36 months,Inactive,Aerial,25
+2026-11-18,2026-11-18,1,06/17/26,Nuevo León,Bovine,6 days,Inactive,Aerial,25
+2026-11-18,2026-11-18,1,06/17/26,Coahuila,Bovine,12 months,Inactive,Aerial,54
+2026-11-18,2026-11-18,1,06/17/26,Coahuila,Caprine,1 month,Inactive,**,80
+2026-11-18,2026-11-18,1,06/16/26,Coahuila,Bovine,72 months,Inactive,Aerial,25
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Equine,20 years,Inactive,**,51
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,8 days,Inactive,**,51
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,10 months,Inactive,**,62
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,12 years,Inactive,**,62
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,12 days,Inactive,**,65
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,7 days,Inactive,**,95
+2026-11-18,2026-11-18,2,06/16/26,Nuevo León,Canine,8 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/16/26,Nuevo León,Bovine,26 days,Inactive,**,99
+2026-11-18,2026-11-18,1,06/15/26,Nuevo León,Canine,6 years,Inactive,**,59
+2026-11-18,2026-11-18,1,06/15/26,Nuevo León,Bovine,20 months,Inactive,**,63
+2026-11-18,2026-11-18,1,06/15/26,Nuevo León,Bovine,20 days,Inactive,**,65
+2026-11-18,2026-11-18,1,06/15/26,Nuevo León,Canine,2 years,Inactive,**,73
+2026-11-18,2026-11-18,1,06/15/26,Coahuila,Bovine,3 months,Inactive,**,79
+2026-11-18,2026-11-18,1,06/15/26,Tamaulipas,Caprine,3 years,Inactive,**,83
+2026-11-18,2026-11-18,1,06/15/26,Tamaulipas,Bovine,13 years,Inactive,**,89
+2026-11-18,2026-11-18,2,06/14/26,Coahuila,Bovine,5 days,Inactive,**,55
+2026-11-18,2026-11-18,1,06/13/26,Nuevo León,Bovine,10 days,Inactive,**,59
+2026-11-18,2026-11-18,1,06/13/26,Nuevo León,Ovine,3 years,Inactive,**,60
+2026-11-18,2026-11-18,1,06/12/26,Tamaulipas,Bovine,5 years,Inactive,**,91
+2026-11-18,2026-11-18,1,06/11/26,Nuevo León,Canine,5 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/11/26,Nuevo León,Canine,6 months,Inactive,**,96
+2026-11-18,2026-11-18,1,06/10/26,Nuevo León,Bovine,15 days,Inactive,Aerial,42
+2026-11-18,2026-11-18,1,06/10/26,Coahuila,Bovine,7 years,Inactive,Aerial,69
+2026-11-18,2026-11-18,1,06/10/26,Nuevo León,Bovine,1 month,Inactive,**,78
+2026-11-18,2026-11-18,1,06/10/26,Tamaulipas,Bovine,5 days,Inactive,**,85
+2026-11-18,2026-11-18,1,06/10/26,Nuevo León,Feline,2 months,Inactive,**,87
+2026-11-18,2026-11-18,1,06/10/26,Nuevo León,Canine,10 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/10/26,Nuevo León,Canine,10 years,Inactive,**,97
+2026-11-18,2026-11-18,1,06/09/26,Nuevo León,Bovine,8 days,Inactive,Aerial,40
+2026-11-18,2026-11-18,1,06/09/26,Nuevo León,Bovine,25 days,Inactive,**,65
+2026-11-18,2026-11-18,1,06/09/26,Nuevo León,Bovine,35 days,Inactive,**,65
+2026-11-18,2026-11-18,1,06/09/26,Nuevo León,Canine,8 years,Inactive,**,97
+2026-11-18,2026-11-18,1,06/09/26,Nuevo León,Canine,3 months,Inactive,**,97
+2026-11-18,2026-11-18,1,06/08/26,Nuevo León,Caprine,4 years,Inactive,Aerial,46
+2026-11-18,2026-11-18,1,06/08/26,Tamaulipas,Bovine,18 months,Inactive,Aerial,62
+2026-11-18,2026-11-18,1,06/08/26,Tamaulipas,Caprine,8 years,Inactive,Aerial,62
+2026-11-18,2026-11-18,1,06/08/26,Coahuila,Caprine,5 years,Inactive,**,72
+2026-11-18,2026-11-18,1,06/08/26,Nuevo León,Canine,2 years,Inactive,**,90
+2026-11-18,2026-11-18,1,06/08/26,Nuevo León,Canine,8 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/07/26,Nuevo León,Equine,8 months,Inactive,Aerial,27
+2026-11-18,2026-11-18,1,06/07/26,Coahuila,Bovine,5 days,Inactive,Aerial,59
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Bovine,3 months,Inactive,Aerial,62
+2026-11-18,2026-11-18,1,06/06/26,Coahuila,Bovine,6 days,Inactive,Aerial,84
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Canine,6 months,Inactive,**,91
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Canine,9 years,Inactive,**,95
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Canine,4 years,Inactive,**,95
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Feline,4 years,Inactive,**,95
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Canine,15 years,Inactive,**,95
+2026-11-18,2026-11-18,1,06/06/26,Nuevo León,Canine,11 years,Inactive,**,96
+2026-11-18,2026-11-18,1,06/05/26,Nuevo León,Swine,2 years,Inactive,**,89
+2026-11-18,2026-11-18,1,06/04/26,Coahuila,Bovine,5 days,Inactive,Aerial,59
+2026-11-18,2026-11-18,1,06/04/26,Nuevo León,Bovine,1 month,Inactive,Aerial,69
+2026-11-18,2026-11-18,1,06/04/26,Nuevo León,Bovine,10 days,Inactive,**,94
+2026-11-18,2026-11-18,1,06/04/26,Nuevo León,Bovine,10 months,Inactive,**,94
+2026-11-18,2026-11-18,1,06/04/26,Nuevo León,Bovine,15 days,Inactive,**,99
+2026-11-18,2026-11-18,1,06/03/26,Coahuila,Bovine,20 days,Inactive,**,33
+2026-11-18,2026-11-18,1,06/03/26,Nuevo León,Canine,10 years,Inactive,Aerial,46
+2026-11-18,2026-11-18,1,06/03/26,Tamaulipas,Bovine,6 months,Inactive,**,87
+2026-11-18,2026-11-18,1,06/03/26,Nuevo León,Bovine,5 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,06/03/26,Nuevo León,Bovine,5 days,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,06/02/26,Nuevo León,Canine,7 years,Inactive,**,92
+2026-11-18,2026-11-18,1,06/02/26,Nuevo León,Canine,9 years,Inactive,Aerial,94
+2026-11-18,2026-11-18,1,06/01/26,Nuevo León,Bovine,5 days,Inactive,Aerial,50
+2026-11-18,2026-11-18,1,06/01/26,Nuevo León,Bovine,8 days,Inactive,Aerial,60
+2026-11-18,2026-11-18,1,06/01/26,Coahuila,Ovine,4 years,Inactive,Aerial,71
+2026-11-18,2026-11-18,1,06/01/26,Nuevo León,Canine,13 years,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,06/01/26,Nuevo León,Canine,17 years,Inactive,Aerial,90
+2026-11-18,2026-11-18,1,06/01/26,Nuevo León,Canine,1 year,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,05/30/26,Coahuila,Canine,1 year,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/30/26,Tamaulipas,Bovine,7 days,Inactive,**,81
+2026-11-18,2026-11-18,1,05/30/26,Tamaulipas,Bovine,6 days,Inactive,**,87
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,20 days,Inactive,Aerial,39
+2026-11-18,2026-11-18,1,05/29/26,Nuevo León,Bovine,7 days,Inactive,Aerial,69
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,2 months,Inactive,Aerial,74
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,1 week,Inactive,Aerial,74
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,7 years,Inactive,Aerial,75
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,3 years,Inactive,Aerial,81
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,2 months,Inactive,Aerial,82
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,1 month,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,1 month,Inactive,Aerial,91
+2026-11-18,2026-11-18,1,05/29/26,Nuevo León,Wildlife (American black bear),6 years,Inactive,Aerial,93
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,5 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/29/26,Coahuila,Bovine,5 months,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/28/26,Coahuila,Caprine,5 years,Inactive,Aerial,25
+2026-11-18,2026-11-18,1,05/28/26,Nuevo León,Bovine,8 years,Inactive,Aerial,60
+2026-11-18,2026-11-18,1,05/28/26,Nuevo León,Feline,2 years,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,05/28/26,Tamaulipas,Bovine,2 months,Inactive,Aerial,91
+2026-11-18,2026-11-18,1,05/28/26,Coahuila,Bovine,8 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/27/26,Nuevo León,Bovine,20 days,Inactive,Aerial,65
+2026-11-18,2026-11-18,1,05/27/26,Coahuila,Bovine,9 years,Inactive,Aerial,67
+2026-11-18,2026-11-18,1,05/27/26,Tamaulipas,Caprine,15 days,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/27/26,Nuevo León,Bovine,6 months,Inactive,Aerial,89
+2026-11-18,2026-11-18,1,05/27/26,Nuevo León,Canine,7 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/27/26,Nuevo León,Canine,5 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/27/26,Nuevo León,Feline,7 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/27/26,Tamaulipas,Bovine,12 months,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/27/26,Tamaulipas,Bovine,8 days,Inactive,Aerial,98
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Bovine,6 days,Inactive,Aerial,52
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Bovine,7 days,Inactive,Aerial,52
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Canine,14 years,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/26/26,Coahuila,Bovine,3 years,Inactive,Aerial,91
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Swine,4 years,Inactive,Aerial,93
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Canine,5 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/26/26,Nuevo León,Canine,11 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/25/26,Coahuila,Equine,16 years,Inactive,Aerial,67
+2026-11-18,2026-11-18,1,05/25/26,Tamaulipas,Bovine,6 days,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/25/26,Tamaulipas,Caprine,7 days,Inactive,Aerial,90
+2026-11-18,2026-11-18,1,05/23/26,Coahuila,Bovine,13 years,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/23/26,Nuevo León,Bovine,7 months,Inactive,Aerial,87
+2026-11-18,2026-11-18,2,05/23/26,Nuevo León,Bovine,5 months,Inactive,Aerial,98
+2026-11-18,2026-11-18,1,05/21/26,Coahuila,Bovine,15 days,Inactive,**,55
+2026-11-18,2026-11-18,1,05/21/26,Coahuila,Caprine,1 year,Inactive,Aerial,63
+2026-11-18,2026-11-18,1,05/21/26,Coahuila,Bovine,2 days,Inactive,Aerial,74
+2026-11-18,2026-11-18,1,05/21/26,Nuevo León,Bovine,15 days,Inactive,Aerial,75
+2026-11-18,2026-11-18,1,05/21/26,Tamaulipas,Bovine,20 days,Inactive,Aerial,79
+2026-11-18,2026-11-18,1,05/21/26,Tamaulipas,Bovine,2 months,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/21/26,Nuevo León,Bovine,6 months,Inactive,Aerial,86
+2026-11-18,2026-11-18,1,05/21/26,Nuevo León,Canine,12 years,Inactive,Aerial,88
+2026-11-18,2026-11-18,1,05/20/26,Coahuila,Bovine,13 years,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/20/26,Tamaulipas,Bovine,10 days,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/20/26,Nuevo León,Bovine,9 days,Inactive,Aerial,84
+2026-11-18,2026-11-18,1,05/20/26,Tamaulipas,Caprine,24 months,Inactive,Aerial,84
+2026-11-18,2026-11-18,1,05/20/26,Nuevo León,Bovine,19 days,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/19/26,Nuevo León,Bovine,8 days,Inactive,Aerial,82
+2026-11-18,2026-11-18,1,05/19/26,Nuevo León,Bovine,3 days,Inactive,Aerial,89
+2026-11-18,2026-11-18,1,05/19/26,Nuevo León,Bovine,8 days,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/18/26,Tamaulipas,Bovine,5 days,Inactive,Aerial,74
+2026-11-18,2026-11-18,1,05/18/26,Tamaulipas,Bovine,5 years,Inactive,Aerial,83
+2026-11-18,2026-11-18,1,05/18/26,Tamaulipas,Bovine,5 days,Inactive,Aerial,94
+2026-11-18,2026-11-18,1,05/18/26,Tamaulipas,Bovine,15 days,Inactive,Aerial,94
+2026-11-18,2026-11-18,1,05/18/26,Tamaulipas,Bovine,6 years,Inactive,Aerial,94
+2026-11-18,2026-11-18,1,05/16/26,Nuevo León,Feline,16 months,Inactive,Aerial,57
+2026-11-18,2026-11-18,1,05/16/26,Tamaulipas,Bovine,3 days,Inactive,Aerial,90
+2026-11-18,2026-11-18,1,05/15/26,Nuevo León,Caprine,6 years,Inactive,Aerial,64
+2026-11-18,2026-11-18,1,05/15/26,Nuevo León,Bovine,3 weeks,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,05/15/26,Tamaulipas,Caprine,5 years,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,05/14/26,Coahuila,Bovine,8 days,Inactive,Aerial,72
+2026-11-18,2026-11-18,1,05/14/26,Nuevo León,Bovine,10 years,Inactive,Aerial,93
+2026-11-18,2026-11-18,1,05/14/26,Nuevo León,Canine,6 years,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,05/13/26,Nuevo León,Bovine,15 days,Inactive,Aerial,78
+2026-11-18,2026-11-18,1,05/13/26,Tamaulipas,Ovine,1 year,Inactive,Aerial,82
+2026-11-18,2026-11-18,1,05/12/26,Tamaulipas,Caprine,4 years,Inactive,Aerial,82
+2026-11-18,2026-11-18,1,05/12/26,Nuevo León,Canine,12 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/10/26,Nuevo León,Bovine,8 days,Inactive,Aerial,79
+2026-11-18,2026-11-18,1,05/10/26,Nuevo León,Bovine,8 days,Inactive,Aerial,99
+2026-11-18,2026-11-18,1,05/08/26,Tamaulipas,Bovine,5 days,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/08/26,Nuevo León,Canine,4 years,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/07/26,Tamaulipas,Bovine,5 days,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,05/06/26,Nuevo León,Canine,11 months,Inactive,Aerial,95
+2026-11-18,2026-11-18,1,05/05/26,Tamaulipas,Bovine,6 days,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/05/26,Tamaulipas,Bovine,15 days,Inactive,Aerial,85
+2026-11-18,2026-11-18,1,05/05/26,Nuevo León,Bovine,15 days,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,05/04/26,Nuevo León,Bovine,15 days,Inactive,Aerial,93
+2026-11-18,2026-11-18,1,05/04/26,Nuevo León,Canine,5 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,05/04/26,Nuevo León,Bovine,8 days,Inactive,Aerial,98
+2026-11-18,2026-11-18,1,05/02/26,Nuevo León,Bovine,8 days,Inactive,Aerial,79
+2026-11-18,2026-11-18,1,05/02/26,Nuevo León,Canine,6 months,Inactive,Aerial,80
+2026-11-18,2026-11-18,1,05/02/26,Nuevo León,Caprine,3 years,Inactive,Aerial,81
+2026-11-18,2026-11-18,1,04/30/26,Nuevo León,Canine,13 years,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,04/30/26,Tamaulipas,Caprine,3 years,Inactive,Aerial,96
+2026-11-18,2026-11-18,1,04/28/26,Nuevo León,Canine,3 months,Inactive,Aerial,91
+2026-11-18,2026-11-18,1,04/27/26,Tamaulipas,Bovine,6 days,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,04/27/26,Tamaulipas,Swine,11 months,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,04/26/26,Nuevo León,Bovine,8 days,Inactive,Aerial,87
+2026-11-18,2026-11-18,1,04/21/26,Nuevo León,Canine,3 years,Inactive,Aerial,97
+2026-11-18,2026-11-18,1,04/17/26,Nuevo León,Bovine,1 month,Inactive,Aerial,62
+2026-11-18,2026-11-18,1,04/09/26,Nuevo León,Canine,11 years,Inactive,**,90
+2026-11-18,2026-11-18,1,09/20/25,Nuevo León,Bovine,8 months,Inactive,Aerial and ground,70
+2026-11-18,2026-11-18,1,11/16/26,Nuevo León,Bovine,653 months,Active,Aerial,18
+2026-11-18,2026-11-18,1,11/16/26,Sonora,Bovine,2 weeks,Active,**,58
+2026-11-18,2026-11-18,1,11/14/26,Nuevo León,Bovine,1 month,Active,**,93
+2026-11-18,2026-11-18,1,11/13/26,Chihuahua,Bovine,6 months,Active,**,28
+2026-11-18,2026-11-18,3,11/13/26,Chihuahua,Bovine,4 months,Active,**,28
+2026-11-18,2026-11-18,1,11/13/26,Nuevo León,Bovine,2 months,Active,**,67
+2026-11-18,2026-11-18,1,11/13/26,Nuevo León,Bovine,1 year,Active,**,76
+2026-11-18,2026-11-18,1,11/13/26,Nuevo León,Canine,3 years,Active,**,93
+2026-11-18,2026-11-18,1,11/13/26,Nuevo León,Canine,5 years,Active,**,97
+2026-11-18,2026-11-18,1,11/13/26,Chihuahua,Caprine,6 years,Active,**,98
+2026-11-18,2026-11-18,1,11/13/26,Nuevo León,Bovine,8 years,Active,**,98
+2026-11-18,2026-11-18,1,11/12/26,Chihuahua,Bovine,7 days,Active,**,41
+2026-11-18,2026-11-18,1,11/12/26,Tamaulipas,Bovine,4 days,Active,**,75
+2026-11-18,2026-11-18,1,11/12/26,Nuevo León,Canine,8 years,Active,**,91
+2026-11-18,2026-11-18,1,11/12/26,Nuevo León,Equine,4 years,Active,**,98
+2026-11-18,2026-11-18,1,11/11/26,Tamaulipas,Bovine,8 days,Active,**,84
+2026-11-18,2026-11-18,1,11/11/26,Tamaulipas,Caprine,5 years,Active,**,90
+2026-11-18,2026-11-18,1,11/10/26,Tamaulipas,Caprine,5 days,Active,**,82
+2026-11-18,2026-11-18,1,11/01/26,Nuevo León,Equine,3 years,Inactive,**,31
+2026-11-18,2026-11-18,3,11/01/26,Coahuila,Bovine,6 months,Inactive,**,64
+2026-11-18,2026-11-18,1,11/01/26,Sonora,Bovine,6 days,Inactive,**,73

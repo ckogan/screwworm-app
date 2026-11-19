@@ -197,6 +197,16 @@ try:
 except (OSError, KeyError, ValueError):
     _CASES, _CENTROIDS, _ADJACENCY, INDEX_DATE, INDEX_OK = [], {}, {}, None, False
 
+# Option added 2026-11-20 (changes/2026-11-20-mexico-border-series), off by default: cases in Mexico
+# within 100 miles of the border as a second case source of the index.
+MEXICO_PULLED = date(2026, 11, 18)          # date of the pull of the public list
+try:
+    _MEXICO = nearby_index.load_mexico_cases(_DATA / "mexico_rows_2026-11-18.csv",
+                                             _DATA / "border_anchors.csv")
+    MEXICO_OK = INDEX_OK and bool(_MEXICO)
+except (OSError, KeyError, ValueError):
+    _MEXICO, MEXICO_OK = [], False
+
 
 try:
     # First day of the worked example's run: the county's last detection (presets.COUNTY).
@@ -219,10 +229,14 @@ def _ref_days_text() -> str:
 
 
 @functools.lru_cache(maxsize=256)
-def county_index(kernel_km: float, south_weight: float) -> dict:
+def county_index(kernel_km: float, south_weight: float, mexico_on: bool = False,
+                 mexico_weight: float = 1.0) -> dict:
     """The nearby-pressure index for the county on the data date, with its three largest source
-    counties. The reference level is recomputed with the same two dials (nearby_index.py)."""
+    counties. The reference level is recomputed with the same two dials (nearby_index.py). With
+    `mexico_on`, cases in Mexico near the border enter the count and the reference level alike."""
     dials = dict(kernel_km=float(kernel_km), south_weight=float(south_weight))
+    if mexico_on and MEXICO_OK:
+        dials.update(extra=_MEXICO, mexico_weight=float(mexico_weight))
     ref = nearby_index.reference_level(_CASES, _CENTROIDS, _ADJACENCY, **dials)["level"]
     rows = nearby_index.index_breakdown(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
     value = nearby_index.nearby_index(INDEX_COUNTY, INDEX_DATE, _CASES, _CENTROIDS, ref, **dials)
@@ -545,12 +559,22 @@ def _nearby_source_inputs(*hand):
     the readout, and the index's two dials in a fold."""
     lo_k, hi_k = nearby_index.RANGES["kernel_km"]
     lo_s, hi_s = nearby_index.RANGES["south_weight"]
+    lo_m, hi_m = nearby_index.MEXICO_RANGES["mexico_weight"]
     return [
         ui.input_radio_buttons(
             "nearby_source", "Detections in nearby counties: source",
             {"hand": "Set by hand", "index": "From official detections (index)"},
             selected=OPTION_DEFAULTS["nearby_source"]),
         *hand,
+        ui.input_checkbox("mexico_on", "Index: also count cases in Mexico near the border",
+                          value=OPTION_DEFAULTS["mexico_on"]),
+        ui.help_text("Off by default. Used only with the index. The public list covers cases within "
+                     "100 miles of the US border. Its first row is dated 20 September 2025 and nearly all "
+                     "rows are from April 2026 on. It gives the Mexican state "
+                     "and the approximate distance from the border, not the place, so each case is spread along "
+                     "that state's stretch of the border. Reporting practice in Mexico may differ "
+                     "from the US. In the check against 2026 this option raised the model's total "
+                     "expected counts, which were already too high."),
         ui.output_ui("index_readout"),
         ui.accordion(
             ui.accordion_panel(
@@ -563,6 +587,12 @@ def _nearby_source_inputs(*hand):
                 ui.help_text("Both rest on thin data. The distance scale follows the speed of the "
                              "historical seasonal front, which is not a measured dispersal distance. "
                              "The size of the southern weight is assumed."),
+                ui.input_slider("mexico_weight", "Weight of a case in Mexico, relative to a US case "
+                                "(used when cases in Mexico are counted)", lo_m, hi_m,
+                                OPTION_DEFAULTS["mexico_weight"], step=0.25),
+                ui.help_text("Assumed. Below 1 if the Mexican list records more of the animals found "
+                             "per infestation than the US export does. Above 1 if cases in Mexico are "
+                             "under-reported or stand for a larger fly population."),
                 ui.tags.div("Renewed infestations (what-if)", style="font-weight:600; margin:14px 0 4px;"),
                 ui.input_slider("renewed_chance",
                                 "Chance per 30 days of a renewed infestation from causes the model "
@@ -1292,6 +1322,9 @@ def server(input, output, session):
         """The index at the two dials, or None when the data files are missing."""
         if not INDEX_OK:
             return None
+        if MEXICO_OK and input.mexico_on():
+            return county_index(float(input.kernel_km()), float(input.south_weight()), True,
+                                float(input.mexico_weight()))
         return county_index(float(input.kernel_km()), float(input.south_weight()))
 
     @reactive.calc
@@ -1833,6 +1866,8 @@ def server(input, output, session):
         rate = float(pk["intro_rate"]) * intro_ref_factor(pk)
         nearby_how = ("the index from official detections" if input.nearby_source() == "index" and INDEX_OK
                       else "set by hand")
+        if nearby_how != "set by hand" and MEXICO_OK and input.mexico_on():
+            nearby_how += ", with cases in Mexico near the border counted"
         season = (f"The run covers **{warm}** warm month{'' if warm == 1 else 's'} (fly activity at "
                   f"90% or more). A clean cold month counts for little."
                   if warm is not None else
@@ -1910,16 +1945,26 @@ between them.
             return ui.div("The detection files for the index were not found. The hand-set value is used.",
                           style=_CAPTION_STYLE)
         ix = index_now()
+        mexico = MEXICO_OK and input.mexico_on()
+        if input.mexico_on() and not MEXICO_OK:
+            return ui.div("The file of cases in Mexico was not found. The index uses US cases only.",
+                          style=_CAPTION_STYLE)
         if input.nearby_source() != "index":
             text = (f"Using the hand-set value, **{float(input.nearby_pressure()):g}**. The index from "
-                    f"official detections would give {ix['value']:.2f}.")
+                    f"official detections would give {ix['value']:.2f}"
+                    + (" with cases in Mexico counted." if mexico else "."))
             return ui.div(ui.markdown(text), style=_CAPTION_STYLE)
-        top = "; ".join(f"{r['county']} {r['contribution']:.2f} ({r['cases']} case"
+        top = "; ".join(f"{r['county']}{' (Mexico)' if r['state'] == 'Mexico' else ''} "
+                        f"{r['contribution']:.2f} ({r['cases']:g} case"
                         f"{'' if r['cases'] == 1 else 's'}, {r['km']:.0f} km)" for r in ix["top"])
         text = (f"Using the index: **{ix['value']:.2f}** for {INDEX_COUNTY[1]} County. The slider above is "
                 f"not used. Data: confirmed animal cases in other counties in the 30 days to "
                 f"{_day(INDEX_DATE)}, the latest confirmation in the official export pulled "
-                f"{_day(INDEX_PULLED)}. Largest sources: {top}. The app uses one fixed value for the "
+                f"{_day(INDEX_PULLED)}"
+                + (f", and cases in Mexico within 100 miles of the border in the same 30 days (public "
+                   f"list pulled {_day(MEXICO_PULLED)}; the place of a case is known only by state "
+                   f"and distance from the border, so distances are approximate)" if mexico else "")
+                + f". Largest sources: {top}. The app uses one fixed value for the "
                 f"whole run: the index on that latest confirmation date. In the data the value "
                 f"changes month by month.")
         if ix["series"]:
@@ -2192,8 +2237,9 @@ between them.
         # the options added 2026-11-19 are not pack keys: a scenario always loads with them off
         for k in ("nearby_source", "intro_ref", "weather_source"):
             ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
-        for k in ("kernel_km", "south_weight", "renewed_chance"):
+        for k in ("kernel_km", "south_weight", "renewed_chance", "mexico_weight"):
             ui.update_slider(k, value=OPTION_DEFAULTS[k])
+        ui.update_checkbox("mexico_on", value=OPTION_DEFAULTS["mexico_on"])
 
 
 app = App(app_ui, server)

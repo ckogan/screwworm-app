@@ -118,6 +118,9 @@ OPTION_DEFAULTS = dict(
     intro_ref="record",        # "record": intro_rate as entered; "adjacency": times INTRO_REF_FACTOR
     weather_source="normals",  # "normals": COUNTY temperatures; "observed": COUNTY_OBSERVED where held
     renewed_chance=0.0,        # what-if: chance per 30 days of a renewed infestation (0 = off)
+    # added 2026-11-20 (changes/2026-11-20-mexico-border-series); used only when nearby_source is "index"
+    mexico_on=False,           # add cases in Mexico within 100 miles of the border to the index
+    mexico_weight=1.0,         # one listed Mexican case counts as this many US cases (assumed; 0.25 to 2)
 )
 
 

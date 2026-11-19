@@ -1,0 +1,34 @@
+state,order,name,lat,lon,own_frontage,mid,max_miles,note
+Sonora,1,San Luis Rio Colorado (San Luis AZ),32.49,-114.78,1,0,,west end of the Sonora frontage
+Sonora,2,Sonoyta (Lukeville AZ),31.88,-112.82,1,0,,
+Sonora,3,Sasabe (Sasabe AZ),31.49,-111.54,1,0,,
+Sonora,4,Nogales (Nogales AZ),31.33,-110.94,1,1,,
+Sonora,5,Naco (Naco AZ),31.33,-109.95,1,0,,
+Sonora,6,Agua Prieta (Douglas AZ),31.33,-109.55,1,0,,the frontage runs a little further east along New Mexico
+Chihuahua,1,El Berrendo (Antelope Wells NM),31.33,-108.53,1,0,,
+Chihuahua,2,Palomas (Columbus NM),31.78,-107.63,1,0,,
+Chihuahua,3,Ciudad Juarez (El Paso TX),31.74,-106.49,1,0,,
+Chihuahua,4,Guadalupe (Fort Hancock TX),31.27,-105.85,1,1,,
+Chihuahua,5,river reach near Candelaria TX,30.14,-104.69,1,0,,
+Chihuahua,6,Ojinaga (Presidio TX),29.56,-104.41,1,0,,
+Chihuahua,7,Santa Elena (Big Bend TX),29.13,-103.52,1,0,,the state line with Coahuila meets the river somewhat east of here
+Coahuila,1,Boquillas del Carmen (Big Bend TX),29.19,-102.95,1,0,,
+Coahuila,2,La Linda (Heath Canyon TX),29.45,-102.82,1,0,,
+Coahuila,3,river reach south of Dryden TX,29.77,-102.20,1,0,,
+Coahuila,4,river reach near Langtry TX,29.80,-101.56,1,0,,
+Coahuila,5,Ciudad Acuna (Del Rio TX),29.32,-100.93,1,1,,
+Coahuila,6,Piedras Negras (Eagle Pass TX),28.70,-100.52,1,0,,
+Coahuila,7,Hidalgo Coahuila (river reach above Laredo TX),27.79,-99.87,1,0,,east end of the Coahuila frontage
+Nuevo León,1,Colombia (Laredo-Colombia bridge TX),27.70,-99.75,1,0,,the only Nuevo Leon frontage; about 15 km long
+Nuevo León,2,Nuevo Laredo (Laredo TX),27.48,-99.51,0,0,,border point in Tamaulipas; Nuevo Leon lies behind a narrow strip of Tamaulipas
+Nuevo León,3,Nueva Ciudad Guerrero (Falcon Dam TX),26.57,-99.20,0,1,,as above
+Nuevo León,4,Ciudad Mier and Miguel Aleman (Roma TX),26.41,-99.02,0,0,,as above
+Nuevo León,5,Camargo (Rio Grande City TX),26.37,-98.82,0,0,,as above
+Tamaulipas,1,Nuevo Laredo (Laredo TX),27.48,-99.51,1,0,20,narrow strip of Tamaulipas: only cases within 20 miles of the border are placed here
+Tamaulipas,2,Nueva Ciudad Guerrero (Falcon Dam TX),26.57,-99.20,1,0,20,as above
+Tamaulipas,3,Ciudad Mier and Miguel Aleman (Roma TX),26.41,-99.02,1,0,20,as above
+Tamaulipas,4,Camargo (Rio Grande City TX),26.37,-98.82,1,0,20,as above
+Tamaulipas,5,Reynosa (McAllen and Hidalgo TX),26.09,-98.28,1,1,,
+Tamaulipas,6,Nuevo Progreso (Progreso TX),26.06,-97.95,1,0,,
+Tamaulipas,7,Matamoros (Brownsville TX),25.88,-97.50,1,0,,
+Tamaulipas,8,river mouth (Boca Chica TX),25.96,-97.15,1,0,,east end of the border
