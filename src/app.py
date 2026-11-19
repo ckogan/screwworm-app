@@ -173,7 +173,7 @@ INDEX_COUNTY = ("Texas", "Zavala")          # the worked-example county (presets
 INDEX_PULLED = date(2026, 11, 17)           # export pull date: changes/2026-11-18-county-tailoring/data/README.md
 PRECOMPUTED_ON = date(2026, 11, 18)         # date of the linked-counties and 2026-check result files
 # The current rule (2026-11-20): no cases for three or four fly life cycles after the last detection,
-# longer in cold weather; older practice used six and twelve months. The marks come from
+# longer in cold weather; the 6- and 12-month marks are reference points. The marks come from
 # presets.rule_marks: with the season on, the two cycle marks are counted from the county's monthly
 # temperatures and move with the start month; otherwise they keep the fixed 21-day cycle.
 # Policy dates, shown lightly, never tuned to. The model does not implement the rule.
@@ -185,10 +185,11 @@ RULE_SOURCE_NOTE = (
     "for temperate climates uses a 21-day cycle, which gives 84 days for four cycles. It asks for "
     "no detections in animals and no detections of wild, fertile flies.")
 RULE_NOTE = (
-    "**The current rule.** There is no international standard for declaring an area free of this "
+    "**The current rule.** We know of no international standard for declaring an area free of this "
     "pest. Current US guidance asks for surveillance and no detections for three or four fly life "
     "cycles after the last detection, with the length of a cycle depending on local weather and "
-    "season. Older practice also used six and twelve months. " + (RULE_SOURCE_NOTE.strip() + " " if RULE_SOURCE_NOTE.strip() else "") +
+    "season. The graph also marks 6 and 12 months. These are round reference points; we know of "
+    "no public source that sets them as a rule. " + (RULE_SOURCE_NOTE.strip() + " " if RULE_SOURCE_NOTE.strip() else "") +
     "**The model does not implement this rule.** The dotted marks on the graph are "
     "the days the rule would reach. The table gives the model's value on each of those days.")
 RULE_CYCLE_NOTE = (
