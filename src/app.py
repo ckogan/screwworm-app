@@ -1015,12 +1015,19 @@ BY_HAND = ("**Conditions this model does not cover, to confirm by hand:** enough
            "adequate outreach to producers and veterinarians; no pending or unresolved laboratory "
            "samples; wildlife surveillance clean during the window.")
 
-BASELINE_NOTE = ("**The dashed line is the baseline:** the chance the zone is free if nobody were looking, "
-                 "with no inspection rounds and no owner reports. Infestations still arrive, spread and end "
-                 "by themselves. The gap between the two lines is what the surveillance evidence adds: "
-                 "inspection rounds that found nothing and no confirmed owner report. The baseline can "
-                 "rise late in the run, because in this model an infestation that nobody finds ends by "
-                 "itself once it has run its course on the farm.")
+BASELINE_NOTE = (
+    "**The dashed line is the baseline:** the chance the zone is free if nobody were looking, with no "
+    "inspection rounds and no owner reports. It is a comparison line, not a forecast of what doing "
+    "nothing would achieve. The gap between the two lines is what the surveillance evidence adds: "
+    "inspection rounds that found nothing and no confirmed owner report.\n\n"
+    "**Why it falls and then rises:** in this model an infestation that nobody finds ends by itself "
+    "after about 166 days (about five and a half months) at the default settings. The infestations "
+    "assumed left behind at day 0 end mostly between days 135 and 166. On the county scenario the cold "
+    "months do most of the later rise, and the fall at the end comes with the return of warm months.\n\n"
+    "**How firm it is:** the baseline leans on that self-ending, which has little data behind it. Over "
+    "the range for the length of an unfound infestation (97 to 271 days) the baseline at the last day "
+    "runs from 9% to 47% on the six-month scenario (25% at the defaults) and from 12% to 44% on the "
+    "county scenario (32% at the defaults).")
 
 _CAPTION_STYLE = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 8px; "
                   "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
@@ -1102,7 +1109,9 @@ else:
                     "**The dense curve is exact**: every plotted point, between rounds too, is the running "
                     "estimate read off one full-horizon evaluation of the model (`eval_times`), not a "
                     "re-evaluation at a shorter horizon. "
-                    "The faint dashed line is the **unconditional** `P(K=0)(t) = P_free * (1 - P_lost)`; with "
+                    "The faint dashed line is the chance, seen from day 0, that the zone is free at `t` **and** "
+                    "nothing has been detected by then: `P_free * (1 - P_lost)`. It is not the unconditional "
+                    "`P(K=0)(t)`, and it is not the no-surveillance baseline of the plain view; with "
                     "clearance on it settles toward a plateau instead of decaying. Short arrows under the curve "
                     "mark the inspection rounds. Since v0.6 the curve starts at "
                     "`P_free(0) = e^-k0_mean`, the chance the last detection left nothing behind, so with "
@@ -1391,8 +1400,8 @@ def server(input, output, session):
         o = evaluate(dict(p, eval_times=ts))
         pf_t, pn_t = o["p_free_by_time"], o["p_noalarm_by_time"]
         # t = 0 is the lane's own P_free(0) = P(K_0 <= K*) (v0.6): with leftovers the curve starts
-        # at e^{-k0_mean}, not at 1. D(0) = 0, so P_lost(0) = 0 and the unconditional line starts
-        # at the same point (model_design.md, "Initial state"). At t > 0 the unconditional
+        # at e^{-k0_mean}, not at 1. D(0) = 0, so P_lost(0) = 0 and the joint line (free and nothing
+        # detected so far) starts at the same point (model_design.md, "Initial state"). At t > 0
         # P(K <= K*, no alarm so far)(t) = P_free(t) * P(no alarm so far)(t), the second factor the
         # lane's p_noalarm_by_time (P0.sum() at that step), where the truncated route used
         # 1 - P_lost of each shortened run.
@@ -1491,7 +1500,7 @@ def server(input, output, session):
             xlab = "Days since the last detection"
         else:
             lab_free = r"$P_{free}(t)$ (given no confirmed detection yet)"
-            lab_unc = r"Baseline, before counting the inspection results: $P_{free}\cdot(1-P_{lost})$"
+            lab_unc = r"Free and nothing detected so far, seen from day 0: $P_{free}\cdot(1-P_{lost})$"
             lab_thr = f"{thr:.3g} reference line (for illustration)"
             xlab = "time since the last detection, t (days)"
         ax.plot(ts, pfree, color="#1f77b4", lw=2, label=lab_free)
