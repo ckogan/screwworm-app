@@ -14,5 +14,6 @@ Do not edit them here. Rebuild them at the source and copy again.
 | `backcheck_group.csv`, `backcheck_texas.json` | `changes/2026-11-19-linked-counties/results/` | not read by the app since 18 November 2026; first version of the check, superseded |
 | `calibration_2026_summary.json` | a few values taken from `fit.json` and `outcomes_summary.json` in `changes/2026-11-19-calibration-2026/results/` | "Check against 2026" tab; help text of the what-if input |
 | `county_temperature_this_year.csv` | `changes/2026-11-19-observed-weather/data/` | "2026 observed" weather option |
+| `rule_by_start_month.json` | `changes/2026-11-20-rule-risk-wounds/results/` (written and copied by `run.py`, 18 November 2026) | "Current rule" panel: the marks by start month |
 
 Copied on 18 November 2026.

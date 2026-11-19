@@ -39,6 +39,7 @@ import json
 import math
 from pathlib import Path
 
+from intro_module import FIXED_CYCLE_DAYS, chance_of_introduction, cycles_to_days
 from intro_module import schedule as _intro_schedule
 
 _DATA = Path(__file__).resolve().parent / "data"     # copies of result files; see data/README.md
@@ -118,7 +119,14 @@ OPTION_DEFAULTS = dict(
     intro_ref="record",        # "record": intro_rate as entered; "adjacency": times INTRO_REF_FACTOR
     weather_source="normals",  # "normals": COUNTY temperatures; "observed": COUNTY_OBSERVED where held
     renewed_chance=0.0,        # what-if: chance per 30 days of a renewed infestation (0 = off)
+    # wounds by month (2026-11-20; intro_module.wound_month_factors). Exploring inputs: no data stand
+    # behind the months or the factors for this county. Off while both factors are 1.
+    calving_months=(),             # month numbers 1 to 12; none chosen by default
+    processing_months=(),          # castration, dehorning, branding, docking; none chosen by default
+    calving_wound_factor=1.0,      # open wounds in calving months, times a month with neither (0.25 to 4)
+    processing_wound_factor=1.0,   # the same for processing months (0.25 to 4)
 )
+WOUND_MONTH_RANGE = (0.25, 4.0, 0.05)      # range of the two monthly wound factors (assumed, wide)
 
 
 def renewed_rate(pack: dict) -> float:
@@ -211,6 +219,64 @@ def module_schedule(pack: dict, horizon: float) -> dict:
             sc["spread_multiplier"][j] = so["spread_multiplier"][j]
             sc["rows"][j] = dict(so["rows"][j], observed=True)
     return sc
+
+
+# ---- the current rule beside the model (2026-11-20) ----
+# Past practice for declaring an area free: trapping, active inspection and no cases for a set number
+# of fly life cycles (three or four), longer in cold weather. There is no international standard.
+# The model does not implement the rule: the marks are days on which its value is read.
+RULE_CYCLES = (3, 4)
+RULE_FIXED_DATES = [(180.0, "6 months"), (360.0, "12 months")]
+RISK_WINDOWS = (30.0, 60.0, 90.0)
+
+
+def rule_marks(pack: dict) -> list:
+    """The marks of the current rule for a pack, in the order shown. Each is a dict with `name`,
+    `day` (days after the last detection; None if a life cycle does not complete within a year),
+    `fixed_day` (the same mark with a fixed 21-day cycle, or None) and `by_temperature`.
+
+    With the introduction module and the season on, the 3-cycle and 4-cycle marks are counted from
+    the county's monthly temperatures (the normals plus `temp_shift`), starting on the first day of
+    `start_month`: intro_module.cycles_to_days. Otherwise the run has no season and the marks keep
+    the fixed 21-day cycle. The "2026 observed" weather option does not move the marks."""
+    seasonal = bool(pack.get("module_on", False)) and bool(pack.get("season_on", True))
+    out = []
+    for n in RULE_CYCLES:
+        fixed = n * FIXED_CYCLE_DAYS
+        if seasonal:
+            shift = float(pack.get("temp_shift", 0.0))
+            day = cycles_to_days([x + shift for x in COUNTY["monthly_tmax"]],
+                                 [x + shift for x in COUNTY["monthly_tmin"]],
+                                 int(pack["start_month"]), n)
+        else:
+            day = fixed
+        out.append(dict(name=f"{n} cycles", day=day, fixed_day=fixed, by_temperature=seasonal))
+    for day, name in RULE_FIXED_DATES:
+        out.append(dict(name=name, day=day, fixed_day=None, by_temperature=False))
+    return out
+
+
+def snap_day(t: float, dt: float) -> float:
+    """The evaluated time that stands for day `t`: the nearest multiple of dt."""
+    return round(round(float(t) / dt) * dt, 6)
+
+
+def risk_ahead(pack: dict, day: float, windows=RISK_WINDOWS) -> list:
+    """Chance of at least one new infested premises arriving in the zone from outside in the
+    `windows` (days) after `day`: 1 - exp(-integral of the introduction rate).
+
+    Rate per day = reference rate (`intro_rate`, times the reference-rate option) x the introduction
+    module's multiplier for the month, the season continuing past the end of the run; a constant
+    rate when the module is off. Given the inputs only: not conditional on the zone being free, no
+    spread from an infestation already present, and the what-if term for renewed infestations is
+    left out."""
+    rate = float(pack["intro_rate"]) * intro_ref_factor(pack)
+    end = float(day) + max(windows)
+    if pack.get("module_on", False):
+        mult = module_schedule(pack, end + 30.0)["intro_multiplier"]
+    else:
+        mult = [1.0] * (int(end // 30.0) + 2)
+    return [chance_of_introduction(rate, mult, day, w) for w in windows]
 
 
 def _s(**over):

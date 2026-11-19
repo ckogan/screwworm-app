@@ -165,15 +165,76 @@ from datetime import date, datetime  # noqa: E402
 
 import nearby_index  # noqa: E402
 from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
-                     intro_ref_factor, module_schedule, renewed_rate)
+                     RISK_WINDOWS, WOUND_MONTH_RANGE, intro_ref_factor, module_schedule,
+                     renewed_rate, risk_ahead, rule_marks, snap_day)
 
 _DATA = _HERE / "data"
 INDEX_COUNTY = ("Texas", "Zavala")          # the worked-example county (presets.COUNTY)
 INDEX_PULLED = date(2026, 11, 17)           # export pull date: changes/2026-11-18-county-tailoring/data/README.md
 PRECOMPUTED_ON = date(2026, 11, 18)         # date of the linked-counties and 2026-check result files
-# Official declaration rules count three or four 21-day life cycles after the last detection;
-# older practice used six and twelve months. Policy dates, shown lightly, never tuned to.
-RULE_DATES = [(63.0, "3 cycles"), (84.0, "4 cycles"), (180.0, "6 months"), (360.0, "12 months")]
+# The current rule (2026-11-20): no cases for three or four fly life cycles after the last detection,
+# longer in cold weather; older practice used six and twelve months. The marks come from
+# presets.rule_marks: with the season on, the two cycle marks are counted from the county's monthly
+# temperatures and move with the start month; otherwise they keep the fixed 21-day cycle.
+# Policy dates, shown lightly, never tuned to. The model does not implement the rule.
+RULE_NOTE = (
+    "**The current rule.** There is no international standard for declaring an area free of this "
+    "pest. Past practice has been fly trapping, active inspection and no cases for a set number of "
+    "fly life cycles, three or four, and longer in cold weather. Older practice also used six and "
+    "twelve months. **The model does not implement this rule.** The dotted marks on the graph are "
+    "the days the rule would reach. The table gives the model's value on each of those days.")
+RULE_CYCLE_NOTE = (
+    "Here one life cycle is 6 days on the animal plus the time off the animal, which is counted in "
+    "degree days above 14.5 C (156 are needed) from the county's monthly temperatures, starting in "
+    "the month of the last detection, from the first day of that month. A cycle takes about 17 days in summer and about 90 in winter. "
+    "The right-hand columns keep the fixed 21-day cycle for comparison.")
+RULE_FIXED_NOTE = ("This scenario has no season, so the two cycle marks use a fixed 21-day life cycle.")
+RISK_NOTE = (
+    "**Risk ahead.** The chance that at least one new infested premises arrives in the zone from "
+    "outside in the 30, 60 and 90 days after a given day. It is for the zone as a whole and follows "
+    "from the inputs alone: the season, the sterile-fly release share, nearby detections held at "
+    "their set value, and mitigations. It does not depend on whether the zone is free on that day, "
+    "and it does not count spread from an infestation already present. The check against 2026 found "
+    "the default introduction rate about three times too high. These numbers use the rate as set "
+    "in the sidebar; at the default rate they inherit that.")
+ZONE_MEANS = ("**What the zone is here:** the county stands in for a surveillance zone. In practice "
+              "a zone is the area within a set distance of a detection, not a county.")
+WOUND_MONTHS_HELP = (
+    "For exploring. Calving leaves open navels on newborn calves. Processing (castration, dehorning, "
+    "branding, docking) leaves wounds for days. Choose the months, then set how many times more "
+    "open wounds stand on animals in those months than in a month with neither. At 1 nothing "
+    "changes. The introduction rate was counted in June to September 2026, so the monthly values "
+    "are divided by their June to September average. Two things follow. Choosing a month from June "
+    "to September lowers every other month. The same factor in all twelve months changes nothing. "
+    "No data stand behind the months or the sizes for this county.")
+
+
+def _load_rule_by_month() -> dict | None:
+    """The marks by start month for the county scenario at its defaults (a result file of
+    changes/2026-11-20-rule-risk-wounds, copied to data/). None if the file is not there."""
+    try:
+        with open(_DATA / "rule_by_start_month.json") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _wound_month_inputs():
+    """Wounds by month (both layouts): two month choices and two factors, off while both are 1."""
+    lo, hi, step = WOUND_MONTH_RANGE
+    months = {str(k + 1): name for k, name in enumerate(MONTH_NAMES)}
+    return [
+        ui.tags.div("Wounds by month (for exploring)", style="font-weight:600; margin:10px 0 4px;"),
+        ui.input_checkbox_group("calving_months", "Calving months", months,
+                                selected=[str(k) for k in OPTION_DEFAULTS["calving_months"]], inline=True),
+        ui.input_slider("calving_wound_factor", "Open wounds in calving months (1 = no change)",
+                        lo, hi, OPTION_DEFAULTS["calving_wound_factor"], step=step),
+        ui.input_checkbox_group("processing_months", "Processing months", months,
+                                selected=[str(k) for k in OPTION_DEFAULTS["processing_months"]], inline=True),
+        ui.input_slider("processing_wound_factor", "Open wounds in processing months (1 = no change)",
+                        lo, hi, OPTION_DEFAULTS["processing_wound_factor"], step=step),
+        ui.help_text(WOUND_MONTHS_HELP),
+    ]
 OBSERVED_CAVEAT = ("The in-county station stopped reporting in 2008. The 2026 values come from a "
                    "station 21.5 km away, adjusted.")
 
@@ -827,7 +888,8 @@ def _review_sidebar():
                 _sl("release_kappa", "kappa"),
                 *_nearby_source_inputs(_sl("nearby_pressure", "Nearby pressure (set by hand)")),
                 *_intro_ref_inputs(), *_weather_inputs(),
-                _sl("wound_factor", "Wound factor"), _sl("treat_share", "Treated share"),
+                _sl("wound_factor", "Wound factor"), *_wound_month_inputs(),
+                _sl("treat_share", "Treated share"),
                 _sl("treat_effect", "Treatment effect"), _sl("move_check_effect", "Movement-check effect"),
                 _sl("spread_move_share", "Moved-animal share of spread"),
             ),
@@ -906,6 +968,7 @@ def _plain_sidebar():
                 _sl("share_move", "Moved animals"),
                 ui.output_ui("share_caption"),
                 _sl("wound_factor", "Open wounds on animals, relative to usual (1 = usual)"),
+                *_wound_month_inputs(),
             ),
             ui.accordion_panel(
                 "Season",
@@ -1050,10 +1113,13 @@ if PLAIN:
                 "Zone freedom",
                 ui.output_ui("release_readout"),
                 ui.output_ui("intro_caution"),
-                ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
+                ui.div(ui.markdown(FREE_MEANS + "\n\n" + ZONE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
                 ui.div(ui.markdown(BASELINE_NOTE), style=_CAPTION_STYLE),
-                ui.output_ui("rule_table"),
+                ui.card(ui.card_header("Current rule (past practice)"), ui.output_ui("rule_table"),
+                        ui.output_ui("rule_by_month"), id="current_rule_panel"),
+                ui.card(ui.card_header("Risk ahead"), ui.output_ui("risk_ahead_table"),
+                        id="risk_ahead_panel"),
                 ui.output_ui("scorecard"),
                 ui.div(ui.markdown(BY_HAND), style=_CAPTION_STYLE),
             ),
@@ -1064,6 +1130,7 @@ if PLAIN:
                      "detections and mitigations.", style="margin:4px 0 6px;"),
                 ui.output_plot("module_plot", height="420px"),
                 ui.output_ui("module_note"),
+                ui.output_ui("wound_months_table"),
             ),
             ui.nav_panel(
                 "What would have to be true",
@@ -1103,6 +1170,8 @@ else:
                 ui.output_ui("scorecard"),
                 ui.output_plot("pfree_plot", height="400px"),
                 ui.output_ui("rule_table"),
+                ui.output_ui("rule_by_month"),
+                ui.output_ui("risk_ahead_table"),
                 ui.markdown(
                     "*`P_free(t)` is the **running estimate**: the probability the zone has no infested premises "
                     "given every inspection round through `t` came back clean and no owner report was confirmed. "
@@ -1262,7 +1331,7 @@ def _debounce(delay_secs: float):
 # --------------------------------------------------------------------------------------
 # Server
 # --------------------------------------------------------------------------------------
-def _dense_times(p: dict):
+def _dense_times(p: dict, marks: list):
     """The dense evaluation grid of the freedom curve and the round times (one lane call serves the
     curve, the boxes and the headline: zone_outputs and pfree_trajectory pass the same eval_times,
     so the second is a cache hit)."""
@@ -1282,16 +1351,20 @@ def _dense_times(p: dict):
             pts.add(pre)
         pts.add(tr)
         prev = tr
-    pts.update(_rule_times(p).values())               # the rule dates, so their table reads exact days
+    for mk in _rule_times(p, marks):                  # the rule marks, so their table reads exact days
+        pts.update(x for x in (mk["at"], mk["fixed_at"]) if x is not None)
     ts = sorted(x for x in pts if 0.0 <= x <= horizon + 1e-9)
     return ts, rounds
 
 
-def _rule_times(p: dict) -> dict:
-    """Rule date -> the evaluated time that stands for it (snapped to dt), for the dates inside the run."""
+def _rule_times(p: dict, marks: list) -> list:
+    """The rule marks (presets.rule_marks) with the evaluated time that stands for each: `at` for
+    the mark's day and `fixed_at` for its fixed 21-day twin, both snapped to dt, None when the day
+    is after the end of the run (or the life cycles do not complete)."""
     dt = float(p["dt"])
     horizon = float(p["horizon"])
-    return {t: round(round(t / dt) * dt, 6) for t, _ in RULE_DATES if t <= horizon + 1e-9}
+    inside = lambda t: snap_day(t, dt) if t is not None and snap_day(t, dt) <= horizon + 1e-9 else None
+    return [dict(mk, at=inside(mk["day"]), fixed_at=inside(mk["fixed_day"])) for mk in marks]
 
 
 def server(input, output, session):
@@ -1331,6 +1404,11 @@ def server(input, output, session):
             release_coverage=input.release_coverage(), release_coverage_ref=input.release_coverage_ref(),
             release_kappa=input.release_kappa(), nearby_pressure=nearby_value(),
             wound_factor=input.wound_factor(), treat_share=input.treat_share(),
+            # wounds by month (2026-11-20): off while both factors are 1
+            calving_months=tuple(int(x) for x in input.calving_months()),
+            processing_months=tuple(int(x) for x in input.processing_months()),
+            calving_wound_factor=input.calving_wound_factor(),
+            processing_wound_factor=input.processing_wound_factor(),
             treat_effect=input.treat_effect(), move_check_effect=input.move_check_effect(),
             spread_move_share=input.spread_move_share(),
             M=input.M(), design_prevalence=input.design_prevalence(), intro_rate=input.intro_rate(),
@@ -1351,7 +1429,19 @@ def server(input, output, session):
     def params() -> dict:
         return preset_to_params(pack(), DT)
 
-    params_d = _debounce(0.25)(params)
+    @reactive.calc
+    def _run_inputs() -> dict:
+        """The lane parameters and the rule marks of the same inputs, settled together."""
+        pk = pack()
+        return dict(p=preset_to_params(pk, DT), marks=rule_marks(pk))
+
+    run_d = _debounce(0.25)(_run_inputs)
+
+    def params_d() -> dict:
+        return run_d()["p"]
+
+    def marks_d() -> list:
+        return run_d()["marks"]
 
     @reactive.effect
     def _cap_farms_per_round():
@@ -1368,7 +1458,7 @@ def server(input, output, session):
     @reactive.calc
     def zone_outputs():
         p = params_d()
-        out = evaluate(dict(p, eval_times=_dense_times(p)[0]))   # same call as the curve
+        out = evaluate(dict(p, eval_times=_dense_times(p, marks_d())[0]))   # same call as the curve
         n_rounds = len([t for t in p["round_times"] if t <= p["horizon"] + 1e-9])
         n_prem = min(int(p["n_farms_per_round"]), int(p["M"]))
         n_insp = n_rounds * n_prem * int(p["n_animals_per_round"])
@@ -1393,7 +1483,7 @@ def server(input, output, session):
     @reactive.calc
     def pfree_trajectory():
         p = params_d()
-        ts, rounds = _dense_times(p)
+        ts, rounds = _dense_times(p, marks_d())
         # One lane call: the grid goes in as eval_times (every entry a multiple of dt by
         # construction, which the lane checks). The round values and every scalar output of this
         # run are identical to zone_outputs' plain run (lane self-test, check_eval_times (a)).
@@ -1534,14 +1624,15 @@ def server(input, output, session):
             ax.fill_between([], [], [], color="#6baed6", alpha=0.3, label="Cold months: low fly activity")
         # Official rule dates (2026-11-19): light dotted marks with one legend entry. Policy dates,
         # not model results; the table under the plot gives the model's value on each.
-        marks = [(t, name) for t, name in RULE_DATES if t <= ts[-1] + 1e-9]
+        marks = [(mk["day"], mk["name"]) for mk in marks_d()
+                 if mk["day"] is not None and mk["day"] <= ts[-1] + 1e-9]
         for t, name in marks:
             ax.axvline(t, color="0.5", lw=0.8, ls=":", alpha=0.8, zorder=1)
             ax.annotate(name, xy=(t, 0.03), xytext=(-2, 0), textcoords="offset points", rotation=90,
                         ha="right", va="bottom", fontsize=6 if narrow else 7.5, color="0.4")
         if marks:
             ax.plot([], [], color="0.5", lw=0.8, ls=":",
-                    label="Official rule dates (policy dates, not model results)")
+                    label="Marks of past practice (life cycles from temperature; not model results)")
         ax.axhline(thr, color="#2ca02c", lw=1.0, ls="--", alpha=0.7)
         ax.text(0.5, thr + 0.01, lab_thr, color="#2ca02c", fontsize=6 if narrow else 8)
         ax.set_xlabel(xlab)
@@ -1940,24 +2031,94 @@ between them.
 
     @render.ui
     def rule_table():
-        """The model's chance of freedom on the official rule dates, read off the dense curve."""
+        """The model's chance of freedom on the marks of the current rule, read off the dense curve."""
         r = zone_outputs()
         pf = r["out"]["p_free_by_time"]
         thr = float(r["out"]["release_threshold"])
-        at = _rule_times(params_d())
+        marks = _rule_times(params_d(), marks_d())
+        value = lambda at: (lambda key: _pct(pf[key], thr) if PLAIN else f"{pf[key]:.4f}")(
+            min(pf, key=lambda x: abs(float(x) - at)))
+        by_temp = any(mk["by_temperature"] for mk in marks)
         rows = []
-        for t, name in RULE_DATES:
-            if t in at:
-                key = min(pf, key=lambda x: abs(float(x) - at[t]))
-                rows.append([name, f"day {t:g}", _pct(pf[key], thr) if PLAIN else f"{pf[key]:.4f}"])
+        for mk in marks:
+            if mk["day"] is None:
+                day, val = "not reached", "a life cycle does not complete within a year at these temperatures"
+            elif mk["at"] is None:
+                day, val = f"day {mk['day']:.0f}", "after the end of this run"
             else:
-                rows.append([name, f"day {t:g}", "after the end of this run"])
-        return ui.div(
-            ui.p("Official declaration rules count three or four 21-day fly life cycles after the last "
-                 "detection. Older practice used six and twelve months. The model's value on each date:",
+                day, val = f"day {mk['day']:.0f}", value(mk["at"])
+            row = [mk["name"], day, val]
+            if by_temp:
+                if mk["fixed_day"] is None:
+                    row += ["", ""]
+                elif mk["fixed_at"] is None:
+                    row += [f"day {mk['fixed_day']:g}", "after the end of this run"]
+                else:
+                    row += [f"day {mk['fixed_day']:g}", value(mk["fixed_at"])]
+            rows.append(row)
+        head = ["Rule mark", "Days after the last detection",
+                "Chance the zone is free, given no detection so far"]
+        if by_temp:
+            head[1] = "Days after the last detection, by temperature"
+            head += ["With a fixed 21-day cycle", "Chance the zone is free on that day"]
+        note = RULE_NOTE + " " + (RULE_CYCLE_NOTE if by_temp else RULE_FIXED_NOTE)
+        return ui.div(ui.div(ui.markdown(note), style="font-size:0.9rem; margin:2px 0 2px;"),
+                      _table(head, rows))
+
+    @render.ui
+    def rule_by_month():
+        """How the two cycle marks move with the start month: the county scenario at its defaults."""
+        d = _load_rule_by_month()
+        if d is None:
+            return ui.div()
+        cell = lambda day, p: ("not within 12 months" if day is None or p is None
+                               else f"day {day:.0f}: {100 * p:.0f}%")
+        rows = [[r["month"], cell(r["days_3"], r["p_free_3"]), cell(r["days_4"], r["p_free_4"])]
+                for r in d["rows"]]
+        return ui.tags.details(
+            ui.tags.summary("How the marks move with the month of the last detection"),
+            ui.p(f"The county scenario at its default settings, with the run started in each month "
+                 f"(computed {d['computed_on']}; it does not follow the sidebar). Each cell gives the "
+                 f"day the mark is reached and the model's chance the zone is free on that day. "
+                 f"With a fixed 21-day cycle the marks are day 63 and day 84 in every month.",
                  style="font-size:0.9rem; margin:6px 0 2px;"),
-            _table(["Rule date", "Days after the last detection",
-                    "Chance the zone is free, given no detection so far"], rows))
+            _table(["Month of the last detection", "3 cycles", "4 cycles"], rows),
+            style="font-size:0.9rem; margin:4px 0 8px;")
+
+    @render.ui
+    def risk_ahead_table():
+        """Chance of at least one new introduction in the 30, 60 and 90 days after the rule marks
+        and after the last day of the run (presets.risk_ahead). Not a model run."""
+        pk = pack()
+        last = float(params()["horizon"])
+        days = [(mk["day"], mk["name"]) for mk in rule_marks(pk)
+                if mk["day"] is not None and mk["day"] < last - 0.5]
+        days.append((last, "last day of the run"))
+        rows = []
+        for day, name in days:
+            rows.append([f"day {day:.0f} ({name})"] + [f"{100 * x:.0f}%" for x in risk_ahead(pk, day)])
+        note = RISK_NOTE
+        if renewed_rate(pk) > 0.0:
+            note += " The what-if term for renewed infestations is left out."
+        return ui.div(ui.div(ui.markdown(note), style="font-size:0.9rem; margin:2px 0 2px;"),
+                      _table(["After"] + [f"Next {w:g} days" for w in RISK_WINDOWS], rows))
+
+    @render.ui
+    def wound_months_table():
+        """The open-wound factor in each month of the run, as the module uses it."""
+        rows = module_rows()
+        if rows is None:
+            return ui.div()
+        shown = rows[:12]
+        on = any(abs(r["wound"] - shown[0]["wound"]) > 1e-12 for r in shown)
+        text = ("**Open-wound factor by month** (it multiplies every introduction pathway). " +
+                ("It varies by month here: the monthly values are relative to their June to September "
+                 "average, because the introduction rate was counted in those months. For exploring. "
+                 "No data stand behind the months or the sizes." if on else
+                 "It is the same in every month. The calving and processing inputs in the sidebar "
+                 "let it vary by month. They are for exploring."))
+        return ui.div(ui.div(ui.markdown(text), style="font-size:0.9rem; margin:8px 0 2px;"),
+                      _table([r["month"] for r in shown], [[f"{r['wound']:.2f}" for r in shown]]))
 
     def _linked_by_county():
         by = {}
@@ -2201,8 +2362,11 @@ between them.
         # the options added 2026-11-19 are not pack keys: a scenario always loads with them off
         for k in ("nearby_source", "intro_ref", "weather_source"):
             ui.update_radio_buttons(k, selected=OPTION_DEFAULTS[k])
-        for k in ("kernel_km", "south_weight", "renewed_chance"):
+        for k in ("kernel_km", "south_weight", "renewed_chance", "calving_wound_factor",
+                  "processing_wound_factor"):
             ui.update_slider(k, value=OPTION_DEFAULTS[k])
+        for k in ("calving_months", "processing_months"):
+            ui.update_checkbox_group(k, selected=[str(x) for x in OPTION_DEFAULTS[k]])
 
 
 app = App(app_ui, server)

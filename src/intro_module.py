@@ -37,6 +37,100 @@ def season_activity(t_max_c: float, t_min_c: float) -> float:
     return max(0.0, min(1.0, r / development_rate(T_REF)))
 
 
+# ---------------------------------------------------------------- length of a fly life cycle (rule marks)
+# Used ONLY to place the "3 life cycles" and "4 life cycles" marks of the current rule on the freedom
+# graph. It does not enter the rate schedule: the season term of the schedule stays season_activity.
+# Constants from Gutierrez and Ponti (2014): degree days above 14.5 C for the pupa (95) and the adult
+# before first egg laying (61); the daily increment of degree days x(T) = 24 R(T) X_PREOVIP (text below
+# Eqn 1); daily mortality of adults, also used there for pupae (Eqn 2). HOST_DAYS is the fixed time on
+# the host (egg hatch 8 to 24 h, larvae 5 to 5.7 d, at body temperature). The functions are copied
+# unchanged from the degree-day branch (issue #68), which also uses them for a season option.
+X_PUPA, X_PREOVIP = 95.0, 61.0
+X_OFF_HOST = X_PUPA + X_PREOVIP          # 156 degree days off the host per generation
+HOST_DAYS = 6.0
+_MU_A, _MU_B = 0.00036, 0.0035           # mortality per day = _MU_A (T - T_REF)^2 + _MU_B, at most 1
+SINE_POINTS = 24                         # points of the daily temperature wave
+MAX_OFF_HOST_DAYS = 360.0                # a generation that needs longer does not complete
+FIXED_CYCLE_DAYS = 21.0                  # the fixed life cycle the rule marks used before
+
+
+def daily_mortality(temp_c: float) -> float:
+    """Share of pupae and adults dying per day at temperature T (Gutierrez and Ponti 2014, Eqn 2)."""
+    return min(1.0, _MU_A * (temp_c - T_REF) ** 2 + _MU_B)
+
+
+def degree_days_per_day(t_max_c: float, t_min_c: float) -> float:
+    """Degree days above 14.5 C added in one day with the given maximum and minimum: the source's
+    increment 24 R(T) X_PREOVIP averaged over a single sine wave between the two (24 points). With
+    maximum equal to minimum this is the increment at that temperature."""
+    mean = 0.5 * (t_max_c + t_min_c)
+    amp = 0.5 * (t_max_c - t_min_c)
+    if amp == 0.0:
+        return 24.0 * X_PREOVIP * development_rate(mean)
+    tot = 0.0
+    for i in range(SINE_POINTS):
+        tot += development_rate(mean + amp * math.cos(2.0 * math.pi * (i + 0.5) / SINE_POINTS))
+    return 24.0 * X_PREOVIP * tot / SINE_POINTS
+
+
+def cohort(dd: list, mu: list, seg_days: float, t: float, backward: bool, periodic: bool = True):
+    """Generation time (days) and off-host survival of one cohort, or None if it does not complete.
+
+    `dd` and `mu` give the degree days per day and the mortality per day on consecutive segments of
+    `seg_days` days (months of 30 days, or single days), starting at time 0. With `backward` the
+    cohort is the one whose females start laying at time `t`: its off-host period ends at `t` and
+    the time on the host lies before that. Otherwise the eggs are laid at `t`, the host time
+    follows, and the off-host period starts at `t + HOST_DAYS`. `periodic` repeats the lists."""
+    n = len(dd)
+    need, days, log_s = X_OFF_HOST, 0.0, 0.0
+    pos = float(t) if backward else float(t) + HOST_DAYS
+    while True:
+        if backward:
+            i = int(math.ceil(pos / seg_days)) - 1
+            avail = pos - i * seg_days
+        else:
+            i = int(math.floor(pos / seg_days))
+            avail = (i + 1) * seg_days - pos
+        if not periodic and (i < 0 or i >= n):
+            return None
+        d, m = dd[i % n], mu[i % n]
+        step = need / d if d > 0.0 and need <= d * avail else avail
+        if m >= 1.0:
+            if step > 0.0:
+                return None                       # nothing survives a day of certain death
+        else:
+            log_s += step * math.log(1.0 - m)
+        days += step
+        if d > 0.0 and need <= d * avail:
+            return HOST_DAYS + days, math.exp(log_s)
+        need -= d * avail
+        pos = i * seg_days if backward else (i + 1) * seg_days
+        if days > MAX_OFF_HOST_DAYS:
+            return None
+
+
+def monthly_tables(monthly_tmax: list, monthly_tmin: list) -> tuple:
+    """Degree days per day and mortality per day for each of the twelve months. Mortality is read
+    at the mean of the daily maximum and minimum."""
+    dd = [degree_days_per_day(a, b) for a, b in zip(monthly_tmax, monthly_tmin)]
+    mu = [daily_mortality(0.5 * (a + b)) for a, b in zip(monthly_tmax, monthly_tmin)]
+    return dd, mu
+
+
+def cycles_to_days(monthly_tmax: list, monthly_tmin: list, start_month: int, n_cycles: int):
+    """Days taken by `n_cycles` fly generations run one after another, from the first day of
+    `start_month` (1 to 12); None if one of them does not complete."""
+    dd, mu = monthly_tables(monthly_tmax, monthly_tmin)
+    t0 = (int(start_month) - 1) * MONTH_DAYS
+    t = t0
+    for _ in range(int(n_cycles)):
+        c = cohort(dd, mu, MONTH_DAYS, t, False)
+        if c is None:
+            return None
+        t += c[0]
+    return t - t0
+
+
 def sterile_fertile_fraction(coverage: float, kappa: float) -> float:
     """Share of matings that stay fertile when `coverage` of the sterile-fly release target is met:
     1 / (1 + kappa * coverage) (Knipling's ratio rule with competitiveness folded into kappa)."""
@@ -70,27 +164,68 @@ def spread_multiplier(m: dict, activity: float) -> float:
     return activity * sterile * treat * move
 
 
+REFERENCE_MONTHS = (6, 7, 8, 9)       # the reference introduction rate was counted June to September 2026
+
+
+def wound_month_factors(m: dict) -> list:
+    """Open-wound factor for each calendar month, January first, RELATIVE to the reference months.
+
+    Inputs (all optional; absent or at 1 the result is twelve ones and nothing changes):
+    `calving_months`, `processing_months` (month numbers 1 to 12) and `calving_wound_factor`,
+    `processing_wound_factor` (how many times more open wounds stand on animals in those months than
+    in a month with neither; a month in both lists gets the product). The reference introduction rate
+    was counted in June to September, so the wounds of those months are already in it. The twelve
+    values are therefore divided by their mean over the reference months: the reference months
+    average exactly 1, and a month outside them is read as "times the June to September level".
+    An exploring input: no data stand behind the month choices or the factors."""
+    fc = float(m.get("calving_wound_factor", 1.0) or 1.0)
+    fp = float(m.get("processing_wound_factor", 1.0) or 1.0)
+    if fc == 1.0 and fp == 1.0:
+        return [1.0] * 12
+    calv = {int(x) for x in (m.get("calving_months") or ())}
+    proc = {int(x) for x in (m.get("processing_months") or ())}
+    raw = [(fc if k in calv else 1.0) * (fp if k in proc else 1.0) for k in range(1, 13)]
+    ref = sum(raw[k - 1] for k in REFERENCE_MONTHS) / len(REFERENCE_MONTHS)
+    return [x / ref for x in raw]
+
+
+def chance_of_introduction(rate_per_day: float, multipliers: list, day: float, window: float) -> float:
+    """Chance of at least one introduction in (day, day + window]: 1 - exp(-integral of the rate),
+    with rate = `rate_per_day` x the multiplier of the 30-day segment (`multipliers`, from day 0)."""
+    total, t, end = 0.0, float(day), float(day) + float(window)
+    while t < end - 1e-12:
+        j = int(math.floor(t / MONTH_DAYS + 1e-9))
+        nxt = min(end, (j + 1) * MONTH_DAYS)
+        total += multipliers[j] * (nxt - t)
+        t = nxt
+    return 1.0 - math.exp(-float(rate_per_day) * total)
+
+
 def schedule(m: dict, horizon_days: float) -> dict:
     """The rate schedule over [0, horizon): one segment per 30 days from `start_month` (1 to 12).
 
     `m` carries the module inputs (the app input ids listed in presets.MODULE_DEFAULTS) and
     `monthly_tmax`, `monthly_tmin` (12 values each, deg C, January first), with `temp_shift` added to
-    both. Returns schedule_times, intro_multiplier, spread_multiplier and a per-segment breakdown."""
+    both. Optional wounds-by-month inputs: see wound_month_factors. Returns schedule_times, intro_multiplier, spread_multiplier and a per-segment breakdown."""
     n_seg = max(1, int(math.ceil(float(horizon_days) / MONTH_DAYS - 1e-9)))
     start = int(m["start_month"]) - 1
     shift = float(m.get("temp_shift", 0.0))
     season_on = bool(m.get("season_on", True))
     times, intro, spread, rows = [], [], [], []
+    wound = wound_month_factors(m)
     for j in range(n_seg):
         k = (start + j) % 12
         act = (season_activity(m["monthly_tmax"][k] + shift, m["monthly_tmin"][k] + shift)
                if season_on else 1.0)
-        pw = pathway_rates(m, act)
+        # wounds by month (off unless a monthly factor differs from 1): the month's value multiplies
+        # the constant wound_factor, so pathway_rates itself is unchanged
+        pw = pathway_rates(m if wound[k] == 1.0 else dict(m, wound_factor=float(m["wound_factor"]) * wound[k]), act)
         a = pw["fly"] + pw["move"] + pw["wild"]
         s = spread_multiplier(m, act)
         times.append(j * MONTH_DAYS)
         intro.append(a)
         spread.append(s)
         rows.append(dict(month=MONTH_NAMES[k], activity=act, fly=pw["fly"], move=pw["move"],
-                         wild=pw["wild"], intro=a, spread=s))
+                         wild=pw["wild"], intro=a, spread=s,
+                         wound=float(m["wound_factor"]) * wound[k]))
     return dict(schedule_times=times, intro_multiplier=intro, spread_multiplier=spread, rows=rows)
