@@ -989,6 +989,7 @@ def _plain_sidebar():
         ),
         width=360,
         title="Settings",
+        open="closed",   # diagram view is the default; the "List view" switch opens this list
     )
 
 
@@ -1032,6 +1033,388 @@ BASELINE_NOTE = (
 _CAPTION_STYLE = ("font-size:0.95rem; color:#0b5394; padding:4px 10px; margin:2px 0 8px; "
                   "border-left:4px solid #0b5394; background:#eef5fb; border-radius:4px;")
 
+# ---------------------------------------------------------------------------------------------
+# Clickable farm picture (prototype, 2026-11-20; changes/2026-11-20-clickable-diagram/README.md).
+# The picture is changes/2026-09-23-model-diagram/model_farm.svg redrawn inline with clickable
+# groups (data-el) and value badges (data-badge). Clicking a group MOVES the existing sidebar
+# controls into the panel beside the picture (a few lines of JavaScript), so each input exists
+# once and both views drive the same inputs. No server code is involved.
+
+# element -> (title, one plain sentence, input ids shown in the panel)
+DG_ITEMS = {
+    "herd": ("Animals on the farm",
+             "How many animals one farm holds. Everything in the picture happens among them.",
+             ["N_herd"]),
+    "pass": ("Passing it on",
+             "Flies from infested animals lay eggs on more animals. A shorter doubling time "
+             "means the infestation on the farm grows faster.",
+             ["doubling_time_within"]),
+    "latent": ("Eggs to larvae",
+               "How long an animal carries eggs before larvae hatch. Inspection cannot find "
+               "an animal at this stage.",
+               ["mean_latent_time"]),
+    "recover": ("Infestation ends",
+                "How long an animal carries larvae before the infestation ends.",
+                ["recovery_within_on", "mean_recovery_time_within"]),
+    "inspect": ("Inspection of a sample of animals",
+                "On a farm that is inspected, how many animals are looked at and how likely "
+                "an inspector is to find an infested one.",
+                ["Se_animal", "n_animals_per_round"]),
+    "owner": ("The owner reports a wound",
+              "A wound has to become visible, the owner has to look and notice it, and then "
+              "report it.",
+              ["rho_r", "rho_a", "owner_contact_interval", "mean_clinical_onset_time",
+               "f_clinical_max"]),
+}
+
+# input id -> (one-line evidence note, has a card in the report at ../report/#p-<id>).
+# The notes are copied from the opening line of each parameter card on the report page
+# (changes/2026-09-24-review-page/build_review.py, SME_OPENING: "Evidence" and "Assumed").
+# They are copies because the browser build cannot import the report builder; if a card
+# changes, change the line here.
+DG_NOTES = {
+    "doubling_time_within": ("Evidence: converted from a related setting. Growth rates of wild "
+                             "deer deaths and of fly populations are taken to apply to spread "
+                             "between animals on one farm.", True),
+    "mean_latent_time": ("Evidence: bounded by published sources. The same time is taken to "
+                         "hold at Texas temperatures.", True),
+    "mean_recovery_time_within": ("Evidence: bounded by published sources. The value is a mix "
+                                  "of treated and untreated animals, and the share treated "
+                                  "early is not known.", True),
+    "Se_animal": ("Evidence: no data, assumed. A trained inspector is taken to miss few "
+                  "infested animals among those examined.", True),
+    "rho_r": ("Evidence: little data. The value is judgement above a floor set by three timed "
+              "cases.", True),
+    "rho_a": ("Evidence: no data, assumed. An alert owner is taken to notice most visible "
+              "wounds.", True),
+    "owner_contact_interval": ("Evidence: no data, assumed. The value suits large "
+                               "ranches, where the owner sees the animals closely about once "
+                               "a week.", True),
+    "mean_clinical_onset_time": ("Evidence: little data. The clock runs from the day the farm "
+                                 "was infested, which is earlier than the reviewed value "
+                                 "intended.", True),
+    "f_clinical_max": ("Evidence: little data. Few infestations are taken to stay hidden, as "
+                       "estimated from tallies of cases that were found.", True),
+    "N_herd": ("A scenario setting. It has no card in the report yet.", False),
+    "n_animals_per_round": ("A setting the inspection programme chooses. It has no card in the report yet.",
+                            False),
+    "recovery_within_on": ("Switch this off to see what happens if infested animals never "
+                           "recover.", False),
+}
+
+DG_NOT_HERE = ("Not on this picture yet, so only in the list view: the zone (number of farms, "
+               "spread between farms, clearing and release, the response after a detection), "
+               "introductions from outside, the season, mitigations, the inspection schedule "
+               "(how often and how many farms), infestations left over at the start, the share "
+               "of animals infested when a farm is first infested, the reference line and costs.")
+
+DG_CSS = """
+#dg_bar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px 18px; margin:0 0 8px; }
+#dg_bar .shiny-input-container { margin-bottom:0 !important; width:auto; }
+#dg_scn_slot { display:flex; flex-wrap:wrap; align-items:flex-end; gap:8px; flex:1 1 420px; }
+#dg_scn_slot .shiny-input-container { flex:1 1 320px; max-width:520px; }
+#dg_wrap { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; margin:6px 0 12px;
+  border:1px solid #d9dee4; border-radius:8px; padding:10px; background:#fff; }
+#dg_pic { flex:4 1 560px; min-width:0; }
+#dg_pic svg { width:100%; height:auto; display:block; }
+#dg_panel { flex:1 1 300px; min-width:260px; max-width:380px; border-left:4px solid #1F5F99;
+  background:#f4f8fc; border-radius:6px; padding:10px 14px; font-size:0.93rem; }
+#dg_panel h5 { font-size:1.05rem; margin:0 0 4px; }
+#dg_panel .dg-ctl { border-top:1px solid #d5e1ec; margin-top:10px; padding-top:8px; }
+#dg_panel .dg-ctl .shiny-input-container { width:100% !important; margin-bottom:2px; }
+#dg_panel .dg-now { font-weight:600; }
+#dg_panel .dg-ev { color:#47525E; margin:2px 0; }
+#dg_close { float:right; border:0; background:none; font-size:1.3rem; line-height:1; color:#47525E; }
+.dg-hint { font-size:0.88rem; color:#47525E; margin:6px 0 0; }
+.dg-ph { font-size:0.85rem; color:#66717D; font-style:italic; padding:4px 0 8px; }
+.dg-hit { cursor:pointer; outline:none; }
+.dg-hit .dg-badge { fill:#fff; stroke:#1F5F99; stroke-width:2; }
+.dg-hit .dg-val { fill:#1F5F99; font-weight:700; }
+.dg-hit:hover .dg-badge, .dg-hit:focus .dg-badge, .dg-hit.on .dg-badge { fill:#1F5F99; }
+.dg-hit:hover .dg-val, .dg-hit:focus .dg-val, .dg-hit.on .dg-val { fill:#fff; }
+.dg-hit:hover .dg-box, .dg-hit:focus .dg-box, .dg-hit.on .dg-box { stroke:#1F5F99; stroke-width:4; }
+.dg-hit:hover .dg-line, .dg-hit:focus .dg-line, .dg-hit.on .dg-line { stroke-width:4; }
+.dg-hit .dg-pillval { fill:#1F5F99; font-weight:700; }
+#dg_small { display:none; }
+@media (max-width: 700px) {
+  #dg_wrap { display:none; }
+  #dg_small { display:block; }
+}
+"""
+
+DG_SVG = """
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="48 124 1344 528" role="img"
+ aria-label="One infested farm: the stages of an animal's infestation and how the farm is found"
+ font-family="Lato, 'Noto Sans', Arial, sans-serif">
+<text x="56" y="138" font-size="17" font-weight="700" fill="#66717D" letter-spacing="2.5">ON THE FARM</text>
+<text x="1124" y="138" font-size="17" font-weight="700" fill="#66717D" letter-spacing="2.5">OUT</text>
+<rect x="56" y="160" width="976" height="484" rx="20" fill="#F2F4F6"/>
+
+<g class="dg-hit" data-el="herd" tabindex="0" role="button">
+<title>Click to change the number of animals on the farm</title>
+<text x="88" y="214" font-size="26" font-weight="700" fill="#1B2530">Animals on one infested farm</text>
+<rect class="dg-badge" x="478" y="188" width="170" height="36" rx="18"/>
+<text class="dg-val" data-badge="herd" x="563" y="213" font-size="20" text-anchor="middle"></text>
+</g>
+
+<rect x="96" y="300" width="170" height="76" rx="10" fill="#fff" stroke="#C4CBD3" stroke-width="2"/>
+<text x="181" y="347" font-size="24" fill="#1B2530" text-anchor="middle">Susceptible</text>
+<rect x="596" y="300" width="170" height="76" rx="10" fill="#C94F16" stroke="#C94F16" stroke-width="2"/>
+<text x="681" y="332" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">Infested</text>
+<text x="681" y="358" font-size="19" fill="#fff" text-anchor="middle">larvae hatched</text>
+
+<g class="dg-hit" data-el="pass" tabindex="0" role="button">
+<title>Click to change how fast infested animals pass it on</title>
+<rect x="266" y="226" width="420" height="70" fill="transparent"/>
+<rect x="266" y="296" width="80" height="84" fill="transparent"/>
+<path class="dg-line" d="M681 296 V278 Q681 254 657 254 H330 Q306 254 306 278 V318" fill="none" stroke="#C94F16" stroke-width="2"/>
+<path d="M306 332 L299.5 318 L312.5 318 Z" fill="#C94F16"/>
+<line class="dg-line" x1="270" y1="338" x2="333" y2="338" stroke="#47525E" stroke-width="2"/>
+<path d="M346 338 L332 331.5 L332 344.5 Z" fill="#47525E"/>
+<text x="493" y="243" font-size="19" fill="#C94F16" text-anchor="middle">their flies lay eggs on more animals</text>
+<rect class="dg-badge" x="363" y="260" width="260" height="34" rx="17"/>
+<text class="dg-val" data-badge="pass" x="493" y="284" font-size="20" text-anchor="middle"></text>
+</g>
+<path d="M681 254 H1019" fill="none" stroke="#C94F16" stroke-width="2"/>
+<line x1="1018" y1="254" x2="1111" y2="254" stroke="#C94F16" stroke-width="2.5"/>
+<path d="M1124 254 L1110 247.5 L1110 260.5 Z" fill="#C94F16"/>
+
+<g class="dg-hit" data-el="latent" tabindex="0" role="button">
+<title>Click to change the time from eggs to larvae</title>
+<rect class="dg-box" x="346" y="300" width="170" height="76" rx="10" fill="#fff" stroke="#C4CBD3" stroke-width="2"/>
+<text x="431" y="332" font-size="24" fill="#1B2530" text-anchor="middle">Latent</text>
+<text x="431" y="358" font-size="19" fill="#47525E" text-anchor="middle">eggs laid</text>
+<rect x="516" y="296" width="80" height="84" fill="transparent"/>
+<line class="dg-line" x1="520" y1="344" x2="583" y2="344" stroke="#47525E" stroke-width="2"/>
+<path d="M596 344 L582 337.5 L582 350.5 Z" fill="#47525E"/>
+<rect class="dg-badge" x="517" y="302" width="78" height="32" rx="16"/>
+<text class="dg-val" data-badge="latent" x="556" y="325" font-size="19" text-anchor="middle"></text>
+</g>
+<text x="431" y="408" font-size="19" fill="#47525E" text-anchor="middle">Inspection misses eggs</text>
+
+<g class="dg-hit" data-el="recover" tabindex="0" role="button">
+<title>Click to change how long an infestation lasts on an animal</title>
+<rect class="dg-box" x="846" y="300" width="170" height="76" rx="10" fill="#fff" stroke="#C4CBD3" stroke-width="2"/>
+<text x="931" y="347" font-size="24" fill="#1B2530" text-anchor="middle">Recovered</text>
+<rect x="766" y="296" width="80" height="84" fill="transparent"/>
+<line class="dg-line" x1="770" y1="344" x2="833" y2="344" stroke="#47525E" stroke-width="2"/>
+<path d="M846 344 L832 337.5 L832 350.5 Z" fill="#47525E"/>
+<rect class="dg-badge" x="767" y="302" width="78" height="32" rx="16"/>
+<text class="dg-val" data-badge="recover" x="806" y="325" font-size="19" text-anchor="middle"></text>
+</g>
+
+<text x="650" y="450" font-size="20" font-weight="700" fill="#1F5F99">Finds the farm</text>
+<line x1="616" y1="380" x2="616" y2="570" stroke="#1F5F99" stroke-width="2"/>
+<line x1="616" y1="498" x2="633" y2="498" stroke="#1F5F99" stroke-width="2"/>
+<path d="M646 498 L632 491.5 L632 504.5 Z" fill="#1F5F99"/>
+<line x1="616" y1="570" x2="633" y2="570" stroke="#1F5F99" stroke-width="2"/>
+<path d="M646 570 L632 563.5 L632 576.5 Z" fill="#1F5F99"/>
+<g class="dg-hit" data-el="inspect" tabindex="0" role="button">
+<title>Click to change how inspection finds an infested farm</title>
+<rect class="dg-box" x="650" y="466" width="352" height="60" rx="30" fill="#E3EEF7" stroke="#1F5F99" stroke-width="2"/>
+<text x="826" y="492" font-size="21" fill="#1B2530" text-anchor="middle">Inspection: a sample of animals</text>
+<text class="dg-pillval" data-badge="inspect" x="826" y="516" font-size="18" text-anchor="middle"></text>
+</g>
+<g class="dg-hit" data-el="owner" tabindex="0" role="button">
+<title>Click to change how the owner notices and reports a wound</title>
+<rect class="dg-box" x="650" y="540" width="352" height="60" rx="30" fill="#E3EEF7" stroke="#1F5F99" stroke-width="2"/>
+<text x="826" y="566" font-size="21" fill="#1B2530" text-anchor="middle">Owner reports a wound</text>
+<text class="dg-pillval" data-badge="owner" x="826" y="590" font-size="18" text-anchor="middle"></text>
+</g>
+<path d="M1006 468 H1022 V600 H1006" fill="none" stroke="#1F5F99" stroke-width="2.5"/>
+<line x1="1022" y1="534" x2="1111" y2="534" stroke="#1F5F99" stroke-width="2.5"/>
+<path d="M1124 534 L1110 527.5 L1110 540.5 Z" fill="#1F5F99"/>
+
+<rect x="1124" y="206" width="260" height="96" rx="12" fill="#fff" stroke="#C94F16" stroke-width="2"/>
+<text x="1146" y="249" font-size="20" font-weight="700" fill="#1B2530">Other farms</text>
+<text x="1146" y="275" font-size="20" font-weight="700" fill="#1B2530">in the zone</text>
+<rect x="1124" y="486" width="260" height="96" rx="12" fill="#fff" stroke="#1F5F99" stroke-width="2"/>
+<text x="1146" y="528" font-size="20" font-weight="700" fill="#1F5F99">Farm found</text>
+<text x="1146" y="558" font-size="18" fill="#47525E">Starts lockdown in the zone</text>
+</svg>
+"""
+
+DG_JS = r"""
+(function () {
+  var CFG = __DG_CFG__;
+  var moved = [], openKey = null, scnPh = null;
+  function byId(i) { return document.getElementById(i); }
+  function val(i) {
+    var el = byId(i); if (!el) return null;
+    if (el.type === 'checkbox') return el.checked;
+    var v = parseFloat(el.value); return isNaN(v) ? null : v;
+  }
+  function g(v) { return String(+(+v).toFixed(2)); }
+  function days(v) { return g(v) + (+g(v) === 1 ? ' day' : ' days'); }
+  function pct(v) { return Math.round(v * 100) + '%'; }
+  function wait(v) {
+    if (!(v > 0)) return 'never reports';
+    var d = 1 / v; d = d < 3 ? +d.toFixed(1) : Math.round(d);
+    return 'then ' + days(d) + ' to report';
+  }
+  var BADGE = {
+    herd: function () { return g(val('N_herd')) + ' animals'; },
+    pass: function () { return 'doubles every ' + days(val('doubling_time_within')); },
+    latent: function () { return days(val('mean_latent_time')); },
+    recover: function () {
+      return val('recovery_within_on') ? days(val('mean_recovery_time_within')) : 'never';
+    },
+    inspect: function () {
+      return g(val('n_animals_per_round')) + ' looked at, finds ' + pct(val('Se_animal')) + ' of infested';
+    },
+    owner: function () { return 'notices ' + pct(val('rho_a')) + ', ' + wait(val('rho_r')); }
+  };
+  var NOW = {
+    rho_r: function (v) { return g(v) + ' per day (' + wait(v) + ')'; },
+    recovery_within_on: function (v) { return v ? 'on' : 'off'; },
+    Se_animal: function (v) { return g(v) + ' (' + pct(v) + ')'; },
+    rho_a: function (v) { return g(v) + ' (' + pct(v) + ')'; },
+    f_clinical_max: function (v) { return g(v) + ' (' + pct(v) + ')'; },
+    N_herd: function (v) { return g(v) + ' animals'; },
+    n_animals_per_round: function (v) { return g(v) + ' animals'; }
+  };
+  function refresh() {
+    Object.keys(BADGE).forEach(function (k) {
+      var t = document.querySelector('[data-badge="' + k + '"]'); if (!t) return;
+      var s; try { s = BADGE[k](); } catch (e) { s = ''; }
+      if (s.indexOf('null') >= 0 || s.indexOf('NaN') >= 0) s = '';
+      if (t.textContent !== s) t.textContent = s;
+    });
+    document.querySelectorAll('#dg_panel [data-now]').forEach(function (n) {
+      var id = n.getAttribute('data-now'), v = val(id); if (v === null) return;
+      var s = NOW[id] ? NOW[id](v) : days(v);
+      if (n.textContent !== s) n.textContent = s;
+    });
+  }
+  function restore() {
+    moved.forEach(function (m) { if (m[1].parentNode) { m[1].parentNode.insertBefore(m[0], m[1]); m[1].remove(); } });
+    moved = [];
+  }
+  function take(id, dest) {
+    var el = byId(id); if (!el) return false;
+    var c = el.closest('.shiny-input-container'); if (!c) return false;
+    var ph = document.createElement('div'); ph.className = 'dg-ph';
+    ph.textContent = 'This setting is open beside the picture.';
+    c.parentNode.insertBefore(ph, c); dest.appendChild(c); moved.push([c, ph]); return true;
+  }
+  function mk(tag, cls, text) {
+    var n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n;
+  }
+  function closePanel() {
+    restore(); openKey = null;
+    document.querySelectorAll('.dg-hit.on').forEach(function (n) { n.classList.remove('on'); });
+    var body = byId('dg_body'); body.innerHTML = '';
+    body.appendChild(mk('h5', '', 'Change a piece of the model'));
+    body.appendChild(mk('p', '', 'Click a part of the picture that carries a blue value. Its setting opens here, and the graph below follows.'));
+    byId('dg_close').style.display = 'none';
+  }
+  function openPanel(key) {
+    if (openKey === key) return;
+    closePanel(); openKey = key;
+    var item = CFG.items[key], body = byId('dg_body'); body.innerHTML = '';
+    body.appendChild(mk('h5', '', item[0]));
+    body.appendChild(mk('p', '', item[1]));
+    item[2].forEach(function (id) {
+      var box = mk('div', 'dg-ctl'); body.appendChild(box);
+      if (!take(id, box)) { box.appendChild(mk('p', 'dg-ev', 'This setting is not available.')); return; }
+      var now = mk('div', '', 'Now: '); var s = mk('span', 'dg-now'); s.setAttribute('data-now', id);
+      now.appendChild(s); box.appendChild(now);
+      var note = CFG.notes[id];
+      if (note) {
+        box.appendChild(mk('p', 'dg-ev', note[0]));
+        if (note[1]) {
+          var a = mk('a', '', 'Open its card in the report');
+          a.href = '../report/#p-' + id; a.target = '_blank'; a.rel = 'noopener'; box.appendChild(a);
+        }
+      }
+    });
+    byId('dg_close').style.display = '';
+    var grp = document.querySelector('.dg-hit[data-el="' + key + '"]'); if (grp) grp.classList.add('on');
+    refresh();
+    window.dispatchEvent(new Event('resize'));   // sliders re-measure in their new place
+  }
+  function layout() { return document.querySelector('.bslib-sidebar-layout'); }
+  function listOpen() { var l = layout(); return !!l && !l.classList.contains('sidebar-collapsed'); }
+  function placeScenario() {
+    // diagram view: the scenario menu sits above the picture; list view: back at the top of the list
+    var sel = byId('scenario'), btn = byId('apply_preset'), slot = byId('dg_scn_slot');
+    if (!sel || !btn || !slot) return;
+    var c = sel.closest('.shiny-input-container');
+    if (!listOpen()) {
+      if (c.parentNode !== slot) {
+        scnPh = document.createElement('div'); c.parentNode.insertBefore(scnPh, c);
+        slot.appendChild(c); slot.appendChild(btn);
+      }
+    } else if (scnPh && scnPh.parentNode) {
+      scnPh.parentNode.insertBefore(c, scnPh); scnPh.parentNode.insertBefore(btn, scnPh);
+      scnPh.remove(); scnPh = null;
+    }
+  }
+  function sync() {
+    var sw = byId('dg_list'); if (sw && sw.checked !== listOpen()) sw.checked = listOpen();
+    placeScenario();
+  }
+  function start() {
+    if (!byId('dg_wrap')) return;
+    document.querySelectorAll('.dg-hit').forEach(function (n) {
+      n.addEventListener('click', function () { openPanel(n.getAttribute('data-el')); });
+      n.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openPanel(n.getAttribute('data-el')); }
+      });
+    });
+    byId('dg_close').addEventListener('click', closePanel);
+    closePanel();
+    var sw = byId('dg_list');
+    if (sw) sw.addEventListener('change', function () {
+      if (sw.checked !== listOpen()) {
+        if (sw.checked) closePanel();          // the list shows every setting in its usual place
+        var t = document.querySelector('.bslib-sidebar-layout > .collapse-toggle'); if (t) t.click();
+      }
+    });
+    var l = layout();
+    if (l && window.MutationObserver) new MutationObserver(sync).observe(l, { attributes: true, attributeFilter: ['class'] });
+    sync(); refresh();
+    setInterval(refresh, 700);
+    if (window.jQuery) window.jQuery(document).on('shiny:inputchanged', function () { setTimeout(refresh, 0); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+"""
+
+
+def _diagram_bar():
+    """Above the headline: the scenario menu (moved here in diagram view) and the view switch."""
+    return ui.div(
+        ui.div(id="dg_scn_slot"),
+        ui.input_switch("dg_list", "List view (all settings)", False),
+        id="dg_bar")
+
+
+def _diagram_block():
+    import json
+    cfg = json.dumps({"items": DG_ITEMS, "notes": DG_NOTES})
+    return ui.TagList(
+        ui.tags.style(DG_CSS),
+        ui.div(
+            ui.div(
+                ui.tags.div("One infested farm: click a piece of the model to change it",
+                            style="font-weight:600; margin:0 0 4px;"),
+                ui.HTML(DG_SVG),
+                ui.tags.p("Parts with a blue value can be changed. " + DG_NOT_HERE,
+                          class_="dg-hint"),
+                id="dg_pic"),
+            ui.div(
+                ui.tags.button("×", id="dg_close", type="button", title="Close",
+                               **{"aria-label": "Close"}),
+                ui.div(id="dg_body"),
+                id="dg_panel"),
+            id="dg_wrap"),
+        ui.tags.p("On a small screen the picture is hidden. Turn on the list view to change "
+                  "the settings.", id="dg_small", class_="dg-hint"),
+        ui.tags.script(ui.HTML(DG_JS.replace("__DG_CFG__", cfg))),
+    )
+
+
 PLAIN_NOTE = ("Draft model estimate based on literature-derived parameters; "
               "for discussion, not a determination.")
 FREEDOM_PLOT_TITLE = "Zone freedom over time, with the inspection rounds and the reference line"
@@ -1048,8 +1431,10 @@ if PLAIN:
         ui.navset_card_tab(
             ui.nav_panel(
                 "Zone freedom",
+                _diagram_bar(),
                 ui.output_ui("release_readout"),
                 ui.output_ui("intro_caution"),
+                _diagram_block(),
                 ui.div(ui.markdown(FREE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
                 ui.div(ui.markdown(BASELINE_NOTE), style=_CAPTION_STYLE),
