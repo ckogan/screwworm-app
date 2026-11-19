@@ -165,7 +165,7 @@ from datetime import date, datetime  # noqa: E402
 
 import nearby_index  # noqa: E402
 from presets import (COUNTY_OBSERVED, INTRO_REF_DAYS, INTRO_REF_FACTOR, OPTION_DEFAULTS,  # noqa: E402
-                     RISK_WINDOWS, WOUND_MONTH_RANGE, intro_ref_factor, module_schedule,
+                     RISK_WINDOWS, WOUND_MONTH_CHOICES, WOUND_MONTH_RANGE, intro_ref_factor, module_schedule,
                      renewed_rate, risk_ahead, rule_marks, snap_day)
 
 _DATA = _HERE / "data"
@@ -177,11 +177,19 @@ PRECOMPUTED_ON = date(2026, 11, 18)         # date of the linked-counties and 20
 # presets.rule_marks: with the season on, the two cycle marks are counted from the county's monthly
 # temperatures and move with the start month; otherwise they keep the fixed 21-day cycle.
 # Policy dates, shown lightly, never tuned to. The model does not implement the rule.
+# The source of the three or four life cycles (a public guide, read 2026-11-18). Shown after the
+# sentences that state the rule.
+RULE_SOURCE_NOTE = (
+    "Source for the three or four life cycles: USDA APHIS, New World Screwworm Response Ready "
+    "Reference Guide, Establishing and Releasing NWS Zones and Areas (6 October 2026). Its example "
+    "for temperate climates uses a 21-day cycle, which gives 84 days for four cycles. It asks for "
+    "no detections in animals and no detections of wild, fertile flies.")
 RULE_NOTE = (
     "**The current rule.** There is no international standard for declaring an area free of this "
-    "pest. Past practice has been fly trapping, active inspection and no cases for a set number of "
-    "fly life cycles, three or four, and longer in cold weather. Older practice also used six and "
-    "twelve months. **The model does not implement this rule.** The dotted marks on the graph are "
+    "pest. Current US guidance asks for surveillance and no detections for three or four fly life "
+    "cycles after the last detection, with the length of a cycle depending on local weather and "
+    "season. Older practice also used six and twelve months. " + (RULE_SOURCE_NOTE.strip() + " " if RULE_SOURCE_NOTE.strip() else "") +
+    "**The model does not implement this rule.** The dotted marks on the graph are "
     "the days the rule would reach. The table gives the model's value on each of those days.")
 RULE_CYCLE_NOTE = (
     "Here one life cycle is 6 days on the animal plus the time off the animal, which is counted in "
@@ -194,19 +202,17 @@ RISK_NOTE = (
     "outside in the 30, 60 and 90 days after a given day. It is for the zone as a whole and follows "
     "from the inputs alone: the season, the sterile-fly release share, nearby detections held at "
     "their set value, and mitigations. It does not depend on whether the zone is free on that day, "
-    "and it does not count spread from an infestation already present. The check against 2026 found "
-    "the default introduction rate about three times too high. These numbers use the rate as set "
-    "in the sidebar; at the default rate they inherit that.")
+    "and it does not count spread from an infestation already present. These numbers use the "
+    "introduction rate as set in the sidebar.")
 ZONE_MEANS = ("**What the zone is here:** the county stands in for a surveillance zone. In practice "
               "a zone is the area within a set distance of a detection, not a county.")
 WOUND_MONTHS_HELP = (
     "For exploring. Calving leaves open navels on newborn calves. Processing (castration, dehorning, "
     "branding, docking) leaves wounds for days. Choose the months, then set how many times more "
-    "open wounds stand on animals in those months than in a month with neither. At 1 nothing "
-    "changes. The introduction rate was counted in June to September 2026, so the monthly values "
-    "are divided by their June to September average. Two things follow. Choosing a month from June "
-    "to September lowers every other month. The same factor in all twelve months changes nothing. "
+    "open wounds stand on animals in those months than in June to September. At 1 nothing changes. "
     "No data stand behind the months or the sizes for this county.")
+WOUND_MONTHS_WHY = ("June to September cannot be chosen. The introduction rate was counted in those "
+                    "months, so their wounds are already in it.")
 
 
 def _load_rule_by_month() -> dict | None:
@@ -222,9 +228,10 @@ def _load_rule_by_month() -> dict | None:
 def _wound_month_inputs():
     """Wounds by month (both layouts): two month choices and two factors, off while both are 1."""
     lo, hi, step = WOUND_MONTH_RANGE
-    months = {str(k + 1): name for k, name in enumerate(MONTH_NAMES)}
+    months = {str(k): MONTH_NAMES[k - 1] for k in WOUND_MONTH_CHOICES}     # no reference months
     return [
         ui.tags.div("Wounds by month (for exploring)", style="font-weight:600; margin:10px 0 4px;"),
+        ui.help_text(WOUND_MONTHS_WHY),
         ui.input_checkbox_group("calving_months", "Calving months", months,
                                 selected=[str(k) for k in OPTION_DEFAULTS["calving_months"]], inline=True),
         ui.input_slider("calving_wound_factor", "Open wounds in calving months (1 = no change)",
@@ -1116,7 +1123,7 @@ if PLAIN:
                 ui.div(ui.markdown(FREE_MEANS + "\n\n" + ZONE_MEANS), style=_CAPTION_STYLE),
                 ui.output_plot("pfree_plot", height="440px"),
                 ui.div(ui.markdown(BASELINE_NOTE), style=_CAPTION_STYLE),
-                ui.card(ui.card_header("Current rule (past practice)"), ui.output_ui("rule_table"),
+                ui.card(ui.card_header("Current rule"), ui.output_ui("rule_table"),
                         ui.output_ui("rule_by_month"), id="current_rule_panel"),
                 ui.card(ui.card_header("Risk ahead"), ui.output_ui("risk_ahead_table"),
                         id="risk_ahead_panel"),
@@ -2075,7 +2082,27 @@ between them.
                                else f"day {day:.0f}: {100 * p:.0f}%")
         rows = [[r["month"], cell(r["days_3"], r["p_free_3"]), cell(r["days_4"], r["p_free_4"])]
                 for r in d["rows"]]
-        return ui.tags.details(
+        fr = d.get("fragility")
+        fragile = ui.div()
+        if fr:
+            sep = fr["september"]
+            day = lambda key: "days %.0f and %.0f" % tuple(sep[key])
+            text = (
+                f"**Marks for autumn and winter starts are fragile.** They move by weeks with a 1 C "
+                f"change or a detection later in the month. For a September start the 3-cycle "
+                f"and 4-cycle marks are {day('normals')} at the normal temperatures, {day('minus_1')} "
+                f"at 1 C cooler and {day('plus_1')} at 1 C warmer. A start on 11 September instead of "
+                f"1 September moves the 3-cycle mark from day {sep['normals'][0]:.0f} to about day "
+                f"{fr['september_day_11_cycles_3']:.0f}. For October to January starts the marks move "
+                f"about {fr['oct_to_jan_days_per_degree'][0]:.0f} to "
+                f"{fr['oct_to_jan_days_per_degree'][1]:.0f} days per 1 C. Monthly normals have no warm "
+                f"spells, so winter marks are likely somewhat long.\n\n"
+                f"**Known limit.** At a constant 22 C this calculation gives a cycle of about "
+                f"{fr['cycle_days_at_22']:.0f} days, where published figures give about 24. At 29 C it "
+                f"gives about {fr['cycle_days_at_29']:.0f} against about 18. So cool-season cycles may "
+                f"run a few days long.")
+            fragile = ui.div(ui.markdown(text), style="font-size:0.9rem; margin:6px 0 2px;")
+        return ui.div(fragile, ui.tags.details(
             ui.tags.summary("How the marks move with the month of the last detection"),
             ui.p(f"The county scenario at its default settings, with the run started in each month "
                  f"(computed {d['computed_on']}; it does not follow the sidebar). Each cell gives the "
@@ -2083,7 +2110,7 @@ between them.
                  f"With a fixed 21-day cycle the marks are day 63 and day 84 in every month.",
                  style="font-size:0.9rem; margin:6px 0 2px;"),
             _table(["Month of the last detection", "3 cycles", "4 cycles"], rows),
-            style="font-size:0.9rem; margin:4px 0 8px;")
+            style="font-size:0.9rem; margin:4px 0 8px;"))
 
     @render.ui
     def risk_ahead_table():
@@ -2098,6 +2125,15 @@ between them.
         for day, name in days:
             rows.append([f"day {day:.0f} ({name})"] + [f"{100 * x:.0f}%" for x in risk_ahead(pk, day)])
         note = RISK_NOTE
+        third = (_load_rule_by_month() or {}).get("risk_at_one_third")
+        if third:
+            note += (f" **At the default rate they are likely too high.** The check against 2026 found "
+                     f"that rate about three times too high. On the county scenario at one "
+                     f"third of it, the next-30-days figure is about "
+                     f"{100 * third['after_day_360_june']:.1f}% after day 360 (June) and about "
+                     f"{100 * third['after_day_180_december']:.1f}% after day 180 (December), against "
+                     f"{100 * third['default_after_day_360_june']:.0f}% and "
+                     f"{100 * third['default_after_day_180_december']:.0f}% at the default rate.")
         if renewed_rate(pk) > 0.0:
             note += " The what-if term for renewed infestations is left out."
         return ui.div(ui.div(ui.markdown(note), style="font-size:0.9rem; margin:2px 0 2px;"),
@@ -2112,8 +2148,8 @@ between them.
         shown = rows[:12]
         on = any(abs(r["wound"] - shown[0]["wound"]) > 1e-12 for r in shown)
         text = ("**Open-wound factor by month** (it multiplies every introduction pathway). " +
-                ("It varies by month here: the monthly values are relative to their June to September "
-                 "average, because the introduction rate was counted in those months. For exploring. "
+                ("It varies by month here. Each value is times the June to September level, where "
+                 "the introduction rate was counted. For exploring. "
                  "No data stand behind the months or the sizes." if on else
                  "It is the same in every month. The calving and processing inputs in the sidebar "
                  "let it vary by month. They are for exploring."))

@@ -2,6 +2,45 @@
   "computed_on": "18 November 2026",
   "scenario": "county_12mo with start_month set to each month",
   "build": "implementations/claude/model.py (closed form), dt = 0.05",
+  "fragility": {
+    "september": {
+      "normals": [
+        70.35578283742342,
+        160.3894377574486
+      ],
+      "minus_1": [
+        86.1719928331072,
+        188.784145293557
+      ],
+      "plus_1": [
+        59.805623524587816,
+        118.64687549281774
+      ],
+      "minus_2": [
+        154.56832099540532,
+        212.40226256415116
+      ],
+      "plus_2": [
+        56.32589817790506,
+        98.15818091262469
+      ]
+    },
+    "september_day_11_cycles_3": 107.11547536653484,
+    "september_day_11_cycles_4": 178.86234335919073,
+    "oct_to_jan_days_per_degree": [
+      6.241476303723729,
+      18.082493495116807
+    ],
+    "cycle_days_at_22": 27.858845907315914,
+    "cycle_days_at_29": 17.329804400767074,
+    "note": "September start: days to 3 and 4 cycles at the normals and with every month 1 or 2 C cooler or warmer; the 3-cycle mark for a start on day 11 of September; the smallest and largest move of a mark per 1 C over October to January starts, both marks, both directions; one cycle at a constant temperature."
+  },
+  "risk_at_one_third": {
+    "after_day_360_june": 0.10391947643943167,
+    "after_day_180_december": 0.04472701995112194,
+    "default_after_day_360_june": 0.28048290976196444,
+    "default_after_day_180_december": 0.12826901759804732
+  },
   "rows": [
     {
       "start_month": 1,

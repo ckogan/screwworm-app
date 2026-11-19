@@ -39,7 +39,7 @@ import json
 import math
 from pathlib import Path
 
-from intro_module import FIXED_CYCLE_DAYS, chance_of_introduction, cycles_to_days
+from intro_module import FIXED_CYCLE_DAYS, REFERENCE_MONTHS, chance_of_introduction, cycles_to_days
 from intro_module import schedule as _intro_schedule
 
 _DATA = Path(__file__).resolve().parent / "data"     # copies of result files; see data/README.md
@@ -126,6 +126,8 @@ OPTION_DEFAULTS = dict(
     calving_wound_factor=1.0,      # open wounds in calving months, times a month with neither (0.25 to 4)
     processing_wound_factor=1.0,   # the same for processing months (0.25 to 4)
 )
+# months the app offers as calving or processing months: every month but the reference months
+WOUND_MONTH_CHOICES = tuple(k for k in range(1, 13) if k not in REFERENCE_MONTHS)
 WOUND_MONTH_RANGE = (0.25, 4.0, 0.05)      # range of the two monthly wound factors (assumed, wide)
 
 

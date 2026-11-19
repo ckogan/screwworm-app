@@ -168,25 +168,29 @@ REFERENCE_MONTHS = (6, 7, 8, 9)       # the reference introduction rate was coun
 
 
 def wound_month_factors(m: dict) -> list:
-    """Open-wound factor for each calendar month, January first, RELATIVE to the reference months.
+    """Open-wound factor for each calendar month, January first: times the June to September level.
 
     Inputs (all optional; absent or at 1 the result is twelve ones and nothing changes):
-    `calving_months`, `processing_months` (month numbers 1 to 12) and `calving_wound_factor`,
-    `processing_wound_factor` (how many times more open wounds stand on animals in those months than
-    in a month with neither; a month in both lists gets the product). The reference introduction rate
-    was counted in June to September, so the wounds of those months are already in it. The twelve
-    values are therefore divided by their mean over the reference months: the reference months
-    average exactly 1, and a month outside them is read as "times the June to September level".
+    `calving_months`, `processing_months` (month numbers 1 to 12, not a reference month) and
+    `calving_wound_factor`, `processing_wound_factor` (how many times more open wounds stand on
+    animals in those months than in June to September; a month in both lists gets the product).
+    The reference introduction rate was counted in June to September, so the wounds of those months
+    are already in it. A reference month can therefore not be chosen (ValueError), every reference
+    month keeps the value 1, and no rescaling is needed.
     An exploring input: no data stand behind the month choices or the factors."""
+    calv = {int(x) for x in (m.get("calving_months") or ())}
+    proc = {int(x) for x in (m.get("processing_months") or ())}
+    bad = sorted((calv | proc) & set(REFERENCE_MONTHS))
+    if bad:
+        raise ValueError("June to September are the reference months and cannot be calving or "
+                         "processing months: %s" % ", ".join(MONTH_NAMES[k - 1] for k in bad))
     fc = float(m.get("calving_wound_factor", 1.0) or 1.0)
     fp = float(m.get("processing_wound_factor", 1.0) or 1.0)
     if fc == 1.0 and fp == 1.0:
         return [1.0] * 12
-    calv = {int(x) for x in (m.get("calving_months") or ())}
-    proc = {int(x) for x in (m.get("processing_months") or ())}
-    raw = [(fc if k in calv else 1.0) * (fp if k in proc else 1.0) for k in range(1, 13)]
-    ref = sum(raw[k - 1] for k in REFERENCE_MONTHS) / len(REFERENCE_MONTHS)
-    return [x / ref for x in raw]
+    out = [(fc if k in calv else 1.0) * (fp if k in proc else 1.0) for k in range(1, 13)]
+    assert all(out[k - 1] == 1.0 for k in REFERENCE_MONTHS)     # the calibration rule
+    return out
 
 
 def chance_of_introduction(rate_per_day: float, multipliers: list, day: float, window: float) -> float:
