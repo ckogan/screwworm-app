@@ -441,8 +441,8 @@ def check_2026_block():
     if TABLES is not None:
         ref = TABLES["reference"]
         parts.append(ui.markdown(
-            f"**What the check points to.** The reference introduction rate looks about three times "
-            f"too high: the adjacency file gives {int(ref['at_risk_counties_min'])} to "
+            f"**What the check points to.** The reference introduction rate (one per 130 days) looks "
+            f"about three times too high: the adjacency file gives {int(ref['at_risk_counties_min'])} to "
             f"{int(ref['at_risk_counties_max'])} counties at risk in summer 2026, not the 12 to 20 "
             f"assumed when the rate was set. The model also has no term for a county's own history, "
             f"so it expects too few new detections where there was an earlier case. The check does "
@@ -535,8 +535,10 @@ def _intro_ref_inputs():
             {"record": "Current value (about one introduction per 130 days)",
              "adjacency": alt},
             selected=OPTION_DEFAULTS["intro_ref"]),
-        ui.help_text("The check against 2026 suggests the current value is about three times too "
-                     "high. The choice is open. The second option multiplies the rate entered above" + mult),
+        ui.help_text("The check against 2026 suggests the reference introduction rate (one per 130 "
+                     "days) is about three times too high, because it was set assuming too few "
+                     "counties at risk. The choice is open. The second option multiplies the rate "
+                     "entered above" + mult),
     ]
 
 
@@ -641,8 +643,9 @@ def _streams_panel():
         ui.div(ui.tags.strong(STREAMS_BANNER),
                style=("font-size:1rem; color:#7a1f1f; background:#fdecea; border-left:4px solid #c0392b; "
                       "padding:8px 12px; margin:0 0 10px; border-radius:4px;")),
-        ui.p("The model does not yet use fly traps or wildlife findings as evidence. A positive trap "
-             "means a problem. This tab shows how much empty traps and clean wildlife checks could "
+        ui.p("The model does not yet use fly traps or wildlife findings as evidence. A positive wild "
+             "fly capture counts as a detection; sterile flies are dyed and do not count. This tab "
+             "shows how much empty traps and clean wildlife checks could "
              "count under a proposed design that is not built. Both are switched off to start with, "
              "so empty traps and clean wildlife checks earn nothing until you switch them on.",
              style="margin:4px 0 8px;"),
@@ -1009,8 +1012,8 @@ NO_DETECTION_NOTE = ("Worked out before any inspection results are in: the chanc
                      "inspections nor owner reports confirm an infested premises by the last round. "
                      "It includes cases where the zone is infested and nothing was found.")
 FREE_MEANS = ("**What \"free\" means here:** no infested premises in the zone. It does not mean there "
-              "are no flies in the environment. A positive fly trap counts as a detection; empty traps "
-              "are given no credit.")
+              "are no flies in the environment. A positive wild fly capture counts as a detection; "
+              "sterile flies are dyed and do not count. Empty traps are given no credit.")
 BY_HAND = ("**Conditions this model does not cover, to confirm by hand:** enough roadside checkpoints; "
            "adequate outreach to producers and veterinarians; no pending or unresolved laboratory "
            "samples; wildlife surveillance clean during the window.")
@@ -1020,11 +1023,13 @@ BASELINE_NOTE = (
     "inspection rounds and no owner reports. It is a comparison line, not a forecast of what doing "
     "nothing would achieve. The gap between the two lines is what the surveillance evidence adds: "
     "inspection rounds that found nothing and no confirmed owner report.\n\n"
-    "**Why it falls and then rises:** in this model an infestation that nobody finds ends by itself "
-    "after about 166 days (about five and a half months) at the default settings. The infestations "
+    "**Why it falls and then rises:** the model assumes one farm's infestation runs its course if "
+    "nobody finds it, after about 166 days (about five and a half months) at the default settings. This "
+    "is an assumption about one farm's current infestation, with little data behind it, and it does not "
+    "mean the outbreak ends. New infestations can still arrive. The infestations "
     "assumed left behind at day 0 end mostly between days 135 and 166. On the county scenario the cold "
     "months do most of the later rise, and the fall at the end comes with the return of warm months.\n\n"
-    "**How firm it is:** the baseline leans on that self-ending, which has little data behind it. Over "
+    "**How firm it is:** the baseline leans on that assumption, which has little data behind it. Over "
     "the range for the length of an unfound infestation (97 to 271 days) the baseline at the last day "
     "runs from 9% to 47% on the six-month scenario (25% at the defaults) and from 12% to 44% on the "
     "county scenario (32% at the defaults).")
@@ -1861,7 +1866,7 @@ the following are true.
 - Owners look their animals over closely at least every {float(pk['owner_contact_interval']):g} days and
   report a wound within about {delay:.0f} days. Most of the result rests on this.
 - No confirmed detection of any kind in the zone over the whole period: no inspection finding, no owner
-  report, and no positive fly trap.
+  report, and no positive wild fly capture.
 
 **The pressure from outside is as entered**
 - About one new infested premises every {1.0 / rate if rate > 0 else float('inf'):.0f}
