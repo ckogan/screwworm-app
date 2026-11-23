@@ -535,8 +535,10 @@ def _intro_ref_inputs():
             {"record": "Current value (about one introduction per 130 days)",
              "adjacency": alt},
             selected=OPTION_DEFAULTS["intro_ref"]),
-        ui.help_text("The check against 2026 suggests the introduction rate (one per 130 days) is "
-                     "about three times too high, because it assumed too few counties at risk. The choice is open. The second option multiplies the rate entered above" + mult),
+        ui.help_text("The check against 2026 suggests the reference introduction rate (one per 130 "
+                     "days) is about three times too high, because it was set assuming too few "
+                     "counties at risk. The choice is open. The second option multiplies the rate "
+                     "entered above" + mult),
     ]
 
 
@@ -642,7 +644,8 @@ def _streams_panel():
                style=("font-size:1rem; color:#7a1f1f; background:#fdecea; border-left:4px solid #c0392b; "
                       "padding:8px 12px; margin:0 0 10px; border-radius:4px;")),
         ui.p("The model does not yet use fly traps or wildlife findings as evidence. A positive wild "
-             "fly capture counts as a detection; sterile flies are dyed and do not count. This tab shows how much empty traps and clean wildlife checks could "
+             "fly capture counts as a detection; sterile flies are dyed and do not count. This tab "
+             "shows how much empty traps and clean wildlife checks could "
              "count under a proposed design that is not built. Both are switched off to start with, "
              "so empty traps and clean wildlife checks earn nothing until you switch them on.",
              style="margin:4px 0 8px;"),
