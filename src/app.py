@@ -1661,10 +1661,7 @@ def server(input, output, session):
                 ui.value_box(f"The same, if owners never report (day {last:g})",
                              _pct(weak["P_free"], thr) if weak is not None else "not computed",
                              ui.p("Inspection rounds alone. The gap to the box on the left is how much "
-                                  "of the result rests on owner reporting. On the default scenario "
-                                  "(40.1%), two independent simulations put this figure about 0.1 to "
-                                  "0.2 points lower; the difference is in the existing model, not in "
-                                  "this version's changes."
+                                  "of the result rests on owner reporting."
                                   if weak is not None else
                                   "Computed for runs of up to 400 days, to keep long runs quick.",
                                   style="font-size:0.8rem; margin:0;"),
